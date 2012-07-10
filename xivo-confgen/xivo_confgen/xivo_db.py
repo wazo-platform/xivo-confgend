@@ -187,7 +187,7 @@ class SccpLineHandler(SpecializedHandler):
         query = select(
             [sccpline.c.name, sccpline.c.cid_name, sccpline.c.cid_num,
              linefeatures.c.iduserfeatures.label('user_id'),
-             userfeatures.c.language],
+             userfeatures.c.language, linefeatures.c.context],
             and_(linefeatures.c.protocol == 'sccp',
                  linefeatures.c.protocolid == sccpline.c.id,
                  linefeatures.c.iduserfeatures == userfeatures.c.id)

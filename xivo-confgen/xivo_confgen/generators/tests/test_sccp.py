@@ -66,7 +66,8 @@ class TestSccpConf(unittest.TestCase):
                      'cid_name': u'jimmy',
                      'cid_num': u'100',
                      'user_id': u'1',
-                     'language': u'fr_FR'}]
+                     'language': u'fr_FR',
+                     'context': u'a_context'}]
 
         sccp_conf = _SccpLineConf()
         sccp_conf.generate(sccpline, self._output)
@@ -79,6 +80,7 @@ class TestSccpConf(unittest.TestCase):
                     cid_num=100
                     setvar=XIVO_USERID=1
                     language=fr_FR
+                    context=a_context
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())

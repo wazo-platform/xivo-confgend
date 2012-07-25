@@ -99,12 +99,12 @@ class SipConf(object):
                 if key not in ('allow', 'subscribemwi'):
                     print >> output, gen_value_line(key, value)
 
-                if key == 'allow' :
+                if key == 'allow':
                     print >> output, gen_value_line('disallow', 'all')
                     for codec in value.split(','):
                         print >> output, gen_value_line("allow", codec)
 
-                if key == 'subscribemwi' :
+                if key == 'subscribemwi':
                     value = 'no' if value == 0 else 'yes'
                     print >> output, gen_value_line('subscribemwi', value)
 

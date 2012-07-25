@@ -199,7 +199,8 @@ class AsteriskFrontend(object):
                 continue
 
             if m['category'] != cat:
-                cat = m['category']; print >> options, '\n[%s]' % cat
+                cat = m['category']
+                print >> options, '\n[%s]' % cat
 
             print >> options, "%s = %s" % (m['var_name'], m['var_val'])
 
@@ -222,13 +223,13 @@ class AsteriskFrontend(object):
                 print >> options, "findslot => next"
 
             mmap = {
-                'duration'     : 'parkingtime',
+                'duration': 'parkingtime',
                 'calltransfers': 'parkedcalltransfers',
                 'callreparking': 'parkedcallreparking',
-                'callhangup'   : 'parkedcallhangup',
+                'callhangup': 'parkedcallhangup',
                 'callreparking': 'parkedcallreparking',
-                'musicclass'   : 'parkedmusicclass',
-                'hints'        : 'parkinghints',
+                'musicclass': 'parkedmusicclass',
+                'hints': 'parkinghints',
             }
             for k, v in mmap.iteritems():
                 if f[k] is not None:
@@ -283,7 +284,8 @@ class AsteriskFrontend(object):
         rule = None
         for m in self.backend.queuepenalties.all():
             if m['name'] != rule:
-                rule = m['name']; print >> options, "\n[%s]" % rule
+                rule = m['name']
+                print >> options, "\n[%s]" % rule
 
             print >> options, "penaltychange => %d," % m['seconds'],
             if m['maxp_sign'] is not None and m['maxp_value'] is not None:

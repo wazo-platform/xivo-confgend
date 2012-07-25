@@ -17,12 +17,14 @@ __license__ = """
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA..
 """
-import inspect, warnings
+
+
+import inspect
+import warnings
 warnings.simplefilter('ignore')
 
-from sqlalchemy import *
 from sqlalchemy.ext.sqlsoup    import SqlSoup
-from sqlalchemy.sql.expression import and_, cast, alias, Alias
+from sqlalchemy.sql.expression import and_, cast, alias, literal, desc
 from sqlalchemy.sql.functions  import coalesce
 from sqlalchemy.sql            import select
 from sqlalchemy.types          import VARCHAR
@@ -33,6 +35,7 @@ from sqlalchemy                import exc
 def mapped_set(self, key, value):
     self.__dict__[key] = value
 
+
 def mapped_iterkeys(self):
     keys = sorted(filter(lambda x: x[0] != '_', self.__dict__))
 
@@ -40,6 +43,7 @@ def mapped_iterkeys(self):
         yield k
 
     return
+
 
 def mapped_iteritems(self):
     keys = sorted(filter(lambda x: x[0] != '_', self.__dict__))
@@ -73,7 +77,6 @@ def iterable(mode):
                 # reconnect & retry
                 args[0].db.flush()
                 ret = f(*args, **kwargs)
-
 
             if isinstance(ret, list) and len(ret) > 0:
                 ret[0].__class__.__getitem__ = lambda self, key: self.__dict__[key]
@@ -274,7 +277,7 @@ class BSFilterHintsHandler(SpecializedHandler):
             _p.c.typevalextenumbers == 'bsfilter',
             _p.c.typeextenumbersright == 'user',
             _p.c.supervision == 1,
-            cast(_p.c.typeextenumbersright, VARCHAR(255)) == 	cast(_e.c.type, VARCHAR(255)), # 'user'
+            cast(_p.c.typeextenumbersright, VARCHAR(255)) == cast(_e.c.type, VARCHAR(255)),
             _p.c.typevalextenumbersright == cast(_l2.c.iduserfeatures, VARCHAR(255)),
             _e.c.typeval == cast(_l2.c.id, VARCHAR(255)),
             coalesce(_l.c.number, '') != ''
@@ -310,34 +313,6 @@ class ProgfunckeysHintsHandler(SpecializedHandler):
 
             and_(*conds)
         )
-
-        """
-        _l2 = alias(_l)
-
-        conds = [
-                _l.c.iduserfeatures      == _p.c.iduserfeatures, 
-                _p.c.typeextenumbers     != None,
-                _p.c.typevalextenumbers  != None,
-                _p.c.supervision         == 1, 
-                _p.c.progfunckey         == 1,
-                cast(_p.c.typeextenumbers,VARCHAR(255)) == cast(_e.c.type,VARCHAR(255)),
-                _p.c.typevalextenumbers  == 'user',
-                _p.c.typevalextenumbers  == cast(_l2.c.iduserfeatures,VARCHAR(255)),
-                _e.c.typeval             == cast(_l2.c.id,VARCHAR(255))
-        ]
-        if 'context' in kwargs:
-            conds.append(_l.c.context == kwargs['context'])
-
-        q2 = select(
-            [_p.c.iduserfeatures, _p.c.exten, _p.c.typeextenumbers,
-             _p.c.typevalextenumbers, _p.c.typeextenumbersright,
-             _p.c.typevalextenumbersright, _e.c.exten.label('leftexten')],
-
-            and_(*conds)
-        )
-
-        return self.execute(q1.union(q2)).fetchall()
-        """
         return self.execute(q).fetchall()
 
 
@@ -404,6 +379,7 @@ class PickupsHandler(SpecializedHandler):
 
         return self.execute(q1.union(q2.union(q3))).fetchall()
 
+
 class QueuePenaltiesHandler(SpecializedHandler):
     def all(self, **kwargs):
         (_p, _pc) = [getattr(self.db, options)._table.c for options in ('queuepenalty', 'queuepenaltychange')]
@@ -417,6 +393,7 @@ class QueuePenaltiesHandler(SpecializedHandler):
         ).order_by(_p.name)
 
         return self.execute(q).fetchall()
+
 
 class TrunksHandler(SpecializedHandler):
     def all(self, **kwargs):
@@ -436,61 +413,63 @@ class TrunksHandler(SpecializedHandler):
                 _i.commented == 0,
             )
         )
+
         return self.execute(q2.union(q1)).fetchall()
-    #return self.execute(q1).fetchall()
+        #return self.execute(q1).fetchall()
+
 
 class QObject(object):
     _translation = {
-        'sccpgeneral'   : SccpGeneralHandler,
-        'sccpline'      : SccpLineHandler,
-        'sccpdevice'    : ('sccpdevice',),
-        'sip'           : ('staticsip',),
-        'iax'           : ('staticiax',),
-        'voicemail'     : ('staticvoicemail',),
-        'queue'         : ('staticqueue',),
-        'agent'         : ('staticagent',),
-        'agentglobalparams' : ('agentglobalparams',),
-        'agentfeatures' : ('agentfeatures',),
-        'meetme'        : ('staticmeetme',),
-        'musiconhold'   : ('musiconhold',),
-        'features'     	: ('features',),
+        'sccpgeneral': SccpGeneralHandler,
+        'sccpline': SccpLineHandler,
+        'sccpdevice': ('sccpdevice',),
+        'sip': ('staticsip',),
+        'iax': ('staticiax',),
+        'voicemail': ('staticvoicemail',),
+        'queue': ('staticqueue',),
+        'agent': ('staticagent',),
+        'agentglobalparams': ('agentglobalparams',),
+        'agentfeatures': ('agentfeatures',),
+        'meetme': ('staticmeetme',),
+        'musiconhold': ('musiconhold',),
+        'features': ('features',),
 
-        'sipauth'       : ('sipauthentication',),
-        'iaxcalllimits' : ('iaxcallnumberlimits',),
+        'sipauth': ('sipauthentication',),
+        'iaxcalllimits': ('iaxcallnumberlimits',),
 
-        'sipusers'      : ('usersip', {'category': 'user'}),
-        'iaxusers'      : ('useriax', {'category': 'user'}),
+        'sipusers': ('usersip', {'category': 'user'}),
+        'iaxusers': ('useriax', {'category': 'user'}),
 
-        'trunks'        : TrunksHandler,
-        'siptrunks'     : ('usersip', {'category': 'trunk'}),
-        'iaxtrunks'     : ('useriax', {'category': 'trunk'}),
+        'trunks': TrunksHandler,
+        'siptrunks': ('usersip', {'category': 'trunk'}),
+        'iaxtrunks': ('useriax', {'category': 'trunk'}),
 
-        'voicemails'    : ('voicemail',),
-        'queues'        : ('queue',),
-        'queuemembers'  : ('queuemember',),
-        'queuepenalty'  : ('queuepenalty',),
+        'voicemails': ('voicemail',),
+        'queues': ('queue',),
+        'queuemembers': ('queuemember',),
+        'queuepenalty': ('queuepenalty',),
 
         'userqueueskills': UserQueueskillsHandler,
         'agentqueueskills': AgentQueueskillsHandler,
         'queueskillrules': ('queueskillrule',),
-        'extensions'    : ('extensions',),
-        'contexts'      : ('context',),
+        'extensions': ('extensions',),
+        'contexts': ('context',),
         'contextincludes': ('contextinclude',),
 
-        'extenumbers'   : ExtenumbersHandler,
-        'voicemenus'    : ('voicemenu',),
-        'hints'         : HintsHandler,
-        'phonefunckeys' : PhonefunckeysHandler,
-        'bsfilterhints' : BSFilterHintsHandler,
-        'progfunckeys'  : ProgfunckeysHintsHandler,
+        'extenumbers': ExtenumbersHandler,
+        'voicemenus': ('voicemenu',),
+        'hints': HintsHandler,
+        'phonefunckeys': PhonefunckeysHandler,
+        'bsfilterhints': BSFilterHintsHandler,
+        'progfunckeys': ProgfunckeysHintsHandler,
 
-        'pickups'       : PickupsHandler,
+        'pickups': PickupsHandler,
         'queuepenalties': QueuePenaltiesHandler,
-        'parkinglot'    : ('parkinglot',),
-        'dundi'         : ('dundi',),
-        'dundimapping'  : ('dundi_mapping',),
-        'dundipeer'     : ('dundi_peer',),
-        'general'       : ('general',),
+        'parkinglot': ('parkinglot',),
+        'dundi': ('dundi',),
+        'dundimapping': ('dundi_mapping',),
+        'dundipeer': ('dundi_peer',),
+        'general': ('general',),
     }
 
     def __init__(self, db, name):

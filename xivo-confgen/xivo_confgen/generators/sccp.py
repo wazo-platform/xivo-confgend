@@ -29,13 +29,13 @@ class SccpConf(object):
         self._sccpdevice = sccpdevice
 
     def generate(self, output):
-        sccp_general_conf = _SccpGeneralConf();
+        sccp_general_conf = _SccpGeneralConf()
         sccp_general_conf.generate(self._sccpgeneral, output)
 
-        sccp_line_conf = _SccpLineConf();
+        sccp_line_conf = _SccpLineConf()
         sccp_line_conf.generate(self._sccpline, output)
 
-        sccp_device_conf = _SccpDeviceConf();
+        sccp_device_conf = _SccpDeviceConf()
         sccp_device_conf.generate(self._sccpdevice, output)
 
     @classmethod

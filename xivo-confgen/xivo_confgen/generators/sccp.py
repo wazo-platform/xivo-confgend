@@ -23,14 +23,14 @@ from xivo_confgen.generators.util import format_ast_section, \
 
 
 class SccpConf(object):
-    def __init__(self, sccpgeneral, sccpline, sccpdevice):
-        self._sccpgeneral = sccpgeneral
+    def __init__(self, sccpgeneralsettings, sccpline, sccpdevice):
+        self._sccpgeneralsettings = sccpgeneralsettings
         self._sccpline = sccpline
         self._sccpdevice = sccpdevice
 
     def generate(self, output):
-        sccp_general_conf = _SccpGeneralConf()
-        sccp_general_conf.generate(self._sccpgeneral, output)
+        sccp_general_conf = _SccpGeneralSettingsConf()
+        sccp_general_conf.generate(self._sccpgeneralsettings, output)
 
         sccp_line_conf = _SccpLineConf()
         sccp_line_conf.generate(self._sccpline, output)
@@ -40,17 +40,17 @@ class SccpConf(object):
 
     @classmethod
     def new_from_backend(cls, backend):
-        sccpgeneral = backend.sccpgeneral.all()
+        sccpgeneralsettings = backend.sccpgeneralsettings.all()
         sccpline = backend.sccpline.all()
         sccpdevice = backend.sccpdevice.all()
-        return cls(sccpgeneral, sccpline, sccpdevice)
+        return cls(sccpgeneralsettings, sccpline, sccpdevice)
 
 
-class _SccpGeneralConf(object):
-    def generate(self, sccpgeneral, output):
+class _SccpGeneralSettingsConf(object):
+    def generate(self, sccpgeneralsettings, output):
         print >> output, u'[general]'
-        for item in sccpgeneral:
-            print >> output, format_ast_option(item['name'], item['value'])
+        for item in sccpgeneralsettings:
+            print >> output, format_ast_option(item['option_name'], item['option_value'])
         print >> output
 
 

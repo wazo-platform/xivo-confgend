@@ -22,7 +22,7 @@ import os
 import StringIO
 import unittest
 import mock
-from xivo_confgen.generators.sccp import SccpConf, _SccpGeneralConf, _SccpLineConf, _SccpDeviceConf
+from xivo_confgen.generators.sccp import SccpConf, _SccpGeneralSettingsConf, _SccpLineConf, _SccpDeviceConf
 from xivo_confgen.generators.tests.util import parse_ast_config
 
 
@@ -47,11 +47,11 @@ class TestSccpConf(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_one_element_general_section(self):
-        sccpgeneral = [{'name': u'foo',
-                        'value': u'bar'}]
+        sccpgeneralsettings = [{'option_name': u'foo',
+                        'option_value': u'bar'}]
 
-        sccp_conf = _SccpGeneralConf()
-        sccp_conf.generate(sccpgeneral, self._output)
+        sccp_conf = _SccpGeneralSettingsConf()
+        sccp_conf.generate(sccpgeneralsettings, self._output)
 
         expected = """\
                     [general]
@@ -113,14 +113,14 @@ class TestSccpConf(unittest.TestCase):
         self.assertConfigEqual(expected, self._output.getvalue())
 
     def test_general_section(self):
-        sccp = [{'name': u'bindaddr',
-                 'value': u'0.0.0.0'},
-                {'name': u'dateformat',
-                 'value': u'D.M.Y'},
-                {'name': u'keepalive',
-                 'value': u'10'},
-                {'name': u'authtimeout',
-                 'value': u'10'}]
+        sccp = [{'option_name': u'bindaddr',
+                 'option_value': u'0.0.0.0'},
+                {'option_name': u'dateformat',
+                 'option_value': u'D.M.Y'},
+                {'option_name': u'keepalive',
+                 'option_value': u'10'},
+                {'option_name': u'authtimeout',
+                 'option_value': u'10'}]
 
         sccp_conf = SccpConf(sccp, [], [])
         sccp_conf.generate(self._output)
@@ -138,6 +138,6 @@ class TestSccpConf(unittest.TestCase):
     def test_new_from_backend(self):
         backend = mock.Mock()
         SccpConf.new_from_backend(backend)
-        backend.sccpgeneral.all.assert_called_once_with()
+        backend.sccpgeneralsettings.all.assert_called_once_with()
         backend.sccpline.all.assert_called_once_with()
         backend.sccpdevice.all.assert_called_once_with()

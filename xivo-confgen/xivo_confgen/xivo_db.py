@@ -164,19 +164,19 @@ class AgentQueueskillsHandler(SpecializedHandler):
         return self.execute(q).fetchall()
 
 
-class SccpGeneralHandler(SpecializedHandler):
+class SccpGeneralSettingsHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
         extenumbers = self.db.extenumbers._table
-        sccpgeneral = self.db.sccpgeneral._table
+        sccpgeneralsettings = self.db.sccpgeneralsettings._table
 
         query1 = select(
-            [literal('vmexten').label('name'), extenumbers.c.exten.label('value')],
+            [literal('vmexten').label('option_name'), extenumbers.c.exten.label('option_value')],
             and_(extenumbers.c.type == 'extenfeatures',
                  extenumbers.c.typeval == 'vmusermsg')
         )
 
         query2 = select(
-            [sccpgeneral.c.name, sccpgeneral.c.value])
+            [sccpgeneralsettings.c.option_name, sccpgeneralsettings.c.option_value])
 
         return self.execute(query1.union(query2)).fetchall()
 
@@ -420,7 +420,7 @@ class TrunksHandler(SpecializedHandler):
 
 class QObject(object):
     _translation = {
-        'sccpgeneral': SccpGeneralHandler,
+        'sccpgeneralsettings': SccpGeneralSettingsHandler,
         'sccpline': SccpLineHandler,
         'sccpdevice': ('sccpdevice',),
         'sip': ('staticsip',),

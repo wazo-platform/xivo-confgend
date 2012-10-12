@@ -188,9 +188,13 @@ class SccpLineHandler(SpecializedHandler):
         userfeatures = self.db.userfeatures._table
 
         query = select(
-            [sccpline.c.name, sccpline.c.cid_name, sccpline.c.cid_num,
+            [sccpline.c.name,
+             sccpline.c.cid_name,
+             sccpline.c.cid_num,
+             userfeatures.c.language,
              linefeatures.c.iduserfeatures.label('user_id'),
-             userfeatures.c.language, linefeatures.c.context],
+             linefeatures.c.context,
+             linefeatures.c.number],
             and_(linefeatures.c.protocol == 'sccp',
                  linefeatures.c.protocolid == sccpline.c.id,
                  linefeatures.c.iduserfeatures == userfeatures.c.id)
@@ -428,7 +432,8 @@ class SipUsersHandler(SpecializedHandler):
             [usersip, linefeatures.c.number],
             and_(usersip.c.commented == '0',
                  usersip.c.category == 'user',
-                 usersip.c.id == linefeatures.c.protocolid)
+                 linefeatures.c.protocol == 'sip',
+                 linefeatures.c.protocolid == usersip.c.id)
         )
 
         sip_users = self.execute(query).fetchall()

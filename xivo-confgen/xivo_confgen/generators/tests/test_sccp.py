@@ -67,6 +67,7 @@ class TestSccpConf(unittest.TestCase):
                      'cid_num': u'100',
                      'user_id': u'1',
                      'language': u'fr_FR',
+                     'number': 100,
                      'context': u'a_context'}]
 
         sccp_conf = _SccpLineConf()
@@ -79,6 +80,7 @@ class TestSccpConf(unittest.TestCase):
                     cid_name=jimmy
                     cid_num=100
                     setvar=XIVO_USERID=1
+                    setvar=PICKUPMARK=100%a_context
                     language=fr_FR
                     context=a_context
 

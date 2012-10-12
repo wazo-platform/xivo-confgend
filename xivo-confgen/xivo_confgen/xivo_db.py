@@ -418,6 +418,23 @@ class TrunksHandler(SpecializedHandler):
         #return self.execute(q1).fetchall()
 
 
+class SipUsersHandler(SpecializedHandler):
+
+    def all(self):
+        usersip = self.db.usersip._table
+        linefeatures = self.db.linefeatures._table
+
+        query = select(
+            [usersip, linefeatures.c.number],
+            and_(usersip.c.commented == '0',
+                 usersip.c.category == 'user',
+                 usersip.c.id == linefeatures.c.protocolid)
+        )
+
+        sip_users = self.execute(query).fetchall()
+        return map(dict, sip_users)
+
+
 class QObject(object):
     _translation = {
         'sccpgeneralsettings': SccpGeneralSettingsHandler,
@@ -437,7 +454,7 @@ class QObject(object):
         'sipauth': ('sipauthentication',),
         'iaxcalllimits': ('iaxcallnumberlimits',),
 
-        'sipusers': ('usersip', {'category': 'user'}),
+        'sipusers': SipUsersHandler,
         'iaxusers': ('useriax', {'category': 'user'}),
 
         'trunks': TrunksHandler,

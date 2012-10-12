@@ -119,7 +119,9 @@ class TestSipConf(unittest.TestCase):
         user = [{'name':'jean-yves',
                 'amaflags': 'default',
                 'callerid': '"lucky" <45789>',
-                'call-limit':10}]
+                'call-limit': 10,
+                'number': 101,
+                'context': 'default'}]
         output = StringIO()
         self.sip_conf._gen_user(user, output)
         result = output.getvalue()
@@ -130,48 +132,61 @@ class TestSipConf(unittest.TestCase):
 
     def test__gen_user_with_accent(self):
         user = [{'name':'papi',
-                u'callerid': u'"pépè" <45789>'}]
+                'callerid': '"pépè" <45789>',
+                'number': 101,
+                'context': 'default'}]
         output = StringIO()
         self.sip_conf._gen_user(user, output)
         result = output.getvalue()
-        self.assertEqual(result, u'\n[papi]\ncallerid = "pépè" <45789>\n')
+        self.assertEqual(result, u'\n[papi]\ncontext = default\ncallerid = "pépè" <45789>\nsetvar = PICKUPMARK=101%default\n')
 
     def test__gen_user_empty_value(self):
         user = [{'name':'novalue',
-                u'context': u''}]
+                 'foobar': '',
+                 'number': 101,
+                 'context': 'default'}]
         output = StringIO()
         self.sip_conf._gen_user(user, output)
         result = output.getvalue()
-        self.assertEqual(result, u'\n[novalue]\n')
+        self.assertEqual(result, u'\n[novalue]\ncontext = default\nsetvar = PICKUPMARK=101%default\n')
 
         user = [{'name':'novalue',
-                u'context': None}]
+                 'foobar': None,
+                 'number': 101,
+                 'context': 'default'}]
         output = StringIO()
         self.sip_conf._gen_user(user, output)
         result = output.getvalue()
-        self.assertEqual(result, u'\n[novalue]\n')
+        self.assertEqual(result, u'\n[novalue]\ncontext = default\nsetvar = PICKUPMARK=101%default\n')
 
     def test__gen_user_codec(self):
         user = [{'name':'papi',
-                u'allow': u'g723,gsm'}]
+                'allow': 'g723,gsm',
+                'number': 101,
+                'context': 'default'}]
         output = StringIO()
         self.sip_conf._gen_user(user, output)
         result = output.getvalue()
-        self.assertEqual(result, u'\n[papi]\ndisallow = all\nallow = g723\nallow = gsm\n')
+        self.assertEqual(result, u'\n[papi]\ncontext = default\ndisallow = all\nallow = g723\nallow = gsm\nsetvar = PICKUPMARK=101%default\n')
 
     def test__gen_user_subscribemwi(self):
         user = [{'name':'voicemail',
-                u'subscribemwi': 0}]
+                'subscribemwi': 0,
+                'number': 101,
+                'context': 'default'}]
         output = StringIO()
         self.sip_conf._gen_user(user, output)
         result = output.getvalue()
-        self.assertEqual(result, u'\n[voicemail]\nsubscribemwi = no\n')
+        self.assertEqual(result, u'\n[voicemail]\ncontext = default\nsubscribemwi = no\nsetvar = PICKUPMARK=101%default\n')
+
         user = [{'name':'voicemail',
-                u'subscribemwi': 1}]
+                'subscribemwi': 1,
+                'number': 101,
+                'context': 'default'}]
         output = StringIO()
         self.sip_conf._gen_user(user, output)
         result = output.getvalue()
-        self.assertEqual(result, u'\n[voicemail]\nsubscribemwi = yes\n')
+        self.assertEqual(result, u'\n[voicemail]\ncontext = default\nsubscribemwi = yes\nsetvar = PICKUPMARK=101%default\n')
 
     def test__gen_user_unused_keys(self):
         user = [{'id': 1,
@@ -184,8 +199,10 @@ class TestSipConf(unittest.TestCase):
                 'regseconds': 1,
                 'lastms': 5,
                 'fullcontact': 'pepe',
-                'ipaddr': None, }]
+                'ipaddr': None,
+                'number': 101,
+                'context': 'default'}]
         output = StringIO()
         self.sip_conf._gen_user(user, output)
         result = output.getvalue()
-        self.assertEqual(result, u'\n[unused]\n')
+        self.assertEqual(result, u'\n[unused]\ncontext = default\nsetvar = PICKUPMARK=101%default\n')

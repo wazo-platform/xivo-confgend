@@ -82,7 +82,7 @@ class SipConf(object):
         sipUnusedValues = ('id', 'name', 'protocol',
                        'category', 'commented', 'initialized',
                        'disallow', 'regseconds', 'lastms',
-                       'name', 'fullcontact', 'ipaddr',)
+                       'name', 'fullcontact', 'ipaddr', 'number')
 
         pickups = {}
         for p in self._pickups:
@@ -108,6 +108,8 @@ class SipConf(object):
                     value = 'no' if value == 0 else 'yes'
                     print >> output, gen_value_line('subscribemwi', value)
 
+            print >> output, gen_value_line('setvar', 'PICKUPMARK=%s%%%s' % (user['number'], user['context']))
+
             if user['name'] in pickups:
                 p = pickups[user['name']]
                 #WARNING:
@@ -124,7 +126,7 @@ class SipConf(object):
         authentication = backend.sipauth.all()
         trunk = backend.siptrunks.all(commented=False)
         pickups = backend.pickups.all(usertype='sip')
-        user = backend.sipusers.all(commented=False)
+        user = backend.sipusers.all()
         return cls(general, authentication, trunk, pickups, user)
 
 

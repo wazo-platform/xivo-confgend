@@ -45,6 +45,10 @@ class SipConf(object):
             if item['var_name'] in ('register', 'mwi'):
                 print >> output, item['var_name'], "=>", item['var_val']
 
+            elif item['var_name'] == 'prematuremedia':
+                var_val = 'yes' if item['var_val'] == 'no' else 'no'
+                print >> output, item['var_name'], "=", var_val
+
             elif item['var_name'] not in ['allow', 'disallow']:
                 print >> output, item['var_name'], "=", item['var_val']
 
@@ -112,7 +116,7 @@ class SipConf(object):
 
             if user['name'] in pickups:
                 p = pickups[user['name']]
-                #WARNING:
+                # WARNING:
                 # pickupgroup: trappable calls  (xivo members)
                 # callgroup  : can pickup calls (xivo pickups)
                 if 'member' in p:

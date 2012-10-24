@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+from sqlalchemy.sql.expression import asc
 
 __license__ = """
     Copyright (C) 2010-2012  Avencall
@@ -59,10 +60,10 @@ class AsteriskFrontend(object):
     def iax_conf(self):
         output = StringIO()
 
-        ## section::general
+        # # section::general
         print >> output, self._gen_iax_general(self.backend.iax.all(commented=False))
 
-        ## section::authentication
+        # # section::authentication
         items = self.backend.iaxcalllimits.all()
         if len(items) > 0:
             print >> output, '\n[callnumberlimits]'
@@ -167,7 +168,7 @@ class AsteriskFrontend(object):
 
                 print >> options, k, '=', v
 
-            for m in self.backend.queuemembers.all(commented=False, queue_name=q['name']):
+            for m in self.backend.queuemembers.all(commented=False, queue_name=q['name'], order='position'):
                 options.write("member => %s" % m['interface'])
                 options.write(",%d" % m['penalty'])
                 options.write(",")
@@ -317,7 +318,7 @@ class AsteriskFrontend(object):
 
         print >> options, "\n[mappings]"
         for m in self.backend.dundimapping.all(commented=False):
-            #dundi_context => local_context,weight,tech,dest[,options]]
+            # dundi_context => local_context,weight,tech,dest[,options]]
             _t = trunks.get(m.trunk, {})
             _m = "%s => %s,%s,%s,%s:%s@%s/%s" % \
                     (m['name'], m['context'], m['weight'],

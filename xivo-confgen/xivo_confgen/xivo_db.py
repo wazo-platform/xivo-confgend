@@ -92,7 +92,7 @@ def iterable(mode):
             ret = f(*args, **kwargs)
             if isinstance(ret, list) and len(ret) > 0:
                 def find(d, k):
-                    #print d.keys, k, k in d, unicode(k) in d
+                    # print d.keys, k, k in d, unicode(k) in d
                     return None
                 ret[0].__class__.__getitem__ = lambda self, key: find(self.__dict__, key)
 
@@ -205,7 +205,7 @@ class SccpLineHandler(SpecializedHandler):
 
 class ExtenumbersHandler(SpecializedHandler):
     def all(self, features=[], *args, **kwargs):
-        #NOTE: sqlalchemy 4: table, 5: _table
+        # NOTE: sqlalchemy 4: table, 5: _table
         (_n, _e) = [getattr(self.db, options)._table for options in ('extenumbers', 'extensions')]
         q = select(
             [_n.c.typeval, _n.c.exten, _e.c.commented],
@@ -340,8 +340,8 @@ class PickupsHandler(SpecializedHandler):
                 _p.id == _pm.pickupid,
                 _pm.membertype == 'user',
                 _pm.memberid == _lf.iduserfeatures,
-                #_lf.line_num    == 0,
-                #_lf.rules_order == 0,
+                # _lf.line_num    == 0,
+                # _lf.rules_order == 0,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )
@@ -357,8 +357,8 @@ class PickupsHandler(SpecializedHandler):
                 _g.name == _qm.queue_name,
                 _qm.usertype == 'user',
                 _qm.userid == _lf.iduserfeatures,
-                #_lf.line_num    == 0,
-                #_lf.rules_order == 0,
+                # _lf.line_num    == 0,
+                # _lf.rules_order == 0,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )
@@ -374,8 +374,8 @@ class PickupsHandler(SpecializedHandler):
                 _q.name == _qm.queue_name,
                 _qm.usertype == 'user',
                 _qm.userid == _lf.iduserfeatures,
-                #_lf.line_num    == 0,
-                #_lf.rules_order == 0,
+                # _lf.line_num    == 0,
+                # _lf.rules_order == 0,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )
@@ -419,7 +419,7 @@ class TrunksHandler(SpecializedHandler):
         )
 
         return self.execute(q2.union(q1)).fetchall()
-        #return self.execute(q1).fetchall()
+        # return self.execute(q1).fetchall()
 
 
 class SipUsersHandler(SpecializedHandler):
@@ -503,7 +503,7 @@ class QObject(object):
         _trans = self._translation.get(self.name, (self.name,))
         q = getattr(self.db, _trans[0])
 
-        ## FILTERING
+        # # FILTERING
         conds = []
         if isinstance(commented, bool):
             conds.append(q.commented == int(commented))
@@ -517,7 +517,7 @@ class QObject(object):
 
         q = q.filter(and_(*conds))
 
-        ## ORDERING
+        # # ORDERING
         if order is not None:
             if not asc:
                 order = desc(order)

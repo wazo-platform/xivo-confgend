@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-from sqlalchemy.sql.expression import asc
 
 __license__ = """
     Copyright (C) 2010-2012  Avencall

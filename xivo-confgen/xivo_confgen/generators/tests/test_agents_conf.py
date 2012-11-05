@@ -70,23 +70,17 @@ class TestAgents(unittest.TestCase):
     def test_agents_section(self):
 
         agent_db = [{'firstname':u'John', 'lastname':u'Wayne', 'number':u'3456', 'passwd': u'0022',
-                     'autologoff':u'0', 'ackcall':u'no', 'acceptdtmf':u'#', 'enddtmf':u'*', 'wrapuptime':u'30000', 'musiconhold':u'default'},
+                     'autologoff':u'0', 'wrapuptime':u'30000', 'musiconhold':u'default'},
                     {'firstname':u'Alfred', 'lastname':u'Bourne', 'number':u'7766', 'passwd': u'',
-                     'autologoff':u'0', 'ackcall':u'no', 'acceptdtmf':u'#', 'enddtmf':u'*', 'wrapuptime':u'50000', 'musiconhold':u'classic'}, ]
+                     'autologoff':u'0', 'wrapuptime':u'50000', 'musiconhold':u'classic'}, ]
 
         expected = """\
                     autologoff = 0
-                    ackcall = no
-                    acceptdtmf = #
-                    enddtmf = *
                     wrapuptime = 30000
                     musiconhold = default
                     agent => 3456,0022,John Wayne
 
                     autologoff = 0
-                    ackcall = no
-                    acceptdtmf = #
-                    enddtmf = *
                     wrapuptime = 50000
                     musiconhold = classic
                     agent => 7766,,Alfred Bourne

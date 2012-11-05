@@ -122,7 +122,7 @@ class AgentUsersHandler(SpecializedHandler):
     def all(self, commented=None, order=None, **kwargs):
         (_a, _f) = [getattr(self.db, options)._table for options in	('staticagent', 'agentfeatures')]
         q = select(
-            [_a.c.var_val, _f.c.autologoff, _f.c.wrapuptime, _f.c.musiconhold],
+            [_a.c.var_val, _f.c.autologoff, _f.c.wrapuptime],
             and_(
                 _a.c.category == 'agents',
                 _a.c.var_name == 'agent',

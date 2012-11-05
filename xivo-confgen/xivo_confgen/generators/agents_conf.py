@@ -47,7 +47,7 @@ class AgentsConf(object):
         print >> output
 
     def _generate_agents(self, output):
-        agent_options = ['autologoff', 'wrapuptime', 'musiconhold']
+        agent_options = ['autologoff', 'wrapuptime']
         for agent in self._agents:
             for option in agent_options:
                 print >> output, format_ast_option(option, agent[option])

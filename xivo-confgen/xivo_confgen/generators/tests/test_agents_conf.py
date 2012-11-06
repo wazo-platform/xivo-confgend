@@ -1,6 +1,8 @@
+# -*- coding: UTF-8 -*-
+
 import unittest
 import StringIO
-from mock import Mock, patch, ANY
+from mock import Mock, patch
 from xivo_confgen.generators.agents_conf import AgentsConf
 
 
@@ -11,10 +13,6 @@ class TestAgents(unittest.TestCase):
 
     def setUp(self):
         self._output = StringIO.StringIO()
-
-
-    def tearDown(self):
-        pass
 
     generate_general = Mock()
 
@@ -32,14 +30,13 @@ class TestAgents(unittest.TestCase):
         generate_agents.assert_called_with(self._output)
 
     def test_general_section(self):
+        agent_general_db = [
+            {'category': u'general', 'option_name': u'multiplelogin', 'option_value': u'no'},
+        ]
 
-        agent_general_db = [{'category': u'general',
-                        'option_name': u'multiplelogin',
-                        'option_value': u'yes'},
-                            ]
         expected = """\
                     [general]
-                    multiplelogin = yes
+                    multiplelogin = no
 
                    """
 
@@ -50,14 +47,15 @@ class TestAgents(unittest.TestCase):
         self.assertConfigEqual(expected, self._output.getvalue())
 
     def test_agent_global_params(self):
-        agent_global_params_db = [{'category': u'agents', 'option_name': u'recordagentcalls', 'option_value': u'no'},
-                            {'category': u'agents', 'option_name': u'endcall', 'option_value': u'yes'},
-                            ]
+        agent_global_params_db = [
+            {'category': u'agents', 'option_name': u'maxlogintries', 'option_value': u'3'},
+            {'category': u'agents', 'option_name': u'foobar', 'option_value': u'abc'},
+        ]
 
         expected = """\
                     [agents]
-                    recordagentcalls = no
-                    endcall = yes
+                    maxlogintries = 3
+                    foobar = abc
 
                    """
 
@@ -68,11 +66,12 @@ class TestAgents(unittest.TestCase):
         self.assertConfigEqual(expected, self._output.getvalue())
 
     def test_agents_section(self):
-
-        agent_db = [{'firstname':u'John', 'lastname':u'Wayne', 'number':u'3456', 'passwd': u'0022',
-                     'autologoff':u'0', 'wrapuptime':u'30000'},
-                    {'firstname':u'Alfred', 'lastname':u'Bourne', 'number':u'7766', 'passwd': u'',
-                     'autologoff':u'0', 'wrapuptime':u'50000'}, ]
+        agent_db = [
+            {'firstname':u'John', 'lastname':u'Wayne', 'number':u'3456', 'passwd': u'0022',
+             'autologoff':u'0', 'wrapuptime':u'30000'},
+            {'firstname':u'Alfred', 'lastname':u'Bourne', 'number':u'7766', 'passwd': u'',
+             'autologoff':u'0', 'wrapuptime':u'50000'}
+        ]
 
         expected = """\
                     autologoff = 0
@@ -89,4 +88,3 @@ class TestAgents(unittest.TestCase):
         agents_conf._generate_agents(self._output)
 
         self.assertConfigEqual(expected, self._output.getvalue())
-

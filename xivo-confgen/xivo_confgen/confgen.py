@@ -48,7 +48,7 @@ class Confgen(Protocol):
 
         try:
             content = getattr(self.factory.asterisk_frontend, callback)()
-        except Exception, e:
+        except Exception as e:
             import traceback
             print e
             traceback.print_exc(file=sys.stdout)

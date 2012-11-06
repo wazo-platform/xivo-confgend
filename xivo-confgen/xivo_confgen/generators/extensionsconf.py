@@ -38,9 +38,9 @@ class ExtensionsConf(object):
         if hasattr(self, 'contextsconf'):
             conf = OrderedConf.OrderedRawConf(filename=self.contextsconf)
             if conf.has_conflicting_section_names():
-                raise ValueError, self.contextsconf + " has conflicting section names"
+                raise ValueError("%s has conflicting section names" % self.contextsconf)
             if not conf.has_section('template'):
-                raise ValueError, "Template section doesn't exist"
+                raise ValueError("Template section doesn't exist")
 
         # hints & features (init)
         xfeatures = {
@@ -146,7 +146,7 @@ class ExtensionsConf(object):
 
                 if pkey['exten'] is not None:
                     exten = xivo_helpers.clean_extension(pkey['exten'])
-                elif xfeatures.has_key(calltype) and not xfeatures[calltype].get('commented', 1):
+                elif calltype in xfeatures and not xfeatures[calltype].get('commented', 1):
                     exten = xivo_helpers.fkey_extension(
                         xfeatures[calltype]['exten'],
                         (pkey['typevalextenumbersright'],))

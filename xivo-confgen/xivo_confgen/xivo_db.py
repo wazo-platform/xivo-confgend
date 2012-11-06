@@ -137,7 +137,7 @@ class UserQueueskillsHandler(SpecializedHandler):
 
 class AgentQueueskillsHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
-        (_a, _f, _s) = [getattr(self.db, options)._table for options in ('agentqueueskill', 	'agentfeatures', 'queueskill')]
+        (_a, _f, _s) = [getattr(self.db, options)._table for options in ('agentqueueskill', 'agentfeatures', 'queueskill')]
         q = select(
             [_f.c.id, _s.c.name, _a.c.weight],
             and_(_a.c.agentid == _f.c.id, _a.c.skillid == _s.c.id)

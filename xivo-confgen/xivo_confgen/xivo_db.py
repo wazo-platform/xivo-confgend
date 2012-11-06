@@ -118,22 +118,6 @@ class SpecializedHandler(object):
         return ret
 
 
-class AgentUsersHandler(SpecializedHandler):
-    def all(self, commented=None, order=None, **kwargs):
-        (_a, _f) = [getattr(self.db, options)._table for options in	('staticagent', 'agentfeatures')]
-        q = select(
-            [_a.c.var_val, _f.c.autologoff, _f.c.wrapuptime],
-            and_(
-                _a.c.category == 'agents',
-                _a.c.var_name == 'agent',
-                _a.c.id == _f.c.agentid,
-                _f.c.commented == 0
-            )
-        )
-
-        return self.execute(q).fetchall()
-
-
 class UserQueueskillsHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
         """
@@ -448,7 +432,6 @@ class QObject(object):
         'iax': ('staticiax',),
         'voicemail': ('staticvoicemail',),
         'queue': ('staticqueue',),
-        'agent': ('staticagent',),
         'agentglobalparams': ('agentglobalparams',),
         'agentfeatures': ('agentfeatures',),
         'meetme': ('staticmeetme',),

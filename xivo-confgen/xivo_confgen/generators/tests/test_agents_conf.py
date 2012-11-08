@@ -68,18 +68,16 @@ class TestAgents(unittest.TestCase):
     def test_agents_section(self):
         agent_db = [
             {'firstname':u'John', 'lastname':u'Wayne', 'number':u'3456', 'passwd': u'0022',
-             'autologoff':u'0', 'wrapuptime':u'30000'},
+             'autologoff':u'0'},
             {'firstname':u'Alfred', 'lastname':u'Bourne', 'number':u'7766', 'passwd': u'',
-             'autologoff':u'0', 'wrapuptime':u'50000'}
+             'autologoff':u'0'}
         ]
 
         expected = """\
                     autologoff = 0
-                    wrapuptime = 30000
                     agent => 3456,0022,John Wayne
 
                     autologoff = 0
-                    wrapuptime = 50000
                     agent => 7766,,Alfred Bourne
 
                    """

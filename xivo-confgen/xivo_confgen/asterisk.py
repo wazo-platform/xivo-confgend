@@ -167,7 +167,7 @@ class AsteriskFrontend(object):
 
                 print >> options, k, '=', v
 
-            for m in self.backend.queuemembers.all(commented=False, queue_name=q['name'], order='position'):
+            for m in self.backend.queuemembers.all(commented=False, queue_name=q['name'], order='position', usertype='user'):
                 options.write("member => %s" % m['interface'])
                 options.write(",%d" % m['penalty'])
                 options.write(",")

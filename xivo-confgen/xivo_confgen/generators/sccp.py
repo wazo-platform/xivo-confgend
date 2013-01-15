@@ -23,7 +23,11 @@ from xivo_confgen.generators.util import format_ast_section, \
 
 
 class SccpConf(object):
-    def __init__(self, sccpgeneralsettings, sccpline, sccpdevice, sccpspeeddial):
+    def __init__(self,
+                 sccpgeneralsettings,
+                 sccpline,
+                 sccpdevice,
+                 sccpspeeddial):
         self._sccpgeneralsettings = sccpgeneralsettings
         self._sccpline = sccpline
         self._sccpdevice = sccpdevice
@@ -36,11 +40,11 @@ class SccpConf(object):
         sccp_line_conf = _SccpLineConf()
         sccp_line_conf.generate(self._sccpline, output)
 
-        sccp_device_conf = _SccpDeviceConf()
-        sccp_device_conf.generate(self._sccpdevice, output)
-
         sccp_speeddial_conf = _SccpSpeedDialConf()
         sccp_speeddial_conf.generate(self._sccpspeeddial, output)
+
+        sccp_device_conf = _SccpDeviceConf(self._sccpspeeddial)
+        sccp_device_conf.generate(self._sccpdevice, output)
 
     @classmethod
     def new_from_backend(cls, backend):
@@ -86,6 +90,9 @@ class _SccpLineConf(object):
 
 
 class _SccpDeviceConf(object):
+    def __init__(self, sccpspeeddialdevices):
+        self._sccpspeeddialdevices = sccpspeeddialdevices
+
     def generate(self, sccpdevice, output):
         print >> output, u'[devices]'
         for item in sccpdevice:
@@ -93,7 +100,13 @@ class _SccpDeviceConf(object):
             print >> output, format_ast_option('device', item['device'])
             print >> output, format_ast_option('line', item['line'])
             print >> output, format_ast_option('voicemail', item['voicemail'])
+            self._generate_speeddials(output, item['device'])
             print >> output
+
+    def _generate_speeddials(self, output, device):
+        for item in self._sccpspeeddialdevices:
+            if item['device'] == device:
+                print >> output, format_ast_option('speeddial', '%d-%d' % (item['iduserfeatures'], item['fknum']))
 
 
 class _SccpSpeedDialConf(object):

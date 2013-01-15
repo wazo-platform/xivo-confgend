@@ -22,7 +22,8 @@ import os
 import StringIO
 import unittest
 import mock
-from xivo_confgen.generators.sccp import SccpConf, _SccpGeneralSettingsConf, _SccpLineConf, _SccpDeviceConf
+from xivo_confgen.generators.sccp import SccpConf, _SccpGeneralSettingsConf, _SccpLineConf, _SccpDeviceConf, \
+    _SccpSpeedDialConf
 from xivo_confgen.generators.tests.util import parse_ast_config
 
 
@@ -38,11 +39,14 @@ class TestSccpConf(unittest.TestCase):
         self.assertEqual(configExpected.replace(' ', ''), configResult.replace(' ', ''))
 
     def test_empty_sections(self):
-        sccp_conf = SccpConf([], [], [])
+        sccp_conf = SccpConf([], [], [], [])
         sccp_conf.generate(self._output)
 
         result = self._parse_ast_cfg()
-        expected = { u'general': [], u'devices': [], u'lines': []}
+        expected = {u'general': [],
+                    u'devices': [],
+                    u'lines': [],
+                    u'speeddials': []}
 
         self.assertEqual(expected, result)
 
@@ -73,7 +77,6 @@ class TestSccpConf(unittest.TestCase):
         sccp_conf = _SccpLineConf()
         sccp_conf.generate(sccpline, self._output)
 
-
         expected = """\
                     [lines]
                     [100]
@@ -94,6 +97,28 @@ class TestSccpConf(unittest.TestCase):
 
         self.assertEqual(u'en_US', language)
 
+    def test_one_element_speeddials_section(self):
+        speedials = [{'exten':'1001',
+                      'fknum': 1,
+                      'label': 'user001',
+                      'supervision': 0,
+                      'iduserfeatures': 1229,
+                      'number': '103',
+                      'device': 'SEPACA016FDF235'}]
+
+        sccp_conf = _SccpSpeedDialConf()
+        sccp_conf.generate(speedials, self._output)
+
+        expected = """\
+                    [speeddials]
+                    [1229-1]
+                    extension = 1001
+                    label = user001
+                    blf = 0
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
     def test_one_element_devices_section(self):
         sccpdevice = [{'category': u'devices',
                        'name': u'SEPACA016FDF235',
@@ -101,7 +126,15 @@ class TestSccpConf(unittest.TestCase):
                        'line': u'103',
                        'voicemail': u'103'}]
 
-        sccp_conf = _SccpDeviceConf()
+        sccpspeeddials = [{'exten':'1001',
+                           'fknum': 1,
+                           'label': 'user001',
+                           'supervision': 0,
+                           'iduserfeatures': 1229,
+                           'number': '103',
+                           'device': 'SEPACA016FDF235'}]
+
+        sccp_conf = _SccpDeviceConf(sccpspeeddials)
         sccp_conf.generate(sccpdevice, self._output)
 
         expected = """\
@@ -110,6 +143,7 @@ class TestSccpConf(unittest.TestCase):
                     device=SEPACA016FDF235
                     line=103
                     voicemail=103
+                    speeddial=1229-1
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
@@ -124,7 +158,7 @@ class TestSccpConf(unittest.TestCase):
                 {'option_name': u'authtimeout',
                  'option_value': u'10'}]
 
-        sccp_conf = SccpConf(sccp, [], [])
+        sccp_conf = SccpConf(sccp, [], [], [])
         sccp_conf.generate(self._output)
 
         result = self._parse_ast_cfg()
@@ -133,7 +167,8 @@ class TestSccpConf(unittest.TestCase):
                                  u'keepalive = 10',
                                  u'authtimeout = 10'],
                     u'lines': [],
-                    u'devices': []}
+                    u'devices': [],
+                    u'speeddials': []}
 
         self.assertEqual(expected, result)
 
@@ -143,3 +178,4 @@ class TestSccpConf(unittest.TestCase):
         backend.sccpgeneralsettings.all.assert_called_once_with()
         backend.sccpline.all.assert_called_once_with()
         backend.sccpdevice.all.assert_called_once_with()
+        backend.sccpspeeddial.all.assert_called_once_with()

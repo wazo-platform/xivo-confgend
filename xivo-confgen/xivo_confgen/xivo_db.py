@@ -188,6 +188,7 @@ class SccpLineHandler(SpecializedHandler):
 
 class SccpSpeedDialHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
+        sccpdevice = self.db.sccpdevice._table
         linefeatures = self.db.linefeatures._table
         phonefunckey = self.db.phonefunckey._table
 
@@ -197,9 +198,11 @@ class SccpSpeedDialHandler(SpecializedHandler):
              phonefunckey.c.label,
              phonefunckey.c.supervision,
              linefeatures.c.iduserfeatures,
-             linefeatures.c.number],
+             linefeatures.c.number,
+             sccpdevice.c.device],
             and_(linefeatures.c.protocol == 'sccp',
-                 linefeatures.c.iduserfeatures == phonefunckey.c.iduserfeatures)
+                 linefeatures.c.iduserfeatures == phonefunckey.c.iduserfeatures,
+                 linefeatures.c.number == sccpdevice.c.line)
         )
 
         return self.execute(query).fetchall()

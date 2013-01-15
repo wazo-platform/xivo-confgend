@@ -187,7 +187,7 @@ class SccpLineHandler(SpecializedHandler):
 
 
 class SccpSpeedDialHandler(SpecializedHandler):
-    def all(self, *args, **kwargs):
+    def all(self):
         sccpdevice = self.db.sccpdevice._table
         linefeatures = self.db.linefeatures._table
         phonefunckey = self.db.phonefunckey._table

@@ -23,10 +23,11 @@ from xivo_confgen.generators.util import format_ast_section, \
 
 
 class SccpConf(object):
-    def __init__(self, sccpgeneralsettings, sccpline, sccpdevice):
+    def __init__(self, sccpgeneralsettings, sccpline, sccpdevice, sccpspeeddial):
         self._sccpgeneralsettings = sccpgeneralsettings
         self._sccpline = sccpline
         self._sccpdevice = sccpdevice
+        self._sccpspeeddial = sccpspeeddial
 
     def generate(self, output):
         sccp_general_conf = _SccpGeneralSettingsConf()
@@ -38,19 +39,26 @@ class SccpConf(object):
         sccp_device_conf = _SccpDeviceConf()
         sccp_device_conf.generate(self._sccpdevice, output)
 
+        sccp_speeddial_conf = _SccpSpeedDialConf()
+        sccp_speeddial_conf.generate(self._sccpspeeddial, output)
+
     @classmethod
     def new_from_backend(cls, backend):
         sccpgeneralsettings = backend.sccpgeneralsettings.all()
         sccpline = backend.sccpline.all()
         sccpdevice = backend.sccpdevice.all()
-        return cls(sccpgeneralsettings, sccpline, sccpdevice)
+        sccpspeeddial = backend.sccpspeeddial.all()
+        return cls(sccpgeneralsettings,
+                   sccpline,
+                   sccpdevice,
+                   sccpspeeddial)
 
 
 class _SccpGeneralSettingsConf(object):
     def generate(self, sccpgeneralsettings, output):
         print >> output, u'[general]'
         for item in sccpgeneralsettings:
-            option_value =  item['option_value']
+            option_value = item['option_value']
             if item['option_name'] == 'directmedia':
                 option_value = '0' if item['option_value'] == 'no' else '1'
             print >> output, format_ast_option(item['option_name'], option_value)
@@ -85,4 +93,15 @@ class _SccpDeviceConf(object):
             print >> output, format_ast_option('device', item['device'])
             print >> output, format_ast_option('line', item['line'])
             print >> output, format_ast_option('voicemail', item['voicemail'])
+            print >> output
+
+
+class _SccpSpeedDialConf(object):
+    def generate(self, sccpspeeddial, output):
+        print >> output, u'[speeddials]'
+        for item in sccpspeeddial:
+            print >> output, format_ast_section('%d-%d' % (item['iduserfeatures'], item['fknum']))
+            print >> output, format_ast_option('extension', item['exten'])
+            print >> output, format_ast_option('label', item['label'])
+            print >> output, format_ast_option('blf', item['supervision'])
             print >> output

@@ -186,6 +186,25 @@ class SccpLineHandler(SpecializedHandler):
         return self.execute(query).fetchall()
 
 
+class SccpSpeedDialHandler(SpecializedHandler):
+    def all(self, *args, **kwargs):
+        linefeatures = self.db.linefeatures._table
+        phonefunckey = self.db.phonefunckey._table
+
+        query = select(
+            [phonefunckey.c.exten,
+             phonefunckey.c.fknum,
+             phonefunckey.c.label,
+             phonefunckey.c.supervision,
+             linefeatures.c.iduserfeatures,
+             linefeatures.c.number],
+            and_(linefeatures.c.protocol == 'sccp',
+                 linefeatures.c.iduserfeatures == phonefunckey.c.iduserfeatures)
+        )
+
+        return self.execute(query).fetchall()
+
+
 class ExtenumbersHandler(SpecializedHandler):
     def all(self, features=[], *args, **kwargs):
         # NOTE: sqlalchemy 4: table, 5: _table
@@ -428,6 +447,7 @@ class QObject(object):
         'sccpgeneralsettings': SccpGeneralSettingsHandler,
         'sccpline': SccpLineHandler,
         'sccpdevice': ('sccpdevice',),
+        'sccpspeeddial': SccpSpeedDialHandler,
         'sip': ('staticsip',),
         'iax': ('staticiax',),
         'voicemail': ('staticvoicemail',),

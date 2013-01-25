@@ -15,17 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from sqlalchemy import exc
+from sqlalchemy.ext.sqlsoup import SqlSoup
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.sql import select
+from sqlalchemy.sql.expression import and_, cast, literal, desc
+from sqlalchemy.types import VARCHAR
 import inspect
 import warnings
 warnings.simplefilter('ignore')
-
-from sqlalchemy.ext.sqlsoup    import SqlSoup
-from sqlalchemy.sql.expression import and_, cast, alias, literal, desc
-from sqlalchemy.sql.functions  import coalesce
-from sqlalchemy.sql            import select
-from sqlalchemy.types          import VARCHAR
-from sqlalchemy.orm            import scoped_session, sessionmaker
-from sqlalchemy                import exc
 
 
 def mapped_set(self, key, value):

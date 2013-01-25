@@ -20,9 +20,12 @@ from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo_db import XivoDBBackend
 from twisted.internet.protocol import Protocol, ServerFactory
+from sqlalchemy.exc import InvalidRequestError, OperationalError
+from xivo_dao.helpers.db_manager import DBManager
 
 
 class Confgen(Protocol):
+
     def dataReceived(self, data):
         try:
             self._write_response(data)
@@ -45,6 +48,14 @@ class Confgen(Protocol):
 
         try:
             content = getattr(self.factory.asterisk_frontend, callback)()
+        except (InvalidRequestError, OperationalError) as e:
+            print 'Database error while processing command: %s' % e
+            self._db_manager.reconnect()
+            try:
+                content = getattr(self.factory.asterisk_frontend, callback)()
+            except Exception as e:
+                content = None
+                print 'Database error while processing command: %s' % e
         except Exception as e:
             import traceback
             print e
@@ -68,6 +79,7 @@ class ConfgendFactory(ServerFactory):
     def __init__(self, cachedir, config):
         self.asterisk_frontend = self._new_asterisk_frontend(config)
         self.cache = cache.FileCache(cachedir)
+        self._db_manager = None
 
     def _new_asterisk_frontend(self, config):
         backend = self._new_xivo_db_backend(config)
@@ -77,4 +89,7 @@ class ConfgendFactory(ServerFactory):
 
     def _new_xivo_db_backend(self, config):
         uri = config.get('xivodb', 'uri')
+        self._db_manager = DBManager()
+        self._db_manager.connect()
+        self.protocol._db_manager = self._db_manager
         return XivoDBBackend(uri)

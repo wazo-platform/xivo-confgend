@@ -18,6 +18,7 @@
 import re
 from StringIO import StringIO
 from xivo import OrderedConf, xivo_helpers
+from xivo_dao import callfilter_dao
 
 
 class ExtensionsConf(object):
@@ -41,20 +42,19 @@ class ExtensionsConf(object):
 
         # hints & features (init)
         xfeatures = {
-            'bsfilter':            {},
-            'callgroup':           {},
-            'callmeetme':          {},
-            'callqueue':           {},
-            'calluser':            {},
-            'fwdbusy':             {},
-            'fwdrna':              {},
-            'fwdunc':              {},
-            'phoneprogfunckey':    {},
-            'vmusermsg':           {}}
+            'bsfilter': {},
+            'callgroup': {},
+            'callmeetme': {},
+            'callqueue': {},
+            'calluser': {},
+            'fwdbusy': {},
+            'fwdrna': {},
+            'fwdunc': {},
+            'phoneprogfunckey': {},
+            'vmusermsg': {}}
 
         extenumbers = self.backend.extenumbers.all(features=xfeatures.keys())
         xfeatures.update(dict([x['typeval'], {'exten': x['exten'], 'commented': x['commented']}] for x in extenumbers))
-
 
         # foreach active context
         for ctx in self.backend.contexts.all(commented=False, order='name', asc=False):
@@ -77,7 +77,8 @@ class ExtensionsConf(object):
             tmpl = []
             for option in conf.iter_options(section):
                 if option.get_name() == 'objtpl':
-                    tmpl.append(option.get_value()); continue
+                    tmpl.append(option.get_value())
+                    continue
 
                 print >> options, "%s = %s" % (option.get_name(), option.get_value().replace('%%CONTEXT%%', ctx['name']))
             print >> options
@@ -156,17 +157,14 @@ class ExtensionsConf(object):
                 print >> options, "exten = %s,hint,%s" % hint
 
             # BS filters supervision
-            bsfilters = self.backend.bsfilterhints.all(context=ctx['name'])
+            callfiltermemberids = callfilter_dao.get_secretaries_id_by_context(ctx['name'])
 
-            numbers = self._build_sorted_bsfilter(bsfilters)
-
-            extens = set(xivo_helpers.speed_dial_key_extension(xfeatures['bsfilter'].get('exten'),
-                boss, None, secretary, True) for boss, secretary in numbers)
-
-            if len(extens) > 0:
+            if len(callfiltermemberids) > 0:
+                bsfilter_exten = xfeatures['bsfilter'].get('exten')
                 print >> options, "\n; BS filters supervision"
-            for exten in extens:
-                print >> options, "exten = %s,hint,Custom:%s" % (exten, exten)
+                for callfiltermemberid in callfiltermemberids:
+                    exten = xivo_helpers.fkey_extension(bsfilter_exten, callfiltermemberid)
+                    print >> options, "exten = %s,hint,Custom:%s" % (exten, exten)
 
             # prog funckeys supervision
             progfunckeys = self.backend.progfunckeys.all(context=ctx['name'])
@@ -183,8 +181,9 @@ class ExtensionsConf(object):
 
             if len(extens) > 0:
                 print >> options, "\n; prog funckeys supervision"
-            for exten in extens:
-                print >> options, "exten = %s,hint,Custom:%s" % (exten, exten)
+                for exten in extens:
+                    print >> options, "exten = %s,hint,Custom:%s" % (exten, exten)
+
         print >> options, self._extensions_features(conf, xfeatures)
         return options.getvalue()
 

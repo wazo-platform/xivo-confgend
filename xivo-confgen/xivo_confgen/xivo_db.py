@@ -458,9 +458,6 @@ class QObject(object):
         'pickups': PickupsHandler,
         'queuepenalties': QueuePenaltiesHandler,
         'parkinglot': ('parkinglot',),
-        'dundi': ('dundi',),
-        'dundimapping': ('dundi_mapping',),
-        'dundipeer': ('dundi_peer',),
         'general': ('general',),
     }
 

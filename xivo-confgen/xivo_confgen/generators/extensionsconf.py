@@ -83,17 +83,10 @@ class ExtensionsConf(object):
                 print >> options, "%s = %s" % (option.get_name(), option.get_value().replace('%%CONTEXT%%', ctx['name']))
             print >> options
 
-            # test if we are in DUNDi active/active mode
-            dundi_aa = self.backend.general.get(id=1)['dundi'] == 1
-
             # objects extensions (user, group, ...)
             for exten in self.backend.extensions.all(context=ctx['name'], commented=False, order='context'):
                 app = exten['app']
                 appdata = list(exten['appdata'].replace('|', ',').split(','))
-
-                # active/active mode
-                if dundi_aa and appdata[0] == 'user':
-                    exten['priority'] += 1
 
                 if app == 'Macro':
                     app = 'Gosub'

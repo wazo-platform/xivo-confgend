@@ -57,7 +57,7 @@ class TestQueuesConf(unittest.TestCase):
 
     def test_queues_section(self):
         self.backend.queues.all.return_value = [
-            {'name': 'queue1', 'foo': 'bar'}
+            {'name': 'queue1', 'wrapuptime': 0, 'commented': False, 'joinempty': '', 'leaveempty': u''}
         ]
         self.backend.queuemembers.all.return_value = [
             {'interface': 'SIP/abc', 'penalty': 0, 'state_interface': '', 'skills': 'user-1'},
@@ -69,7 +69,7 @@ class TestQueuesConf(unittest.TestCase):
             [general]
 
             [queue1]
-            foo = bar
+            wrapuptime = 0
             member => SIP/abc,0,,,user-1
         ''')
         self.assertEqual(self.output.getvalue(), expected_output)

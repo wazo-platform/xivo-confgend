@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo_confgen.generators.util import format_ast_option
+from xivo_confgen.generators.util import format_ast_option, \
+    format_ast_object_option
 
 
 class QueuesConf(object):
@@ -46,12 +47,7 @@ class QueuesConf(object):
                 print >> output, format_ast_option(k, v)
 
             for m in self._backend.queuemembers.all(commented=False, queue_name=q['name'], order='position', usertype='user'):
-                output.write("member => %s" % m['interface'])
-                output.write(",%d" % m['penalty'])
-                output.write(",")
-                output.write(",%s" % m['state_interface'])
-                output.write(",%s" % m['skills'])
-                output.write('\n')
+                print >> output, format_ast_object_option('member', m['interface'])
 
     @classmethod
     def new_from_backend(cls, backend):

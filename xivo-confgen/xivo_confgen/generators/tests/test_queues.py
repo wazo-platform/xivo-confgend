@@ -70,7 +70,7 @@ class TestQueuesConf(unittest.TestCase):
 
             [queue1]
             wrapuptime = 0
-            member => SIP/abc,0,,,user-1
+            member => SIP/abc
         ''')
         self.assertEqual(self.output.getvalue(), expected_output)
         self.backend.queues.all.assert_called_once_with(commented=False, order='name')

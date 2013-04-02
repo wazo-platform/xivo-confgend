@@ -48,3 +48,7 @@ def parse_ast_config(fobj):
             else:
                 raise InvalidAstConfigException('invalid line %r' % line)
     return ast_config
+
+
+def build_expected(output):
+    return '\n'.join(line.lstrip() for line in output.split('\n'))

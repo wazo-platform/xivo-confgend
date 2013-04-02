@@ -24,7 +24,7 @@ class QueuesConf(object):
     def generate(self, output):
         penalties = dict([(itm['id'], itm['name']) for itm in self.backend.queuepenalty.all(commented=False)])
 
-        print >> output, '\n[general]'
+        print >> output, '[general]'
         for item in self.backend.queue.all(commented=False, category='general'):
             print >> output, "%s = %s" % (item['var_name'], item['var_val'])
 

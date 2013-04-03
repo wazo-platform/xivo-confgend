@@ -47,7 +47,8 @@ class QueuesConf(object):
                 print >> output, format_ast_option(k, v)
 
             for m in self._backend.queuemembers.all(commented=False, queue_name=q['name'], order='position', usertype='user'):
-                print >> output, format_ast_object_option('member', m['interface'])
+                member_value = '%s,%d' % (m['interface'], m['penalty'])
+                print >> output, format_ast_object_option('member', member_value)
 
     @classmethod
     def new_from_backend(cls, backend):

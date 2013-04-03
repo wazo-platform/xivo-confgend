@@ -209,14 +209,6 @@ class AsteriskFrontend(object):
         """
         options = StringIO()
 
-        userid = None
-        for sk in self.backend.userqueueskills.all():
-            if userid != sk['id']:
-                print >> options, "\n[user-%d]" % sk['id']
-                userid = sk['id']
-
-            print >> options, "%s = %s" % (sk['name'], sk['weight'])
-
         agentid = None
         for sk in self.backend.agentqueueskills.all():
             if agentid != sk['id']:

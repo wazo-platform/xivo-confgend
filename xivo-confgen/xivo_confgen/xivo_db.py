@@ -112,23 +112,6 @@ class SpecializedHandler(object):
         return ret
 
 
-class UserQueueskillsHandler(SpecializedHandler):
-    def all(self, *args, **kwargs):
-        """
-        NOTE: we generate the same queueskills for each line of the user
-        """
-        (_u, _s, _l) = [getattr(self.db, options)._table.c for options in ('userqueueskill',
-            'queueskill', 'linefeatures')]
-
-        q = select(
-            [_s.name, _u.weight, _l.id],
-            and_(_u.userid == _l.iduserfeatures, _u.skillid == _s.id)
-        )
-        q = q.order_by(_u.userid)
-
-        return self.execute(q).fetchall()
-
-
 class AgentQueueskillsHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
         (_a, _f, _s) = [getattr(self.db, options)._table for options in ('agentqueueskill', 'agentfeatures', 'queueskill')]
@@ -442,7 +425,6 @@ class QObject(object):
         'queuemembers': ('queuemember',),
         'queuepenalty': ('queuepenalty',),
 
-        'userqueueskills': UserQueueskillsHandler,
         'agentqueueskills': AgentQueueskillsHandler,
         'queueskillrules': ('queueskillrule',),
         'extensions': ('extensions',),

@@ -17,6 +17,7 @@
 
 from StringIO import StringIO
 from xivo_confgen.generators.extensionsconf import ExtensionsConf
+from xivo_confgen.generators.queues import QueuesConf
 from xivo_confgen.generators.sip import SipConf
 from xivo_confgen.generators.sccp import SccpConf
 from xivo_confgen.generators.voicemail import VoicemailConf
@@ -136,38 +137,8 @@ class AsteriskFrontend(object):
         return output.getvalue()
 
     def queues_conf(self):
-        options = StringIO()
-
-        penalties = dict([(itm['id'], itm['name']) for itm in self.backend.queuepenalty.all(commented=False)])
-
-        print >> options, '\n[general]'
-        for item in self.backend.queue.all(commented=False, category='general'):
-            print >> options, "%s = %s" % (item['var_name'], item['var_val'])
-
-        for q in self.backend.queues.all(commented=False, order='name'):
-            print >> options, '\n[%s]' % q['name']
-
-            for k, v in q.iteritems():
-                if k in ('name', 'category', 'commented') or v is None or \
-                        (isinstance(v, (str, unicode)) and len(v) == 0):
-                    continue
-
-                if k == 'defaultrule':
-                    if not int(v) in penalties:
-                        continue
-                    v = penalties[int(v)]
-
-                print >> options, k, '=', v
-
-            for m in self.backend.queuemembers.all(commented=False, queue_name=q['name'], order='position', usertype='user'):
-                options.write("member => %s" % m['interface'])
-                options.write(",%d" % m['penalty'])
-                options.write(",")
-                options.write(",%s" % m['state_interface'])
-                options.write(",%s" % m['skills'])
-                options.write('\n')
-
-        return options.getvalue()
+        config_generator = QueuesConf.new_from_backend(self.backend)
+        return self._generate_conf_from_generator(config_generator)
 
     def meetme_conf(self):
         options = StringIO()
@@ -237,14 +208,6 @@ class AsteriskFrontend(object):
         """Generate queueskills.conf asterisk configuration file
         """
         options = StringIO()
-
-        userid = None
-        for sk in self.backend.userqueueskills.all():
-            if userid != sk['id']:
-                print >> options, "\n[user-%d]" % sk['id']
-                userid = sk['id']
-
-            print >> options, "%s = %s" % (sk['name'], sk['weight'])
 
         agentid = None
         for sk in self.backend.agentqueueskills.all():

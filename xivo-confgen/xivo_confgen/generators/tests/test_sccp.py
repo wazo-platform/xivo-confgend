@@ -176,3 +176,45 @@ class TestSccpConf(unittest.TestCase):
         backend.sccpline.all.assert_called_once_with()
         backend.sccpdevice.all.assert_called_once_with()
         backend.sccpspeeddial.all.assert_called_once_with()
+
+    def test_multiple_speedials_devices_section(self):
+        sccpdevice = [{'category': u'devices',
+                       'name': u'SEPACA016FDF235',
+                       'device': u'SEPACA016FDF235',
+                       'line': u'103',
+                       'voicemail': u'103'}]
+
+        sccpspeeddials = [
+            {'exten':'1002',
+             'fknum': 2,
+             'label': 'user002',
+             'supervision': 0,
+             'iduserfeatures': 1229,
+             'number': '103',
+             'device': 'SEPACA016FDF235'},
+            {'exten':'1001',
+             'fknum': 1,
+             'label': 'user001',
+             'supervision': 0,
+             'iduserfeatures': 1229,
+             'number': '103',
+             'device': 'SEPACA016FDF235'},
+        ]
+
+        sccp_conf = _SccpDeviceConf(sccpspeeddials)
+        sccp_conf.generate(sccpdevice, self._output)
+
+        expected = """\
+                    [devices]
+                    [SEPACA016FDF235]
+                    device=SEPACA016FDF235
+                    line=103
+                    voicemail=103
+                    speeddial=1229-1
+                    speeddial=1229-2
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+
+

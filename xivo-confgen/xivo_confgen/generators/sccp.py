@@ -18,6 +18,8 @@
 from xivo_confgen.generators.util import format_ast_section, \
     format_ast_option
 
+from operator import itemgetter
+
 
 class SccpConf(object):
     def __init__(self,
@@ -88,7 +90,10 @@ class _SccpLineConf(object):
 
 class _SccpDeviceConf(object):
     def __init__(self, sccpspeeddialdevices):
-        self._sccpspeeddialdevices = sccpspeeddialdevices
+        self._sccpspeeddialdevices = sorted(
+            sccpspeeddialdevices,
+            key=itemgetter('fknum'),
+        )
 
     def generate(self, sccpdevice, output):
         print >> output, u'[devices]'

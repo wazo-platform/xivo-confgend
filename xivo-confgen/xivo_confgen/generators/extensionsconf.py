@@ -63,9 +63,6 @@ class ExtensionsConf(object):
                 continue
 
             print >> options, "\n[%s]" % ctx['name']
-            # context includes
-            for row in self.backend.contextincludes.all(context=ctx['name'], order='priority'):
-                print >> options, "include = %s" % row['include']
 
             if conf.has_section(ctx['name']):
                 section = ctx['name']
@@ -81,6 +78,10 @@ class ExtensionsConf(object):
                     continue
 
                 print >> options, "%s = %s" % (option.get_name(), option.get_value().replace('%%CONTEXT%%', ctx['name']))
+
+            # context includes
+            for row in self.backend.contextincludes.all(context=ctx['name'], order='priority'):
+                print >> options, "include = %s" % row['include']
             print >> options
 
             # objects extensions (user, group, ...)

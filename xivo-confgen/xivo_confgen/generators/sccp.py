@@ -100,8 +100,10 @@ class _SccpDeviceConf(object):
         for item in sccpdevice:
             print >> output, format_ast_section(item['name'])
             print >> output, format_ast_option('device', item['device'])
-            print >> output, format_ast_option('line', item['line'])
-            print >> output, format_ast_option('voicemail', item['voicemail'])
+            if item['line']:
+                print >> output, format_ast_option('line', item['line'])
+            if item['voicemail']:
+                print >> output, format_ast_option('voicemail', item['voicemail'])
             self._generate_speeddials(output, item['device'])
             print >> output
 

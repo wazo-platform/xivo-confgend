@@ -145,6 +145,24 @@ class TestSccpConf(unittest.TestCase):
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
 
+    def test_one_device_no_line_no_voicemail(self):
+        sccpdevice = [{'category': u'devices',
+                       'name': u'SEPACA016FDF235',
+                       'device': u'SEPACA016FDF235',
+                       'line': u'',
+                       'voicemail': u''}]
+
+        sccp_conf = _SccpDeviceConf([])
+        sccp_conf.generate(sccpdevice, self._output)
+
+        expected = """\
+                    [devices]
+                    [SEPACA016FDF235]
+                    device=SEPACA016FDF235
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
     def test_general_section(self):
         sccp = [{'option_name': u'bindaddr',
                  'option_value': u'0.0.0.0'},

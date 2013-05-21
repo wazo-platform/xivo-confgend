@@ -296,7 +296,6 @@ class PickupsHandler(SpecializedHandler):
                 _pm.membertype == 'user',
                 _pm.memberid == _lf.iduserfeatures,
                 # _lf.line_num    == 0,
-                # _lf.rules_order == 0,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )
@@ -313,7 +312,6 @@ class PickupsHandler(SpecializedHandler):
                 _qm.usertype == 'user',
                 _qm.userid == _lf.iduserfeatures,
                 # _lf.line_num    == 0,
-                # _lf.rules_order == 0,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )
@@ -330,7 +328,6 @@ class PickupsHandler(SpecializedHandler):
                 _qm.usertype == 'user',
                 _qm.userid == _lf.iduserfeatures,
                 # _lf.line_num    == 0,
-                # _lf.rules_order == 0,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )

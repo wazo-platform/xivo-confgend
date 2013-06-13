@@ -230,8 +230,8 @@ class ExtensionsConf(object):
         for vm_context in voicemenus:
             print >> output, "[voicemenu-%s]" % vm_context['name']
             for act in self.backend.extensions.all(context='voicemenu-' + vm_context['name'], commented=0):
-                print >> output, "exten = %s,%s,%s(%s)" % \
-                            (act['exten'], act['priority'], act['app'], act['appdata'].replace('|', ','))
+                values = (act['exten'], act['priority'], act['app'], act['appdata'].replace('|', ','))
+                print >> output, "exten = %s,%s,%s(%s)" % values
             print >> output
 
     @staticmethod

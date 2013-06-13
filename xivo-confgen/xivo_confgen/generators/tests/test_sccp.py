@@ -49,7 +49,7 @@ class TestSccpConf(unittest.TestCase):
 
     def test_one_element_general_section(self):
         sccpgeneralsettings = [{'option_name': u'foo',
-                        'option_value': u'bar'}]
+                                'option_value': u'bar'}]
 
         sccp_conf = _SccpGeneralSettingsConf()
         sccp_conf.generate(sccpgeneralsettings, self._output)
@@ -233,6 +233,3 @@ class TestSccpConf(unittest.TestCase):
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
-
-
-

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 class SipConf(object):
     def __init__(self, general, authentication, trunk, pickups, user):
         self._general = general
@@ -79,10 +80,12 @@ class SipConf(object):
                     print >> output, k, '=', v
 
     def _gen_user(self, data_user, output):
-        sipUnusedValues = ('id', 'name', 'protocol',
-                       'category', 'commented', 'initialized',
-                       'disallow', 'regseconds', 'lastms',
-                       'name', 'fullcontact', 'ipaddr', 'number')
+        sip_unused_values = (
+            'id', 'name', 'protocol',
+            'category', 'commented', 'initialized',
+            'disallow', 'regseconds', 'lastms',
+            'name', 'fullcontact', 'ipaddr', 'number'
+        )
 
         pickups = {}
         for p in self._pickups:
@@ -93,7 +96,7 @@ class SipConf(object):
             print >> output, "\n[%s]" % user['name']
 
             for key, value in user.iteritems():
-                if key in sipUnusedValues or value in (None, ''):
+                if key in sip_unused_values or value in (None, ''):
                     continue
 
                 if key not in ('allow', 'subscribemwi'):
@@ -134,8 +137,8 @@ def gen_value_line(key, value):
     return u'%s = %s' % (key, unicodify_string(value))
 
 
-def unicodify_string(str):
+def unicodify_string(to_unicodify):
     try:
-        return unicode(str)
+        return unicode(to_unicodify)
     except UnicodeDecodeError:
-        return str.decode('utf8')
+        return to_unicodify.decode('utf8')

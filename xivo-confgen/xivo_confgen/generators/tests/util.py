@@ -25,6 +25,7 @@ class InvalidAstConfigException(Exception):
 _SECTION_REGEX = re.compile(u'^\[([-\w]+)\]$')
 _OPTION_REGEX = re.compile(u'^[-\w]+ =>? .*$')
 
+
 def parse_ast_config(fobj):
     ast_config = {}
     cur_section = None

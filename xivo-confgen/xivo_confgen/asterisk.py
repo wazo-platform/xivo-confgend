@@ -94,19 +94,19 @@ class AsteriskFrontend(object):
 
     def _gen_iax_users(self, data_iax_users):
         output = StringIO()
+        ignored_columns = ('id', 'name', 'protocol', 'category', 'commented', 'initialized', 'disallow')
 
         for user in data_iax_users:
             print >> output, "\n[%s]" % user['name']
 
             for k, v in user.iteritems():
-                if k in ('id', 'name', 'protocol', 'category', 'commented', 'initialized', 'disallow') or\
-                     v in (None, ''):
+                if k in ignored_columns or v in (None, ''):
                     continue
 
                 if isinstance(v, unicode):
                     v = v.encode('utf8')
 
-                if k == 'allow' and v != None:
+                if k == 'allow':
                     print >> output, "disallow = all"
                     for c in v.split(','):
                         print >> output, "allow = " + str(c)
@@ -127,7 +127,7 @@ class AsteriskFrontend(object):
             if isinstance(v, unicode):
                 v = v.encode('utf8')
 
-            if k == 'allow' and v != None:
+            if k == 'allow':
                 print >> output, "disallow = all"
                 for c in v.split(','):
                     print >> output, "allow = " + str(c)
@@ -190,7 +190,6 @@ class AsteriskFrontend(object):
                 'calltransfers': 'parkedcalltransfers',
                 'callreparking': 'parkedcallreparking',
                 'callhangup': 'parkedcallhangup',
-                'callreparking': 'parkedcallreparking',
                 'musicclass': 'parkedmusicclass',
                 'hints': 'parkinghints',
             }

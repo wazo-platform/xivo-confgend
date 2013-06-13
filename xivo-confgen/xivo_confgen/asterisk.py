@@ -245,7 +245,7 @@ class AsteriskFrontend(object):
             print >> options, "penaltychange => %d," % m['seconds'],
             if m['maxp_sign'] is not None and m['maxp_value'] is not None:
                 sign = '' if m['maxp_sign'] == '=' else m['maxp_sign']
-                print >> options, "%w%d" % (sign, m['maxp_value']),
+                print >> options, "%s%d" % (sign, m['maxp_value']),
 
             if m['minp_sign'] is not None and m['minp_value'] is not None:
                 sign = '' if m['minp_sign'] == '=' else m['minp_sign']

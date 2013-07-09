@@ -126,13 +126,13 @@ class AgentQueueskillsHandler(SpecializedHandler):
 
 class SccpGeneralSettingsHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
-        extenumbers = self.db.extenumbers._table
+        extensions = self.db.extensions._table
         sccpgeneralsettings = self.db.sccpgeneralsettings._table
 
         query1 = select(
-            [literal('vmexten').label('option_name'), extenumbers.c.exten.label('option_value')],
-            and_(extenumbers.c.type == 'extenfeatures',
-                 extenumbers.c.typeval == 'vmusermsg')
+            [literal('vmexten').label('option_name'), extensions.c.exten.label('option_value')],
+            and_(extensions.c.type == 'extenfeatures',
+                 extensions.c.typeval == 'vmusermsg')
         )
 
         query2 = select(
@@ -185,19 +185,6 @@ class SccpSpeedDialHandler(SpecializedHandler):
         return self.execute(query).fetchall()
 
 
-class ExtenumbersHandler(SpecializedHandler):
-    def all(self, features=[], *args, **kwargs):
-        # NOTE: sqlalchemy 4: table, 5: _table
-        (_n, _e) = [getattr(self.db, options)._table for options in ('extenumbers', 'extensions')]
-        q = select(
-            [_n.c.typeval, _n.c.exten, _e.c.commented],
-            and_(_n.c.typeval == _e.c.name, _e.c.context == 'xivo-features', _n.c.type == 'extenfeatures',
-                _n.c.typeval.in_(features))
-        )
-
-        return self.execute(q).fetchall()
-
-
 class HintsHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
         # get users with hint
@@ -224,7 +211,7 @@ class PhonefunckeysHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
         # get all supervised user/group/queue/meetme
         (_u, _p, _e, _l) = [getattr(self.db, options)._table for options in
-                ('userfeatures', 'phonefunckey', 'extenumbers', 'linefeatures')]
+                ('userfeatures', 'phonefunckey', 'extensions', 'linefeatures')]
         conds = [
             _l.c.iduserfeatures == _p.c.iduserfeatures,
             _p.c.typeextenumbers == None,
@@ -250,7 +237,7 @@ class PhonefunckeysHandler(SpecializedHandler):
 class ProgfunckeysHintsHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
         (_u, _p, _e, _l) = [getattr(self.db, options)._table for options in
-                ('userfeatures', 'phonefunckey', 'extenumbers', 'linefeatures')]
+                ('userfeatures', 'phonefunckey', 'extensions', 'linefeatures')]
 
         conds = [
                 _l.c.iduserfeatures == _p.c.iduserfeatures,
@@ -425,7 +412,6 @@ class QObject(object):
         'contexts': ('context',),
         'contextincludes': ('contextinclude',),
 
-        'extenumbers': ExtenumbersHandler,
         'voicemenus': ('voicemenu',),
         'hints': HintsHandler,
         'phonefunckeys': PhonefunckeysHandler,

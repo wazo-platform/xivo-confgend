@@ -53,8 +53,8 @@ class ExtensionsConf(object):
             'phoneprogfunckey': {},
             'vmusermsg': {}}
 
-        extenumbers = self.backend.extenumbers.all(features=xfeatures.keys())
-        xfeatures.update(dict([x['typeval'], {'exten': x['exten'], 'commented': x['commented']}] for x in extenumbers))
+        extensions = self.backend.extensions.all(features=xfeatures.keys())
+        xfeatures.update(dict([x['typeval'], {'exten': x['exten'], 'commented': x['commented']}] for x in extensions))
 
         # foreach active context
         for ctx in self.backend.contexts.all(commented=False, order='name', asc=False):
@@ -191,7 +191,8 @@ class ExtensionsConf(object):
         print >> options, "\n[%s]" % context
         for option in conf.iter_options(context):
             if option.get_name() == 'objtpl':
-                tmpl.append(option.get_value()); continue
+                tmpl.append(option.get_value())
+                continue
 
             print >> options, "%s = %s" % (option.get_name(), option.get_value().replace('%%CONTEXT%%', context))
             print >> options
@@ -220,6 +221,7 @@ class ExtensionsConf(object):
     def gen_dialplan_from_template(self, template, exten, output):
         for line in template:
             prefix = 'exten =' if line.startswith('%%EXTEN%%') else 'same  =    '
+
             def varset(matchObject):
                 return str(exten.get(matchObject.group(1).lower(), ''))
             line = re.sub('%%([^%]+)%%', varset, line)

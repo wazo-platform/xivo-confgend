@@ -18,7 +18,9 @@
 import re
 from StringIO import StringIO
 from xivo import OrderedConf, xivo_helpers
-from xivo_dao import callfilter_dao
+from xivo_dao import callfilter_dao, user_dao
+from xivo_dao.data_handler.line import services as line_services
+from xivo_dao.data_handler.exception import ElementNotExistsError
 
 
 DEFAULT_EXTENFEATURES = {
@@ -122,14 +124,28 @@ class ExtensionsConf(object):
 
             # objects extensions (user, group, ...)
             for exten in self.backend.extensions.all(context=ctx['name'], commented=False, order='exten'):
-                app = exten['app']
-                appdata = list(exten['appdata'].replace('|', ',').split(','))
+                if exten['type'] == 'user':
+                    try:
+                        user = user_dao.get(int(exten['typeval']))
+                        ringseconds = user.ringseconds if user.ringseconds else ''
+                        language = user.language if user.language else ''
+                        line = line_services.get_by_user_id(user.id)
+                        exten['action'] = 'GoSub(user,s,1(%s,%s,%s,%s))' % (user.id, line.id, ringseconds, language)
+                    except (ElementNotExistsError, LookupError):
+                        continue
+                elif exten['type'] == 'group':
+                    exten['action'] = 'GoSub(group,s,1(%s,))' % exten['typeval']
+                elif exten['type'] == 'queue':
+                    exten['action'] = 'GoSub(queue,s,1(%s,))' % exten['typeval']
+                elif exten['type'] == 'meetme':
+                    exten['action'] = 'GoSub(meetme,s,1(%s,))' % exten['typeval']
+                elif exten['type'] == 'incall':
+                    exten['action'] = 'GoSub(did,s,1(%s,))' % exten['exten']
+                elif exten['type'] == 'outcall':
+                    exten['action'] = 'GoSub(outcall,s,1(%s,))' % exten['typeval']
+                else:
+                    continue
 
-                if app == 'Macro':
-                    app = 'Gosub'
-                    appdata = (appdata[0], 's', '1(' + ','.join(appdata[1:]) + ')')
-
-                exten['action'] = "%s(%s)" % (app, ','.join(appdata))
                 self.gen_dialplan_from_template(tmpl, exten, options)
 
             # phone (user) hints
@@ -255,6 +271,9 @@ class ExtensionsConf(object):
         return options.getvalue()
 
     def gen_dialplan_from_template(self, template, exten, output):
+        if 'priority' not in exten:
+            exten['priority'] = 1
+
         for line in template:
             prefix = 'exten =' if line.startswith('%%EXTEN%%') else 'same  =    '
 

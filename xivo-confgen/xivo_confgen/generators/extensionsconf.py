@@ -85,7 +85,7 @@ class ExtensionsConf(object):
             print >> options
 
             # objects extensions (user, group, ...)
-            for exten in self.backend.extensions.all(context=ctx['name'], commented=False, order='context'):
+            for exten in self.backend.extensions.all(context=ctx['name'], commented=False, order='exten'):
                 app = exten['app']
                 appdata = list(exten['appdata'].replace('|', ',').split(','))
 

@@ -53,7 +53,7 @@ class ExtensionsConf(object):
             'phoneprogfunckey': {},
             'vmusermsg': {}}
 
-        extensions = self.backend.extensions.all(features=xfeatures.keys())
+        extensions = self.backend.extenfeatures.all(features=xfeatures.keys())
         xfeatures.update(dict([x['typeval'], {'exten': x['exten'], 'commented': x['commented']}] for x in extensions))
 
         # foreach active context

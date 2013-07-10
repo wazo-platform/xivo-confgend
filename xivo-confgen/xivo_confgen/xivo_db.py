@@ -376,6 +376,22 @@ class SipUsersHandler(SpecializedHandler):
         return map(dict, sip_users)
 
 
+class ExtenFeaturesHandler(SpecializedHandler):
+
+    def all(self, features=[], *args, **kwargs):
+        extensions = self.db.extensions._table
+        q = select(
+            [extensions.c.typeval,
+             extensions.c.exten,
+             extensions.c.commented],
+            and_(extensions.c.context == 'xivo-features',
+                 extensions.c.type == 'extenfeatures',
+                 extensions.c.typeval.in_(features))
+        )
+
+        return self.execute(q).fetchall()
+
+
 class QObject(object):
     _translation = {
         'sccpgeneralsettings': SccpGeneralSettingsHandler,
@@ -409,6 +425,7 @@ class QObject(object):
         'agentqueueskills': AgentQueueskillsHandler,
         'queueskillrules': ('queueskillrule',),
         'extensions': ('extensions',),
+        'extenfeatures': ExtenFeaturesHandler,
         'contexts': ('context',),
         'contextincludes': ('contextinclude',),
 

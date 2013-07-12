@@ -87,12 +87,30 @@ class TestSccpConf(unittest.TestCase):
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
 
-    def test_format_language_when_empty(self):
+    def test_one_element_lines_section_no_language(self):
+        sccpline = [{'category': u'lines',
+                     'name': u'100',
+                     'cid_name': u'jimmy',
+                     'cid_num': u'100',
+                     'user_id': u'1',
+                     'language': None,
+                     'number': 100,
+                     'context': u'a_context'}]
+
         sccp_conf = _SccpLineConf()
+        sccp_conf.generate(sccpline, self._output)
 
-        language = sccp_conf._format_language(u'')
+        expected = """\
+                    [lines]
+                    [100]
+                    cid_name=jimmy
+                    cid_num=100
+                    setvar=XIVO_USERID=1
+                    setvar=PICKUPMARK=100%a_context
+                    context=a_context
 
-        self.assertEqual(u'en_US', language)
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
 
     def test_one_element_speeddials_section(self):
         speedials = [{'exten':'1001',

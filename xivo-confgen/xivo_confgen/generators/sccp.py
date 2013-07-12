@@ -77,15 +77,10 @@ class _SccpLineConf(object):
             print >> output, format_ast_option('cid_num', item['cid_num'])
             print >> output, format_ast_option('setvar', 'XIVO_USERID=%s' % item['user_id'])
             print >> output, format_ast_option('setvar', 'PICKUPMARK=%s%%%s' % (item['number'], item['context']))
-            print >> output, format_ast_option('language', self._format_language(item['language']))
+            if item['language']:
+                print >> output, format_ast_option('language', item['language'])
             print >> output, format_ast_option('context', item['context'])
             print >> output
-
-    def _format_language(self, language):
-        if not language:
-            return u'en_US'
-        else:
-            return language
 
 
 class _SccpDeviceConf(object):

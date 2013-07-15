@@ -128,9 +128,7 @@ class ExtensionsConf(object):
                     try:
                         user = user_dao.get(int(exten['typeval']))
                         ringseconds = user.ringseconds if user.ringseconds else ''
-                        language = user.language if user.language else ''
-                        line = line_services.get_by_user_id(user.id)
-                        exten['action'] = 'GoSub(user,s,1(%s,%s,%s,%s))' % (user.id, line.id, ringseconds, language)
+                        exten['action'] = 'GoSub(user,s,1(%s,%s))' % (exten['typeval'], ringseconds)
                     except (ElementNotExistsError, LookupError):
                         continue
                 elif exten['type'] == 'group':

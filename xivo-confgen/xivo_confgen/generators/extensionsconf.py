@@ -124,25 +124,12 @@ class ExtensionsConf(object):
 
             # objects extensions (user, group, ...)
             for exten in self.backend.extensions.all(context=ctx['name'], commented=False, order='exten'):
-                if exten['type'] == 'user':
-                    try:
-                        user = user_dao.get(int(exten['typeval']))
-                        ringseconds = user.ringseconds if user.ringseconds else ''
-                        exten['action'] = 'GoSub(user,s,1(%s,%s))' % (exten['typeval'], ringseconds)
-                    except (ElementNotExistsError, LookupError):
-                        continue
-                elif exten['type'] == 'group':
-                    exten['action'] = 'GoSub(group,s,1(%s,))' % exten['typeval']
-                elif exten['type'] == 'queue':
-                    exten['action'] = 'GoSub(queue,s,1(%s,))' % exten['typeval']
-                elif exten['type'] == 'meetme':
-                    exten['action'] = 'GoSub(meetme,s,1(%s,))' % exten['typeval']
-                elif exten['type'] == 'incall':
-                    exten['action'] = 'GoSub(did,s,1(%s,))' % exten['exten']
-                elif exten['type'] == 'outcall':
-                    exten['action'] = 'GoSub(outcall,s,1(%s,))' % exten['typeval']
-                else:
-                    continue
+                exten_type = exten['type']
+                exten_typeval = exten['typeval']
+                if exten_type == 'incall':
+                    exten_type = 'did'
+
+                exten['action'] = 'GoSub(%s,s,1(%s,))' % (exten_type, exten_typeval)
 
                 self.gen_dialplan_from_template(tmpl, exten, options)
 

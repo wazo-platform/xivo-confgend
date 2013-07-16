@@ -387,7 +387,7 @@ class ExtenFeaturesHandler(SpecializedHandler):
             and_(extensions.c.context == 'xivo-features',
                  extensions.c.type == 'extenfeatures',
                  extensions.c.typeval.in_(features))
-        )
+        ).order_by('exten')
 
         return self.execute(q).fetchall()
 

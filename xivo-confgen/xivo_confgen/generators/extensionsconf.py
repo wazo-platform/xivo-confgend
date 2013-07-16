@@ -18,7 +18,45 @@
 import re
 from StringIO import StringIO
 from xivo import OrderedConf, xivo_helpers
-from xivo_dao import callfilter_dao
+from xivo_dao import callfilter_dao, user_dao
+from xivo_dao.data_handler.line import services as line_services
+from xivo_dao.data_handler.exception import ElementNotExistsError
+
+
+DEFAULT_EXTENFEATURES = {
+    'paging': 'GoSub(paging,s,1(${EXTEN:3}))',
+    'autoprov': 'GoSub(autoprov,s,1())',
+    'incallfilter': 'GoSub(incallfilter,s,1())',
+    'phoneprogfunckey': 'GoSub(phoneprogfunckey,s,1(${EXTEN:0:4},${EXTEN:4}))',
+    'phonestatus': 'GoSub(phonestatus,s,1())',
+    'pickup': 'Pickup(${EXTEN:2}%${CONTEXT}@PICKUPMARK)',
+    'recsnd': 'GoSub(recsnd,s,1(wav))',
+    'vmboxmsgslt': 'GoSub(vmboxmsg,s,1(${EXTEN:3}))',
+    'vmboxpurgeslt': 'GoSub(vmboxpurge,s,1(${EXTEN:3}))',
+    'vmboxslt': 'GoSub(vmbox,s,1(${EXTEN:3}))',
+    'vmusermsg': 'GoSub(vmusermsg,s,1())',
+    'vmuserpurge': 'GoSub(vmuserpurge,s,1())',
+    'vmuserpurgeslt': 'GoSub(vmuserpurge,s,1(${EXTEN:3}))',
+    'vmuserslt': 'GoSub(vmuser,s,1(${EXTEN:3}))',
+    'agentstaticlogin': 'GoSub(agentstaticlogin,s,1(${EXTEN:3}))',
+    'agentstaticlogoff': 'GoSub(agentstaticlogoff,s,1(${EXTEN:3}))',
+    'agentstaticlogtoggle': 'GoSub(agentstaticlogtoggle,s,1(${EXTEN:3}))',
+    'bsfilter': 'GoSub(bsfilter,s,1(${EXTEN:3}))',
+    'callgroup': 'GoSub(group,s,1(${EXTEN:4}) )',
+    'calllistening': 'GoSub(calllistening,s,1())',
+    'callmeetme': 'GoSub(meetme,s,1(${EXTEN:4}))',
+    'callqueue': 'GoSub(queue,s,1(${EXTEN:4}))',
+    'callrecord': 'GoSub(callrecord,s,1() )',
+    'calluser': 'GoSub(user,s,1(${EXTEN:4}))',
+    'directoryaccess': 'Directory(${CONTEXT})',
+    'enablednd': 'GoSub(enablednd,s,1())',
+    'enablevm': 'GoSub(enablevm,s,1())',
+    'enablevmslt': 'GoSub(enablevm,s,1(${EXTEN:3}))',
+    'fwdundoall': 'GoSub(fwdundoall,s,1())',
+    'fwdbusy': 'GoSub(feature_forward,s,1(busy,${EXTEN:3}))',
+    'fwdrna': 'GoSub(feature_forward,s,1(rna,${EXTEN:3}))',
+    'fwdunc': 'GoSub(feature_forward,s,1(unc,${EXTEN:3}))',
+}
 
 
 class ExtensionsConf(object):
@@ -85,15 +123,27 @@ class ExtensionsConf(object):
             print >> options
 
             # objects extensions (user, group, ...)
-            for exten in self.backend.extensions.all(context=ctx['name'], commented=False, order='context'):
-                app = exten['app']
-                appdata = list(exten['appdata'].replace('|', ',').split(','))
+            for exten in self.backend.extensions.all(context=ctx['name'], commented=False, order='exten'):
+                if exten['type'] == 'user':
+                    try:
+                        user = user_dao.get(int(exten['typeval']))
+                        ringseconds = user.ringseconds if user.ringseconds else ''
+                        exten['action'] = 'GoSub(user,s,1(%s,%s))' % (exten['typeval'], ringseconds)
+                    except (ElementNotExistsError, LookupError):
+                        continue
+                elif exten['type'] == 'group':
+                    exten['action'] = 'GoSub(group,s,1(%s,))' % exten['typeval']
+                elif exten['type'] == 'queue':
+                    exten['action'] = 'GoSub(queue,s,1(%s,))' % exten['typeval']
+                elif exten['type'] == 'meetme':
+                    exten['action'] = 'GoSub(meetme,s,1(%s,))' % exten['typeval']
+                elif exten['type'] == 'incall':
+                    exten['action'] = 'GoSub(did,s,1(%s,))' % exten['exten']
+                elif exten['type'] == 'outcall':
+                    exten['action'] = 'GoSub(outcall,s,1(%s,))' % exten['typeval']
+                else:
+                    continue
 
-                if app == 'Macro':
-                    app = 'Gosub'
-                    appdata = (appdata[0], 's', '1(' + ','.join(appdata[1:]) + ')')
-
-                exten['action'] = "%s(%s)" % (app, ','.join(appdata))
                 self.gen_dialplan_from_template(tmpl, exten, options)
 
             # phone (user) hints
@@ -198,10 +248,10 @@ class ExtensionsConf(object):
             print >> options
 
         for exten in self.backend.extensions.all(context='xivo-features', commented=False):
-            app = exten['app']
-            appdata = list(exten['appdata'].replace('|', ',').split(','))
-            exten['action'] = "%s(%s)" % (app, ','.join(appdata))
-            self.gen_dialplan_from_template(tmpl, exten, options)
+            name = exten['typeval']
+            if name in DEFAULT_EXTENFEATURES:
+                exten['action'] = DEFAULT_EXTENFEATURES[name]
+                self.gen_dialplan_from_template(tmpl, exten, options)
 
         for x in ('busy', 'rna', 'unc'):
             fwdtype = "fwd%s" % x
@@ -219,6 +269,9 @@ class ExtensionsConf(object):
         return options.getvalue()
 
     def gen_dialplan_from_template(self, template, exten, output):
+        if 'priority' not in exten:
+            exten['priority'] = 1
+
         for line in template:
             prefix = 'exten =' if line.startswith('%%EXTEN%%') else 'same  =    '
 

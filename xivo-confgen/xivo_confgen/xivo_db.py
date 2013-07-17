@@ -191,9 +191,8 @@ class HintsHandler(SpecializedHandler):
         (_u, _v, _l) = [getattr(self.db, options)._table for options in
                 ('userfeatures', 'voicemail', 'linefeatures')]
 
-        conds = [_u.c.id == _l.c.iduserfeatures, _l.c.internal == 0, _u.c.enablehint == 1]
+        conds = [_u.c.id == _l.c.iduserfeatures, _u.c.enablehint == 1]
         if 'context' in kwargs:
-            print kwargs['context']
             conds.append(_l.c.context == kwargs['context'])
 
         q = select(

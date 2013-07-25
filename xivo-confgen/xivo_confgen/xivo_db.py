@@ -146,18 +146,21 @@ class SccpLineHandler(SpecializedHandler):
         sccpline = self.db.sccpline._table
         linefeatures = self.db.linefeatures._table
         userfeatures = self.db.userfeatures._table
+        user_line = self.db.user_line._table
 
         query = select(
             [sccpline.c.name,
              sccpline.c.cid_name,
              sccpline.c.cid_num,
              userfeatures.c.language,
-             linefeatures.c.iduserfeatures.label('user_id'),
+             user_line.c.user_id,
              linefeatures.c.context,
              linefeatures.c.number],
             and_(linefeatures.c.protocol == 'sccp',
                  linefeatures.c.protocolid == sccpline.c.id,
-                 linefeatures.c.iduserfeatures == userfeatures.c.id)
+                 user_line.c.main_user == True,
+                 user_line.c.main_line == True,
+                 user_line.c.user_id == userfeatures.c.id)
         )
 
         return self.execute(query).fetchall()
@@ -168,17 +171,20 @@ class SccpSpeedDialHandler(SpecializedHandler):
         sccpdevice = self.db.sccpdevice._table
         linefeatures = self.db.linefeatures._table
         phonefunckey = self.db.phonefunckey._table
+        user_line = self.db.user_line._table
 
         query = select(
             [phonefunckey.c.exten,
              phonefunckey.c.fknum,
              phonefunckey.c.label,
              phonefunckey.c.supervision,
-             linefeatures.c.iduserfeatures,
+             user_line.c.user_id,
              linefeatures.c.number,
              sccpdevice.c.device],
             and_(linefeatures.c.protocol == 'sccp',
-                 linefeatures.c.iduserfeatures == phonefunckey.c.iduserfeatures,
+                 user_line.c.user_id == phonefunckey.c.iduserfeatures,
+                 user_line.c.main_user == True,
+                 user_line.c.main_line == True,
                  linefeatures.c.number == sccpdevice.c.line)
         )
 
@@ -188,18 +194,31 @@ class SccpSpeedDialHandler(SpecializedHandler):
 class HintsHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
         # get users with hint
-        (_u, _v, _l) = [getattr(self.db, options)._table for options in
-                ('userfeatures', 'voicemail', 'linefeatures')]
+        userfeatures = self.db.userfeatures._table
+        linefeatures = self.db.linefeatures._table
+        voicemail = self.db.voicemail._table
+        user_line = self.db.user_line._table
 
-        conds = [_u.c.id == _l.c.iduserfeatures, _u.c.enablehint == 1]
+        conds = [
+             userfeatures.c.id == user_line.c.user_id,
+             user_line.c.main_user == True,
+             user_line.c.main_line == True,
+             userfeatures.c.enablehint == 1
+        ]
         if 'context' in kwargs:
-            conds.append(_l.c.context == kwargs['context'])
+            conds.append(linefeatures.c.context == kwargs['context'])
 
-        q = select(
-            [_u.c.id, _l.c.number, _l.c.name, _l.c.protocol, _u.c.enablevoicemail, _v.c.uniqueid],
+        q = select([
+            userfeatures.c.id,
+            userfeatures.c.enablevoicemail,
+            linefeatures.c.number,
+            linefeatures.c.name,
+            linefeatures.c.protocol,
+            voicemail.c.uniqueid
+            ],
             and_(*conds),
             from_obj=[
-                _u.outerjoin(_v, _u.c.voicemailid == _v.c.uniqueid)
+                userfeatures.outerjoin(voicemail, userfeatures.c.voicemailid == voicemail.c.uniqueid)
             ],
         )
 
@@ -209,25 +228,31 @@ class HintsHandler(SpecializedHandler):
 class PhonefunckeysHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
         # get all supervised user/group/queue/meetme
-        (_u, _p, _e, _l) = [getattr(self.db, options)._table for options in
-                ('userfeatures', 'phonefunckey', 'extensions', 'linefeatures')]
+        extensions = self.db.extensions._table
+        linefeatures = self.db.linefeatures._table
+        phonefunckey = self.db.phonefunckey._table
+        user_line = self.db.user_line._table
+
         conds = [
-            _l.c.iduserfeatures == _p.c.iduserfeatures,
-            _p.c.typeextenumbers == None,
-            _p.c.typevalextenumbers == None,
-            _p.c.typeextenumbersright.in_(('group', 'queue', 'meetme')),
-            _p.c.supervision == 1,
+            user_line.c.user_id == phonefunckey.c.iduserfeatures,
+            user_line.c.main_user == True,
+            user_line.c.main_line == True,
+            user_line.c.line_id == linefeatures.c.id,
+            phonefunckey.c.typeextenumbers == None,
+            phonefunckey.c.typevalextenumbers == None,
+            phonefunckey.c.typeextenumbersright.in_(('group', 'queue', 'meetme')),
+            phonefunckey.c.supervision == 1,
         ]
         if 'context' in kwargs:
-            conds.append(_l.c.context == kwargs['context'])
+            conds.append(linefeatures.c.context == kwargs['context'])
 
         q = select(
-            [_p.c.typeextenumbersright, _p.c.typevalextenumbersright, _e.c.exten],
+            [phonefunckey.c.typeextenumbersright, phonefunckey.c.typevalextenumbersright, extensions.c.exten],
             and_(*conds),
             from_obj=[
-                _p.outerjoin(_e, and_(
-                    cast(_p.c.typeextenumbersright, VARCHAR(255)) == cast(_e.c.type, VARCHAR(255)),
-                    _p.c.typevalextenumbersright == _e.c.typeval))],
+                phonefunckey.outerjoin(extensions, and_(
+                    cast(phonefunckey.c.typeextenumbersright, VARCHAR(255)) == cast(extensions.c.type, VARCHAR(255)),
+                    phonefunckey.c.typevalextenumbersright == extensions.c.typeval))],
         )
 
         return self.execute(q).fetchall()
@@ -235,27 +260,31 @@ class PhonefunckeysHandler(SpecializedHandler):
 
 class ProgfunckeysHintsHandler(SpecializedHandler):
     def all(self, *args, **kwargs):
-        (_u, _p, _e, _l) = [getattr(self.db, options)._table for options in
-                ('userfeatures', 'phonefunckey', 'extensions', 'linefeatures')]
+        extensions = self.db.extensions._table
+        linefeatures = self.db.linefeatures._table
+        phonefunckey = self.db.phonefunckey._table
+        user_line = self.db.user_line._table
 
         conds = [
-                _l.c.iduserfeatures == _p.c.iduserfeatures,
-                _p.c.typeextenumbers != None,
-                _p.c.typevalextenumbers != None,
-                _p.c.supervision == 1,
-                _p.c.progfunckey == 1,
-                cast(_p.c.typeextenumbers, VARCHAR(255)) == cast(_e.c.type, VARCHAR(255)),
-                _p.c.typevalextenumbers != 'user',
-                _p.c.typevalextenumbers == _e.c.typeval
+            user_line.c.user_id == phonefunckey.c.iduserfeatures,
+            user_line.c.main_user == True,
+            user_line.c.main_line == True,
+            user_line.c.line_id == linefeatures.c.id,
+            phonefunckey.c.typeextenumbers != None,
+            phonefunckey.c.typevalextenumbers != None,
+            phonefunckey.c.supervision == 1,
+            phonefunckey.c.progfunckey == 1,
+            cast(phonefunckey.c.typeextenumbers, VARCHAR(255)) == cast(extensions.c.type, VARCHAR(255)),
+            phonefunckey.c.typevalextenumbers != 'user',
+            phonefunckey.c.typevalextenumbers == extensions.c.typeval
         ]
         if 'context' in kwargs:
-            conds.append(_l.c.context == kwargs['context'])
+            conds.append(linefeatures.c.context == kwargs['context'])
 
         q = select(
-            [_p.c.iduserfeatures, _p.c.exten, _p.c.typeextenumbers,
-             _p.c.typevalextenumbers, _p.c.typeextenumbersright,
-             _p.c.typevalextenumbersright, _e.c.exten.label('leftexten')],
-
+            [phonefunckey.c.iduserfeatures, phonefunckey.c.exten, phonefunckey.c.typeextenumbers,
+             phonefunckey.c.typevalextenumbers, phonefunckey.c.typeextenumbersright,
+             phonefunckey.c.typevalextenumbersright, extensions.c.exten.label('leftexten')],
             and_(*conds)
         )
         return self.execute(q).fetchall()
@@ -270,9 +299,9 @@ class PickupsHandler(SpecializedHandler):
         if usertype not in ('sip', 'iax'):
             raise TypeError
 
-        (_p, _pm, _lf, _u, _g, _q, _qm) = [getattr(self.db, options)._table.c for options in
+        (_p, _pm, _lf, _u, _g, _q, _qm, _ul) = [getattr(self.db, options)._table.c for options in
                 ('pickup', 'pickupmember', 'linefeatures', 'user' + usertype, 'groupfeatures',
-                'queuefeatures', 'queuemember')]
+                'queuefeatures', 'queuemember', 'user_line')]
 
         # simple users
         q1 = select([_u.name, _pm.category, _p.id],
@@ -280,7 +309,8 @@ class PickupsHandler(SpecializedHandler):
                 _p.commented == 0,
                 _p.id == _pm.pickupid,
                 _pm.membertype == 'user',
-                _pm.memberid == _lf.iduserfeatures,
+                _pm.memberid == _ul.user_id,
+                _ul.id == _ul.line_id,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )
@@ -295,7 +325,8 @@ class PickupsHandler(SpecializedHandler):
                 _pm.memberid == _g.id,
                 _g.name == _qm.queue_name,
                 _qm.usertype == 'user',
-                _qm.userid == _lf.iduserfeatures,
+                _qm.userid == _ul.user_id,
+                _ul.id == _ul.line_id,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )
@@ -310,7 +341,8 @@ class PickupsHandler(SpecializedHandler):
                 _pm.memberid == _q.id,
                 _q.name == _qm.queue_name,
                 _qm.usertype == 'user',
-                _qm.userid == _lf.iduserfeatures,
+                _qm.userid == _ul.user_id,
+                _lf.id == _ul.line_id,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )

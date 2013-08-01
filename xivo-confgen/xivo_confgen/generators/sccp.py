@@ -105,14 +105,14 @@ class _SccpDeviceConf(object):
     def _generate_speeddials(self, output, device):
         for item in self._sccpspeeddialdevices:
             if item['device'] == device:
-                print >> output, format_ast_option('speeddial', '%d-%d' % (item['iduserfeatures'], item['fknum']))
+                print >> output, format_ast_option('speeddial', '%d-%d' % (item['user_id'], item['fknum']))
 
 
 class _SccpSpeedDialConf(object):
     def generate(self, sccpspeeddial, output):
         print >> output, u'[speeddials]'
         for item in sccpspeeddial:
-            print >> output, format_ast_section('%d-%d' % (item['iduserfeatures'], item['fknum']))
+            print >> output, format_ast_section('%d-%d' % (item['user_id'], item['fknum']))
             print >> output, format_ast_option('extension', item['exten'])
             print >> output, format_ast_option('label', item['label'])
             print >> output, format_ast_option('blf', item['supervision'])

@@ -117,8 +117,7 @@ class TestSccpConf(unittest.TestCase):
                       'fknum': 1,
                       'label': 'user001',
                       'supervision': 0,
-                      'iduserfeatures': 1229,
-                      'number': '103',
+                      'user_id': 1229,
                       'device': 'SEPACA016FDF235'}]
 
         sccp_conf = _SccpSpeedDialConf()
@@ -145,8 +144,7 @@ class TestSccpConf(unittest.TestCase):
                            'fknum': 1,
                            'label': 'user001',
                            'supervision': 0,
-                           'iduserfeatures': 1229,
-                           'number': '103',
+                           'user_id': 1229,
                            'device': 'SEPACA016FDF235'}]
 
         sccp_conf = _SccpDeviceConf(sccpspeeddials)
@@ -225,15 +223,13 @@ class TestSccpConf(unittest.TestCase):
              'fknum': 2,
              'label': 'user002',
              'supervision': 0,
-             'iduserfeatures': 1229,
-             'number': '103',
+             'user_id': 1229,
              'device': 'SEPACA016FDF235'},
             {'exten':'1001',
              'fknum': 1,
              'label': 'user001',
              'supervision': 0,
-             'iduserfeatures': 1229,
-             'number': '103',
+             'user_id': 1229,
              'device': 'SEPACA016FDF235'},
         ]
 

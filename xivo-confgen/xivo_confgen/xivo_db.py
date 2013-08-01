@@ -156,11 +156,12 @@ class SccpLineHandler(SpecializedHandler):
              user_line.c.user_id,
              linefeatures.c.context,
              linefeatures.c.number],
-            and_(linefeatures.c.protocol == 'sccp',
-                 linefeatures.c.protocolid == sccpline.c.id,
+            and_(user_line.c.user_id == userfeatures.c.id,
+                 user_line.c.line_id == linefeatures.c.id,
                  user_line.c.main_user == True,
                  user_line.c.main_line == True,
-                 user_line.c.user_id == userfeatures.c.id)
+                 linefeatures.c.protocol == 'sccp',
+                 linefeatures.c.protocolid == sccpline.c.id)
         )
 
         return self.execute(query).fetchall()
@@ -179,12 +180,11 @@ class SccpSpeedDialHandler(SpecializedHandler):
              phonefunckey.c.label,
              phonefunckey.c.supervision,
              user_line.c.user_id,
-             linefeatures.c.number,
              sccpdevice.c.device],
-            and_(linefeatures.c.protocol == 'sccp',
-                 user_line.c.user_id == phonefunckey.c.iduserfeatures,
+            and_(user_line.c.user_id == phonefunckey.c.iduserfeatures,
+                 user_line.c.line_id == linefeatures.c.id,
                  user_line.c.main_user == True,
-                 user_line.c.main_line == True,
+                 linefeatures.c.protocol == 'sccp',
                  linefeatures.c.number == sccpdevice.c.line)
         )
 
@@ -200,7 +200,8 @@ class HintsHandler(SpecializedHandler):
         user_line = self.db.user_line._table
 
         conds = [
-             userfeatures.c.id == user_line.c.user_id,
+             user_line.c.user_id == userfeatures.c.id,
+             user_line.c.line_id == linefeatures.c.id,
              user_line.c.main_user == True,
              user_line.c.main_line == True,
              userfeatures.c.enablehint == 1
@@ -235,9 +236,9 @@ class PhonefunckeysHandler(SpecializedHandler):
 
         conds = [
             user_line.c.user_id == phonefunckey.c.iduserfeatures,
+            user_line.c.line_id == linefeatures.c.id,
             user_line.c.main_user == True,
             user_line.c.main_line == True,
-            user_line.c.line_id == linefeatures.c.id,
             phonefunckey.c.typeextenumbers == None,
             phonefunckey.c.typevalextenumbers == None,
             phonefunckey.c.typeextenumbersright.in_(('group', 'queue', 'meetme')),

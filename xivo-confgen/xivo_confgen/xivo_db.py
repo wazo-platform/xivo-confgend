@@ -311,7 +311,7 @@ class PickupsHandler(SpecializedHandler):
                 _p.id == _pm.pickupid,
                 _pm.membertype == 'user',
                 _pm.memberid == _ul.user_id,
-                _ul.id == _ul.line_id,
+                _lf.id == _ul.line_id,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )
@@ -327,7 +327,7 @@ class PickupsHandler(SpecializedHandler):
                 _g.name == _qm.queue_name,
                 _qm.usertype == 'user',
                 _qm.userid == _ul.user_id,
-                _ul.id == _ul.line_id,
+                _lf.id == _ul.line_id,
                 _lf.protocol == usertype,
                 _lf.protocolid == _u.id
             )

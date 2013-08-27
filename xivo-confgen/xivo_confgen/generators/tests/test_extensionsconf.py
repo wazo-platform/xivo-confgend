@@ -112,13 +112,14 @@ class TestExtensionsConf(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_prog_funckeys(self):
-        keys = [{'exten': '1234',
+        standard_keys = [{'exten': '1234',
                  'iduserfeatures': 2,
                  'leftexten': '*31'},
                 {'exten': None,
                  'typevalextenumbersright': '20',
                  'iduserfeatures': 3,
                  'leftexten': '*21'}]
+        custom_keys = [{'exten': '*4567'}]
         keyfeature = Mock()
         keyfeature.get.return_value = '**432'
         xfeatures = {'phoneprogfunckey': keyfeature}
@@ -127,7 +128,8 @@ class TestExtensionsConf(unittest.TestCase):
 
         xivo_helpers.fkey_extension = side_effect
         self.extensionsconf.backend = Mock()
-        self.extensionsconf.backend.progfunckeys.all.return_value = keys
+        self.extensionsconf.backend.progfunckeys.all.return_value = standard_keys
+        self.extensionsconf.backend.progfunckeys.custom.return_value = custom_keys
 
         result = self.extensionsconf._prog_funckeys({'name': 'default'}, xfeatures)
 
@@ -135,6 +137,7 @@ class TestExtensionsConf(unittest.TestCase):
 ; prog funckeys supervision
 exten = **4322*311234,hint,Custom:**4322*311234
 exten = **4323*21*20,hint,Custom:**4323*21*20
+exten = *4567,hint,Custom:*4567
 '''
 
         self.assertEquals(expected_result, result)

@@ -290,6 +290,29 @@ class ProgfunckeysHintsHandler(SpecializedHandler):
         )
         return self.execute(q).fetchall()
 
+    def custom(self, *args, **kwargs):
+        phonefunckey = self.db.phonefunckey._table
+        linefeatures = self.db.linefeatures._table
+        user_line = self.db.user_line._table
+
+        conds = [
+            user_line.c.user_id == phonefunckey.c.iduserfeatures,
+            user_line.c.main_user == True,
+            user_line.c.main_line == True,
+            user_line.c.line_id == linefeatures.c.id,
+            phonefunckey.c.typeextenumbers == None,
+            phonefunckey.c.typevalextenumbers == None,
+            phonefunckey.c.supervision == 1,
+            phonefunckey.c.progfunckey == 0,
+        ]
+        if 'context' in kwargs:
+            conds.append(linefeatures.c.context == kwargs['context'])
+
+        q = select(
+            [phonefunckey.c.exten],
+            and_(*conds)
+        )
+        return self.execute(q).fetchall()
 
 class PickupsHandler(SpecializedHandler):
     """

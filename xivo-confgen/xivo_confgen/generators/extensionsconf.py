@@ -251,6 +251,9 @@ class ExtensionsConf(object):
             extens.add(xivo_helpers.fkey_extension(xfeatures['phoneprogfunckey'].get('exten'),
                 (k['iduserfeatures'], k['leftexten'], exten)))
 
+        customkeys = self.backend.progfunckeys.custom(context=context['name'])
+        for k in customkeys:
+            extens.add(k['exten'])
         if len(extens) > 0:
             print >> options, "\n; prog funckeys supervision"
             for exten in extens:

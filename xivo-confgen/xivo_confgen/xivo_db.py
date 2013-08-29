@@ -302,6 +302,8 @@ class ProgfunckeysHintsHandler(SpecializedHandler):
             user_line.c.line_id == linefeatures.c.id,
             phonefunckey.c.typeextenumbers == None,
             phonefunckey.c.typevalextenumbers == None,
+            phonefunckey.c.typeextenumbersright == None,
+            phonefunckey.c.typevalextenumbersright == None,
             phonefunckey.c.supervision == 1,
             phonefunckey.c.progfunckey == 0,
         ]

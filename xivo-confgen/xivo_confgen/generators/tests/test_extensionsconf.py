@@ -113,13 +113,14 @@ class TestExtensionsConf(unittest.TestCase):
 
     def test_prog_funckeys(self):
         standard_keys = [{'exten': '1234',
-                 'iduserfeatures': 2,
-                 'leftexten': '*31'},
-                {'exten': None,
-                 'typevalextenumbersright': '20',
-                 'iduserfeatures': 3,
-                 'leftexten': '*21'}]
-        custom_keys = [{'exten': '*4567'}]
+                          'iduserfeatures': 2,
+                          'leftexten': '*31'},
+                         {'exten': None,
+                          'typevalextenumbersright': '20',
+                          'iduserfeatures': 3,
+                          'leftexten': '*21'}]
+        custom_keys = [{'exten': '*4567'},
+                       {'exten': '1234'}]
         keyfeature = Mock()
         keyfeature.get.return_value = '**432'
         xfeatures = {'phoneprogfunckey': keyfeature}
@@ -130,8 +131,9 @@ class TestExtensionsConf(unittest.TestCase):
         self.extensionsconf.backend = Mock()
         self.extensionsconf.backend.progfunckeys.all.return_value = standard_keys
         self.extensionsconf.backend.progfunckeys.custom.return_value = custom_keys
+        existing_hints = set(['1234', '5678'])
 
-        result = self.extensionsconf._prog_funckeys({'name': 'default'}, xfeatures)
+        result = self.extensionsconf._prog_funckeys({'name': 'default'}, xfeatures, existing_hints)
 
         expected_result = '''
 ; prog funckeys supervision

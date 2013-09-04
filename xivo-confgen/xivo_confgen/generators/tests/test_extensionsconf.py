@@ -15,10 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import unittest
-from xivo_confgen.generators.extensionsconf import ExtensionsConf
 from StringIO import StringIO
 from mock import Mock
+from xivo_confgen.generators.extensionsconf import ExtensionsConf
+import unittest
+from xivo import xivo_helpers
 
 
 class TestExtensionsConf(unittest.TestCase):
@@ -50,7 +51,7 @@ class TestExtensionsConf(unittest.TestCase):
 
         self.extensionsconf.backend = Mock()
         self.extensionsconf.backend.extensions.all.return_value = \
-            [{'exten':u'2300','app':u'GoSub','priority':1,'appdata':u'    endcall,s,1(hangup)'}]
+            [{'exten':u'2300', 'app':u'GoSub', 'priority':1, 'appdata':u'    endcall,s,1(hangup)'}]
         self.extensionsconf.generate_voice_menus(voicemenus, output)
 
         self.assertConfigEqual("""\
@@ -109,3 +110,36 @@ class TestExtensionsConf(unittest.TestCase):
         expected = set([(1000, 1001), (1000, 1002)])
 
         self.assertEqual(result, expected)
+
+    def test_prog_funckeys(self):
+        standard_keys = [{'exten': '1234',
+                          'iduserfeatures': 2,
+                          'leftexten': '*31'},
+                         {'exten': None,
+                          'typevalextenumbersright': '20',
+                          'iduserfeatures': 3,
+                          'leftexten': '*21'}]
+        custom_keys = [{'exten': '*4567'},
+                       {'exten': '1234'}]
+        keyfeature = Mock()
+        keyfeature.get.return_value = '**432'
+        xfeatures = {'phoneprogfunckey': keyfeature}
+        def side_effect(exten, uplet):
+            return exten + str(uplet[0]) + str(uplet[1]) + str(uplet[2])
+
+        xivo_helpers.fkey_extension = side_effect
+        self.extensionsconf.backend = Mock()
+        self.extensionsconf.backend.progfunckeys.all.return_value = standard_keys
+        self.extensionsconf.backend.progfunckeys.custom.return_value = custom_keys
+        existing_hints = set(['1234', '5678'])
+
+        result = self.extensionsconf._prog_funckeys({'name': 'default'}, xfeatures, existing_hints)
+
+        expected_result = '''
+; prog funckeys supervision
+exten = **4322*311234,hint,Custom:**4322*311234
+exten = **4323*21*20,hint,Custom:**4323*21*20
+exten = *4567,hint,Custom:*4567
+'''
+
+        self.assertEquals(expected_result, result)

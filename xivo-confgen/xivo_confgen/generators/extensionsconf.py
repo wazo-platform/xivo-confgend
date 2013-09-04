@@ -18,9 +18,7 @@
 import re
 from StringIO import StringIO
 from xivo import OrderedConf, xivo_helpers
-from xivo_dao import callfilter_dao, user_dao
-from xivo_dao.data_handler.line import services as line_services
-from xivo_dao.data_handler.exception import ElementNotExistsError
+from xivo_dao import callfilter_dao
 
 
 DEFAULT_EXTENFEATURES = {
@@ -69,6 +67,7 @@ class ExtensionsConf(object):
 
         options = output
         conf = None
+        existing_hints = set()
 
         # load context templates
         if hasattr(self, 'contextsconf'):
@@ -152,16 +151,19 @@ class ExtensionsConf(object):
 
                 if number:
                     print >> options, "exten = %s,hint,%s" % (number, interface)
+                    existing_hints.add(number)
 
                 if not xfeatures['calluser'].get('commented', 1):
-                    print >> options, "exten = %s,hint,%s" % (xivo_helpers.fkey_extension(
-                        xfeatures['calluser']['exten'], (xid,)),
-                        interface)
+                    number = xivo_helpers.fkey_extension(xfeatures['calluser']['exten'], (xid,))
+                    print >> options, "exten = %s,hint,%s" % (number, interface)
+                    existing_hints.add(number)
 
                 if not xfeatures['vmusermsg'].get('commented', 1) and int(hint['enablevoicemail']) \
                      and hint['uniqueid']:
                     if proto == 'CUSTOM':
-                        print >> options, "exten = %s%s,hint,%s" % (xfeatures['vmusermsg']['exten'], number, interface)
+                        fullexten = xfeatures['vmusermsg']['exten'] + number
+                        print >> options, "exten = %s,hint,%s" % (fullexten, interface)
+                        existing_hints.add(fullexten)
 
             # objects(user,group,...) supervision
             phonesfk = self.backend.phonefunckeys.all(context=ctx['name'])
@@ -186,6 +188,7 @@ class ExtensionsConf(object):
 
             for hint in xset:
                 print >> options, "exten = %s,hint,%s" % hint
+                existing_hints.add(hint[0])
 
             # BS filters supervision
             callfiltermemberids = callfilter_dao.get_secretaries_id_by_context(ctx['name'])
@@ -196,24 +199,9 @@ class ExtensionsConf(object):
                 for callfiltermemberid in callfiltermemberids:
                     exten = xivo_helpers.fkey_extension(bsfilter_exten, callfiltermemberid)
                     print >> options, "exten = %s,hint,Custom:%s" % (exten, exten)
+                    existing_hints.add(exten)
 
-            # prog funckeys supervision
-            progfunckeys = self.backend.progfunckeys.all(context=ctx['name'])
-
-            extens = set()
-            for k in progfunckeys:
-                exten = k['exten']
-
-                if exten is None and k['typevalextenumbersright'] is not None:
-                    exten = "*%s" % k['typevalextenumbersright']
-
-                extens.add(xivo_helpers.fkey_extension(xfeatures['phoneprogfunckey'].get('exten'),
-                    (k['iduserfeatures'], k['leftexten'], exten)))
-
-            if len(extens) > 0:
-                print >> options, "\n; prog funckeys supervision"
-                for exten in extens:
-                    print >> options, "exten = %s,hint,Custom:%s" % (exten, exten)
+            print >> options, self._prog_funckeys(ctx, xfeatures, existing_hints)
 
         print >> options, self._extensions_features(conf, xfeatures)
         return options.getvalue()
@@ -253,6 +241,31 @@ class ExtensionsConf(object):
         if cfeatures:
             print >> options, "exten = " + "\nexten = ".join(cfeatures)
 
+        return options.getvalue()
+
+    def _prog_funckeys(self, context, xfeatures, existing_hints):
+        options = StringIO()
+        progfunckeys = self.backend.progfunckeys.all(context=context['name'])
+        extens = set()
+
+        for k in progfunckeys:
+            exten = k['exten']
+
+            if exten is None and k['typevalextenumbersright'] is not None:
+                exten = "*%s" % k['typevalextenumbersright']
+
+            extens.add(xivo_helpers.fkey_extension(xfeatures['phoneprogfunckey'].get('exten'),
+                (k['iduserfeatures'], k['leftexten'], exten)))
+
+        customkeys = self.backend.progfunckeys.custom(context=context['name'])
+        for k in customkeys:
+            if k['exten'] not in existing_hints:
+                extens.add(k['exten'])
+
+        if len(extens) > 0:
+            print >> options, "\n; prog funckeys supervision"
+            for exten in extens:
+                print >> options, "exten = %s,hint,Custom:%s" % (exten, exten)
         return options.getvalue()
 
     def gen_dialplan_from_template(self, template, exten, output):

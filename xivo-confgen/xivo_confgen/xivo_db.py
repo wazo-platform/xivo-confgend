@@ -200,22 +200,23 @@ class HintsHandler(SpecializedHandler):
         user_line = self.db.user_line._table
 
         conds = [
-             user_line.c.user_id == userfeatures.c.id,
-             user_line.c.line_id == linefeatures.c.id,
-             user_line.c.main_user == True,
-             user_line.c.main_line == True,
-             userfeatures.c.enablehint == 1
+            user_line.c.user_id == userfeatures.c.id,
+            user_line.c.line_id == linefeatures.c.id,
+            user_line.c.main_user == True,
+            user_line.c.main_line == True,
+            userfeatures.c.enablehint == 1
         ]
         if 'context' in kwargs:
             conds.append(linefeatures.c.context == kwargs['context'])
 
-        q = select([
-            userfeatures.c.id,
-            userfeatures.c.enablevoicemail,
-            linefeatures.c.number,
-            linefeatures.c.name,
-            linefeatures.c.protocol,
-            voicemail.c.uniqueid
+        q = select(
+            [
+                userfeatures.c.id,
+                userfeatures.c.enablevoicemail,
+                linefeatures.c.number,
+                linefeatures.c.name,
+                linefeatures.c.protocol,
+                voicemail.c.uniqueid
             ],
             and_(*conds),
             from_obj=[
@@ -316,6 +317,7 @@ class ProgfunckeysHintsHandler(SpecializedHandler):
         )
         return self.execute(q).fetchall()
 
+
 class PickupsHandler(SpecializedHandler):
     """
 
@@ -326,8 +328,14 @@ class PickupsHandler(SpecializedHandler):
             raise TypeError
 
         (_p, _pm, _lf, _u, _g, _q, _qm, _ul) = [getattr(self.db, options)._table.c for options in
-                ('pickup', 'pickupmember', 'linefeatures', 'user' + usertype, 'groupfeatures',
-                'queuefeatures', 'queuemember', 'user_line')]
+                                                ('pickup',
+                                                 'pickupmember',
+                                                 'linefeatures',
+                                                 'user' + usertype,
+                                                 'groupfeatures',
+                                                 'queuefeatures',
+                                                 'queuemember',
+                                                 'user_line')]
 
         # simple users
         q1 = select([_u.name, _pm.category, _p.id],
@@ -382,11 +390,11 @@ class QueuePenaltiesHandler(SpecializedHandler):
         (_p, _pc) = [getattr(self.db, options)._table.c for options in ('queuepenalty', 'queuepenaltychange')]
 
         q = select(
-                [_p.name, _pc.seconds, _pc.maxp_sign, _pc.maxp_value, _pc.minp_sign, _pc.minp_value],
-                and_(
-                    _p.commented == 0,
-                    _p.id == _pc.queuepenalty_id
-                )
+            [_p.name, _pc.seconds, _pc.maxp_sign, _pc.maxp_value, _pc.minp_sign, _pc.minp_value],
+            and_(
+                _p.commented == 0,
+                _p.id == _pc.queuepenalty_id
+            )
         ).order_by(_p.name)
 
         return self.execute(q).fetchall()
@@ -397,19 +405,17 @@ class TrunksHandler(SpecializedHandler):
         (_t, _s, _i) = [getattr(self.db, options)._table.c for options in ('trunkfeatures', 'usersip', 'useriax')]
 
         q1 = select([_t.id, _t.protocol, _s.username, _s.secret, _s.host],
-            and_(
-                _t.protocol == 'sip',
-                _t.protocolid == _s.id,
-                _s.commented == 0,
-            )
-        )
+                    and_(
+                        _t.protocol == 'sip',
+                        _t.protocolid == _s.id,
+                        _s.commented == 0,
+                    ))
         q2 = select([_t.id, _t.protocol, _i.username, _i.secret, _i.host],
-            and_(
-                _t.protocol == 'iax',
-                _t.protocolid == _i.id,
-                _i.commented == 0,
-            )
-        )
+                    and_(
+                        _t.protocol == 'iax',
+                        _t.protocolid == _i.id,
+                        _i.commented == 0,
+                    ))
 
         return self.execute(q2.union(q1)).fetchall()
         # return self.execute(q1).fetchall()
@@ -541,14 +547,14 @@ class QObject(object):
 class XivoDBBackend(object):
     def __init__(self, uri):
         self.db = SqlSoup(uri,
-                session=scoped_session(sessionmaker(autoflush=True, expire_on_commit=False, autocommit=True)))
+                          session=scoped_session(sessionmaker(autoflush=True, expire_on_commit=False, autocommit=True)))
 
     def __getattr__(self, name):
         if not name in QObject._translation:
             raise KeyError(name)
 
         if inspect.isclass(QObject._translation[name]) and\
-             issubclass(QObject._translation[name], SpecializedHandler):
+                issubclass(QObject._translation[name], SpecializedHandler):
             return QObject._translation[name](self.db, name)
 
         return QObject(self.db, name)

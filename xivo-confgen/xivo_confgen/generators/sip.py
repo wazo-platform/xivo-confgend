@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+#
 # Copyright (C) 2011-2013 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,23 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from xivo_dao import asterisk_conf_dao
+
 
 class SipConf(object):
-    def __init__(self, general, authentication, trunk, pickups, user):
-        self._general = general
-        self._authentication = authentication
-        self._trunk = trunk
-        self._pickups = pickups
-        self._user = user
 
     def generate(self, output):
-        self._gen_general(self._general, output)
+        data_general = asterisk_conf_dao.find_sip_general_settings()
+        self._gen_general(data_general, output)
         print >> output
-        self._gen_authentication(self._authentication, output)
+
+        data_auth = asterisk_conf_dao.find_sip_authentication_settings()
+        self._gen_authentication(data_auth, output)
         print >> output
-        self._gen_trunk(self._trunk, output)
+
+        data_trunk = asterisk_conf_dao.find_sip_trunk_settings()
+        self._gen_trunk(data_trunk, output)
         print >> output
-        self._gen_user(self._user, output)
+
+        data_pickup = asterisk_conf_dao.find_sip_pickup_settings()
+        data_user = asterisk_conf_dao.find_sip_user_settings()
+        self._gen_user(data_pickup, data_user, output)
 
     def _gen_general(self, data_general, output):
         print >> output, '[general]'
@@ -79,7 +83,7 @@ class SipConf(object):
                 else:
                     print >> output, k, '=', v
 
-    def _gen_user(self, data_user, output):
+    def _gen_user(self, data_pickup, data_user, output):
         sip_unused_values = (
             'id', 'name', 'protocol',
             'category', 'commented', 'initialized',
@@ -88,7 +92,7 @@ class SipConf(object):
         )
 
         pickups = {}
-        for p in self._pickups:
+        for p in data_pickup:
             user = pickups.setdefault(p[0], {})
             user.setdefault(p[1], []).append(str(p[2]))
 
@@ -122,15 +126,6 @@ class SipConf(object):
                     print >> output, "pickupgroup = " + ','.join(frozenset(p['member']))
                 if 'pickup' in p:
                     print >> output, "callgroup = " + ','.join(frozenset(p['pickup']))
-
-    @classmethod
-    def new_from_backend(cls, backend):
-        general = backend.sip.all(commented=False)
-        authentication = backend.sipauth.all()
-        trunk = backend.siptrunks.all(commented=False)
-        pickups = backend.pickups.all(usertype='sip')
-        user = backend.sipusers.all()
-        return cls(general, authentication, trunk, pickups, user)
 
 
 def gen_value_line(key, value):

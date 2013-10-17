@@ -17,6 +17,7 @@
 
 from xivo_confgen.generators.util import format_ast_option, \
     format_ast_object_option
+from xivo_dao import asterisk_conf_dao
 
 
 class QueuesConf(object):
@@ -28,10 +29,10 @@ class QueuesConf(object):
         penalties = dict((itm['id'], itm['name']) for itm in self._backend.queuepenalty.all(commented=False))
 
         print >> output, '[general]'
-        for item in self._backend.queue.all(commented=False, category='general'):
+        for item in asterisk_conf_dao.find_queue_general_settings():
             print >> output, format_ast_option(item['var_name'], item['var_val'])
 
-        for q in self._backend.queues.all(commented=False, order='name'):
+        for q in asterisk_conf_dao.find_queue_settings():
             print >> output, '\n[%s]' % q['name']
 
             for k, v in q.iteritems():

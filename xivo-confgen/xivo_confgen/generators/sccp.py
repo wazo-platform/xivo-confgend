@@ -15,22 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from operator import itemgetter
+
 from xivo_confgen.generators.util import format_ast_section, \
     format_ast_option
-
-from operator import itemgetter
+from xivo_dao import asterisk_conf_dao
 
 
 class SccpConf(object):
-    def __init__(self,
-                 sccpgeneralsettings,
-                 sccpline,
-                 sccpdevice,
-                 sccpspeeddial):
-        self._sccpgeneralsettings = sccpgeneralsettings
-        self._sccpline = sccpline
-        self._sccpdevice = sccpdevice
-        self._sccpspeeddial = sccpspeeddial
+
+    def __init__(self):
+        self._sccpgeneralsettings = asterisk_conf_dao.find_sccp_general_settings()
+        self._sccpline = asterisk_conf_dao.find_sccp_line_settings()
+        self._sccpdevice = asterisk_conf_dao.find_sccp_device_settings()
+        self._sccpspeeddial = asterisk_conf_dao.find_sccp_speeddial_settings()
 
     def generate(self, output):
         sccp_general_conf = _SccpGeneralSettingsConf()
@@ -44,17 +42,6 @@ class SccpConf(object):
 
         sccp_device_conf = _SccpDeviceConf(self._sccpspeeddial)
         sccp_device_conf.generate(self._sccpdevice, output)
-
-    @classmethod
-    def new_from_backend(cls, backend):
-        sccpgeneralsettings = backend.sccpgeneralsettings.all()
-        sccpline = backend.sccpline.all()
-        sccpdevice = backend.sccpdevice.all()
-        sccpspeeddial = backend.sccpspeeddial.all()
-        return cls(sccpgeneralsettings,
-                   sccpline,
-                   sccpdevice,
-                   sccpspeeddial)
 
 
 class _SccpGeneralSettingsConf(object):

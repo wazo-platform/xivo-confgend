@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import time
 import sys
 from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
@@ -26,15 +27,17 @@ class Confgen(Protocol):
 
     def dataReceived(self, data):
         try:
+            t1 = time.time()
             self._write_response(data)
+            t2 = time.time()
+
+            print "serving %s in %.3f seconds" % (data, t2 - t1)
         finally:
             self.transport.loseConnection()
 
     def _write_response(self, data):
         if data[-1] == '\n':
             data = data[:-1]
-
-        print "serving", data
 
         # 'asterisk/sip.conf' => ('asterisk', 'sip_conf')
         try:

@@ -36,7 +36,7 @@ class TestExtensionsConf(unittest.TestCase):
     def test_generate_dialplan_from_template(self):
         output = StringIO()
         template = ["%%EXTEN%%,%%PRIORITY%%,Set('XIVO_BASE_CONTEXT': ${CONTEXT})"]
-        exten = {'exten':'*98', 'priority':1}
+        exten = {'exten': '*98', 'priority': 1}
         self.extensionsconf.gen_dialplan_from_template(template, exten, output)
 
         self.assertEqual(output.getvalue(), "exten = *98,1,Set('XIVO_BASE_CONTEXT': ${CONTEXT})\n\n")
@@ -124,6 +124,7 @@ class TestExtensionsConf(unittest.TestCase):
         keyfeature = Mock()
         keyfeature.get.return_value = '**432'
         xfeatures = {'phoneprogfunckey': keyfeature}
+
         def side_effect(exten, uplet):
             return exten + str(uplet[0]) + str(uplet[1]) + str(uplet[2])
 

@@ -158,8 +158,7 @@ class ExtensionsConf(object):
                     print >> options, "exten = %s,hint,%s" % (number, interface)
                     existing_hints.add(number)
 
-                if not xfeatures['vmusermsg'].get('commented', 1) and int(hint['enablevoicemail']) \
-                     and hint['uniqueid']:
+                if not xfeatures['vmusermsg'].get('commented', 1) and int(hint['enablevoicemail']) and hint['uniqueid']:
                     if proto == 'CUSTOM':
                         fullexten = xfeatures['vmusermsg']['exten'] + number
                         print >> options, "exten = %s,hint,%s" % (fullexten, interface)
@@ -255,7 +254,7 @@ class ExtensionsConf(object):
                 exten = "*%s" % k['typevalextenumbersright']
 
             extens.add(xivo_helpers.fkey_extension(xfeatures['phoneprogfunckey'].get('exten'),
-                (k['iduserfeatures'], k['leftexten'], exten)))
+                                                   (k['iduserfeatures'], k['leftexten'], exten)))
 
         customkeys = self.backend.progfunckeys.custom(context=context['name'])
         for k in customkeys:

@@ -178,27 +178,6 @@ class AsteriskFrontend(object):
         for f in asterisk_conf_dao.find_general_features_settings():
             print >> options, "%s = %s" % (f['var_name'], f['var_val'])
 
-        # parkinglots
-        for f in self.backend.parkinglot.all(commented=False):
-            print >> options, "\n[parkinglot_%s]" % f['name']
-            print >> options, "context => %s" % f['context']
-            print >> options, "parkext => %s" % f['extension']
-            print >> options, "parkpos => %d-%d" % (int(f['extension']) + 1, int(f['extension']) + f['positions'])
-            if f['next'] == 1:
-                print >> options, "findslot => next"
-
-            mmap = {
-                'duration': 'parkingtime',
-                'calltransfers': 'parkedcalltransfers',
-                'callreparking': 'parkedcallreparking',
-                'callhangup': 'parkedcallhangup',
-                'musicclass': 'parkedmusicclass',
-                'hints': 'parkinghints',
-            }
-            for k, v in mmap.iteritems():
-                if f[k] is not None:
-                    print >> options, "%s => %s" % (v, str(f[k]))
-
         print >> options, '\n[featuremap]'
         for f in asterisk_conf_dao.find_featuremap_features_settings():
             print >> options, "%s = %s" % (f['var_name'], f['var_val'])

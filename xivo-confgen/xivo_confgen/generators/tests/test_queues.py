@@ -17,7 +17,7 @@
 
 import StringIO
 import unittest
-from mock import Mock
+from mock import patch, Mock
 from xivo_confgen.generators.queues import QueuesConf
 from xivo_confgen.generators.tests.util import build_expected
 
@@ -26,13 +26,12 @@ class TestQueuesConf(unittest.TestCase):
 
     def setUp(self):
         self.output = StringIO.StringIO()
-        self.backend = Mock()
-        self.backend.queuepenalty.all.return_value = []
-        self.backend.queue.all.return_value = []
-        self.backend.queues.all.return_value = []
-        self.backend.queuemembers.all.return_value = []
-        self.queues_conf = QueuesConf(self.backend)
+        self.queues_conf = QueuesConf()
 
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_penalty_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_general_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_members_settings', Mock(return_value=[]))
     def test_empty_sections(self):
         self.queues_conf.generate(self.output)
 
@@ -41,8 +40,12 @@ class TestQueuesConf(unittest.TestCase):
         ''')
         self.assertEqual(self.output.getvalue(), expected_output)
 
-    def test_general_section(self):
-        self.backend.queue.all.return_value = [
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_members_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_penalty_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_general_settings')
+    def test_general_section(self, find_queue_general_settings):
+        find_queue_general_settings.return_value = [
             {'var_name': 'autofill', 'var_val': 'no'},
         ]
 
@@ -53,13 +56,17 @@ class TestQueuesConf(unittest.TestCase):
             autofill = no
         ''')
         self.assertEqual(self.output.getvalue(), expected_output)
-        self.backend.queue.all.assert_called_once_with(commented=False, category='general')
+        find_queue_general_settings.assert_called_once_with()
 
-    def test_queues_section(self):
-        self.backend.queues.all.return_value = [
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_penalty_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_general_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_settings')
+    @patch('xivo_dao.asterisk_conf_dao.find_queue_members_settings')
+    def test_queues_section(self, find_queue_members_settings, find_queue_settings):
+        find_queue_settings.return_value = [
             {'name': 'queue1', 'wrapuptime': 0, 'commented': False, 'joinempty': '', 'leaveempty': u''}
         ]
-        self.backend.queuemembers.all.return_value = [
+        find_queue_members_settings.return_value = [
             {'interface': 'SIP/abc', 'penalty': 1, 'state_interface': '', 'skills': 'user-1'},
         ]
 
@@ -73,5 +80,5 @@ class TestQueuesConf(unittest.TestCase):
             member => SIP/abc,1
         ''')
         self.assertEqual(self.output.getvalue(), expected_output)
-        self.backend.queues.all.assert_called_once_with(commented=False, order='name')
-        self.backend.queuemembers.all.assert_called_once_with(commented=False, queue_name='queue1', order='position', usertype='user')
+        find_queue_settings.assert_called_once_with()
+        find_queue_members_settings.assert_called_once_with('queue1')

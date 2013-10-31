@@ -45,6 +45,10 @@ class AsteriskFrontend(object):
         config_generator = ExtensionsConf(self.contextsconf)
         return self._generate_conf_from_generator(config_generator)
 
+    def queues_conf(self):
+        config_generator = QueuesConf()
+        return self._generate_conf_from_generator(config_generator)
+
     def _generate_conf_from_generator(self, config_generator):
         output = StringIO()
         config_generator.generate(output)
@@ -138,10 +142,6 @@ class AsteriskFrontend(object):
 
         return output.getvalue()
 
-    def queues_conf(self):
-        config_generator = QueuesConf.new_from_backend(self.backend)
-        return self._generate_conf_from_generator(config_generator)
-
     def meetme_conf(self):
         options = StringIO()
 
@@ -211,7 +211,7 @@ class AsteriskFrontend(object):
         options = StringIO()
 
         agentid = None
-        for sk in self.backend.agentqueueskills.all():
+        for sk in asterisk_conf_dao.find_agent_queue_skills_settings():
             if agentid != sk['id']:
                 print >> options, "\n[agent-%d]" % sk['id']
                 agentid = sk['id']
@@ -238,7 +238,7 @@ class AsteriskFrontend(object):
         options = StringIO()
 
         rule = None
-        for m in self.backend.queuepenalties.all():
+        for m in asterisk_conf_dao.find_queue_penalties_settings():
             if m['name'] != rule:
                 rule = m['name']
                 print >> options, "\n[%s]" % rule

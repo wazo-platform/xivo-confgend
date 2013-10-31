@@ -26,9 +26,6 @@ from xivo_dao import asterisk_conf_dao
 
 class AsteriskFrontend(object):
 
-    def __init__(self, backend):
-        self.backend = backend
-
     def sccp_conf(self):
         config_generator = SccpConf()
         return self._generate_conf_from_generator(config_generator)

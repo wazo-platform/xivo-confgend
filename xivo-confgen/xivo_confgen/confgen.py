@@ -19,7 +19,6 @@ import time
 import sys
 from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
-from xivo_confgen.xivo_db import XivoDBBackend
 from twisted.internet.protocol import Protocol, ServerFactory
 
 
@@ -74,11 +73,6 @@ class ConfgendFactory(ServerFactory):
         self.cache = cache.FileCache(cachedir)
 
     def _new_asterisk_frontend(self, config):
-        backend = self._new_xivo_db_backend(config)
-        asterisk_frontend = AsteriskFrontend(backend)
+        asterisk_frontend = AsteriskFrontend()
         asterisk_frontend.contextsconf = config.get('asterisk', 'contextsconf')
         return asterisk_frontend
-
-    def _new_xivo_db_backend(self, config):
-        uri = config.get('xivodb', 'uri')
-        return XivoDBBackend(uri)

@@ -57,7 +57,11 @@ class Confgen(Protocol):
         if content is None:
             # get cache content
             print "cache hit on %s" % data
-            content = self.factory.cache.get(data).decode('utf8')
+            try:
+                content = self.factory.cache.get(data).decode('utf8')
+            except AttributeError, e:
+                print "No such configuration for %s" % data
+                return
         else:
             # write to cache
             self.factory.cache.put(data, content.encode('utf8'))

@@ -58,7 +58,7 @@ class AsteriskFrontend(object):
         data_iax_general_settings = asterisk_conf_dao.find_iax_general_settings()
         print >> output, self._gen_iax_general(data_iax_general_settings)
 
-        # # section::authentication
+        # # section::callnumberlimits
         items = asterisk_conf_dao.find_iax_calllimits_settings()
         if len(items) > 0:
             print >> output, '\n[callnumberlimits]'

@@ -21,15 +21,29 @@ from xivo_confgen.generators.queues import QueuesConf
 from xivo_confgen.generators.sip import SipConf
 from xivo_confgen.generators.sccp import SccpConf
 from xivo_confgen.generators.voicemail import VoicemailConf
+from xivo_dao import asterisk_conf_dao
 
 
 class AsteriskFrontend(object):
-    def __init__(self, backend):
-        self.backend = backend
-        self.contextsconf = None
 
     def sccp_conf(self):
-        config_generator = SccpConf.new_from_backend(self.backend)
+        config_generator = SccpConf()
+        return self._generate_conf_from_generator(config_generator)
+
+    def sip_conf(self):
+        config_generator = SipConf()
+        return self._generate_conf_from_generator(config_generator)
+
+    def voicemail_conf(self):
+        config_generator = VoicemailConf()
+        return self._generate_conf_from_generator(config_generator)
+
+    def extensions_conf(self):
+        config_generator = ExtensionsConf(self.contextsconf)
+        return self._generate_conf_from_generator(config_generator)
+
+    def queues_conf(self):
+        config_generator = QueuesConf()
         return self._generate_conf_from_generator(config_generator)
 
     def _generate_conf_from_generator(self, config_generator):
@@ -37,37 +51,26 @@ class AsteriskFrontend(object):
         config_generator.generate(output)
         return output.getvalue()
 
-    def sip_conf(self):
-        config_generator = SipConf.new_from_backend(self.backend)
-        return self._generate_conf_from_generator(config_generator)
-
-    def voicemail_conf(self):
-        config_generator = VoicemailConf.new_from_backend(self.backend)
-        return self._generate_conf_from_generator(config_generator)
-
-    def extensions_conf(self):
-        config_generator = ExtensionsConf.new_from_backend(self.backend, self.contextsconf)
-        return self._generate_conf_from_generator(config_generator)
-
     def iax_conf(self):
         output = StringIO()
 
         # # section::general
-        print >> output, self._gen_iax_general(self.backend.iax.all(commented=False))
+        data_iax_general_settings = asterisk_conf_dao.find_iax_general_settings()
+        print >> output, self._gen_iax_general(data_iax_general_settings)
 
-        # # section::authentication
-        items = self.backend.iaxcalllimits.all()
+        # # section::callnumberlimits
+        items = asterisk_conf_dao.find_iax_calllimits_settings()
         if len(items) > 0:
             print >> output, '\n[callnumberlimits]'
             for auth in items:
                 print >> output, "%s/%s = %s" % (auth['destination'], auth['netmask'], auth['calllimits'])
 
         # section::trunks
-        for trunk in self.backend.iaxtrunks.all(commented=False):
+        for trunk in asterisk_conf_dao.find_iax_trunk_settings():
             print >> output, self._gen_iax_trunk(trunk)
 
         # section::users
-        print >> output, self._gen_iax_users(self.backend.iaxusers.all(commented=False))
+        print >> output, self._gen_iax_users(asterisk_conf_dao.find_iax_user_settings())
 
         return output.getvalue()
 
@@ -136,19 +139,15 @@ class AsteriskFrontend(object):
 
         return output.getvalue()
 
-    def queues_conf(self):
-        config_generator = QueuesConf.new_from_backend(self.backend)
-        return self._generate_conf_from_generator(config_generator)
-
     def meetme_conf(self):
         options = StringIO()
 
         print >> options, '\n[general]'
-        for c in self.backend.meetme.all(commented=False, category='general'):
+        for c in asterisk_conf_dao.find_meetme_general_settings():
             print >> options, "%s = %s" % (c['var_name'], c['var_val'])
 
         print >> options, '\n[rooms]'
-        for r in self.backend.meetme.all(commented=False, category='rooms'):
+        for r in asterisk_conf_dao.find_meetme_rooms_settings():
             print >> options, "%s = %s" % (r['var_name'], r['var_val'])
 
         return options.getvalue()
@@ -157,7 +156,7 @@ class AsteriskFrontend(object):
         options = StringIO()
 
         cat = None
-        for m in self.backend.musiconhold.all(commented=False, order='category'):
+        for m in asterisk_conf_dao.find_musiconhold_settings():
             if m['var_val'] is None:
                 continue
 
@@ -173,32 +172,11 @@ class AsteriskFrontend(object):
         options = StringIO()
 
         print >> options, '\n[general]'
-        for f in self.backend.features.all(commented=False, category='general'):
+        for f in asterisk_conf_dao.find_general_features_settings():
             print >> options, "%s = %s" % (f['var_name'], f['var_val'])
 
-        # parkinglots
-        for f in self.backend.parkinglot.all(commented=False):
-            print >> options, "\n[parkinglot_%s]" % f['name']
-            print >> options, "context => %s" % f['context']
-            print >> options, "parkext => %s" % f['extension']
-            print >> options, "parkpos => %d-%d" % (int(f['extension']) + 1, int(f['extension']) + f['positions'])
-            if f['next'] == 1:
-                print >> options, "findslot => next"
-
-            mmap = {
-                'duration': 'parkingtime',
-                'calltransfers': 'parkedcalltransfers',
-                'callreparking': 'parkedcallreparking',
-                'callhangup': 'parkedcallhangup',
-                'musicclass': 'parkedmusicclass',
-                'hints': 'parkinghints',
-            }
-            for k, v in mmap.iteritems():
-                if f[k] is not None:
-                    print >> options, "%s => %s" % (v, str(f[k]))
-
         print >> options, '\n[featuremap]'
-        for f in self.backend.features.all(commented=False, category='featuremap'):
+        for f in asterisk_conf_dao.find_featuremap_features_settings():
             print >> options, "%s = %s" % (f['var_name'], f['var_val'])
 
         return options.getvalue()
@@ -209,7 +187,7 @@ class AsteriskFrontend(object):
         options = StringIO()
 
         agentid = None
-        for sk in self.backend.agentqueueskills.all():
+        for sk in asterisk_conf_dao.find_agent_queue_skills_settings():
             if agentid != sk['id']:
                 print >> options, "\n[agent-%d]" % sk['id']
                 agentid = sk['id']
@@ -223,7 +201,7 @@ class AsteriskFrontend(object):
         """
         options = StringIO()
 
-        for r in self.backend.queueskillrules.all():
+        for r in asterisk_conf_dao.find_queue_skillrule_settings():
             print >> options, "\n[%s]" % r['name']
 
             if 'rule' in r and r['rule'] is not None:
@@ -236,7 +214,7 @@ class AsteriskFrontend(object):
         options = StringIO()
 
         rule = None
-        for m in self.backend.queuepenalties.all():
+        for m in asterisk_conf_dao.find_queue_penalties_settings():
             if m['name'] != rule:
                 rule = m['name']
                 print >> options, "\n[%s]" % rule

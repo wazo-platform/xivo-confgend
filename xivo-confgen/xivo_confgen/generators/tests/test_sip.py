@@ -22,8 +22,9 @@ from xivo_confgen.generators.sip import SipConf, gen_value_line, unicodify_strin
 
 
 class TestSipConf(unittest.TestCase):
+
     def setUp(self):
-        self.sip_conf = SipConf([], [], [], [], [])
+        self.sip_conf = SipConf()
 
     def tearDown(self):
         pass
@@ -122,7 +123,7 @@ class TestSipConf(unittest.TestCase):
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user(user, output)
+        self.sip_conf._gen_user([], user, output)
         result = output.getvalue()
         self.assertTrue(u'[jean-yves]' in result)
         self.assertTrue(u'amaflags = default' in result)
@@ -135,7 +136,7 @@ class TestSipConf(unittest.TestCase):
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user(user, output)
+        self.sip_conf._gen_user([], user, output)
         result = output.getvalue()
         self.assertEqual(result, u'\n[papi]\ncontext = default\ncallerid = "pépè" <45789>\nsetvar = PICKUPMARK=101%default\n')
 
@@ -145,7 +146,7 @@ class TestSipConf(unittest.TestCase):
                  'number': 101,
                  'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user(user, output)
+        self.sip_conf._gen_user([], user, output)
         result = output.getvalue()
         self.assertEqual(result, u'\n[novalue]\ncontext = default\nsetvar = PICKUPMARK=101%default\n')
 
@@ -154,7 +155,7 @@ class TestSipConf(unittest.TestCase):
                  'number': 101,
                  'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user(user, output)
+        self.sip_conf._gen_user([], user, output)
         result = output.getvalue()
         self.assertEqual(result, u'\n[novalue]\ncontext = default\nsetvar = PICKUPMARK=101%default\n')
 
@@ -164,7 +165,7 @@ class TestSipConf(unittest.TestCase):
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user(user, output)
+        self.sip_conf._gen_user([], user, output)
         result = output.getvalue()
         self.assertEqual(result, u'\n[papi]\ncontext = default\ndisallow = all\nallow = g723\nallow = gsm\nsetvar = PICKUPMARK=101%default\n')
 
@@ -174,7 +175,7 @@ class TestSipConf(unittest.TestCase):
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user(user, output)
+        self.sip_conf._gen_user([], user, output)
         result = output.getvalue()
         self.assertEqual(result, u'\n[voicemail]\ncontext = default\nsubscribemwi = no\nsetvar = PICKUPMARK=101%default\n')
 
@@ -183,7 +184,7 @@ class TestSipConf(unittest.TestCase):
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user(user, output)
+        self.sip_conf._gen_user([], user, output)
         result = output.getvalue()
         self.assertEqual(result, u'\n[voicemail]\ncontext = default\nsubscribemwi = yes\nsetvar = PICKUPMARK=101%default\n')
 
@@ -202,6 +203,6 @@ class TestSipConf(unittest.TestCase):
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user(user, output)
+        self.sip_conf._gen_user([], user, output)
         result = output.getvalue()
         self.assertEqual(result, u'\n[unused]\ncontext = default\nsetvar = PICKUPMARK=101%default\n')

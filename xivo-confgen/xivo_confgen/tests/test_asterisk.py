@@ -22,11 +22,9 @@ from xivo_confgen.asterisk import AsteriskFrontend
 
 
 class Test(unittest.TestCase):
-    def setUp(self):
-        self.asteriskFrontEnd = AsteriskFrontend(None)
 
-    def tearDown(self):
-        pass
+    def setUp(self):
+        self.asteriskFrontEnd = AsteriskFrontend()
 
     def test_encoding(self):
         charset = ("ascii", "US-ASCII",)

@@ -18,22 +18,27 @@
 import os
 import StringIO
 import unittest
-import mock
 from xivo_confgen.generators.voicemail import VoicemailConf
 from xivo_confgen.generators.tests.util import parse_ast_config
+from mock import patch, Mock
 
 
 class TestVoicemailConf(unittest.TestCase):
+
+    @patch('xivo_dao.asterisk_conf_dao.find_voicemail_general_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_voicemail_activated', Mock(return_value=[]))
     def setUp(self):
         self._output = StringIO.StringIO()
+        self.voicemail_conf = VoicemailConf()
+        self.voicemail_conf._voicemail_settings = []
+        self.voicemail_conf._voicemails = []
 
     def _parse_ast_cfg(self):
         self._output.seek(os.SEEK_SET)
         return parse_ast_config(self._output)
 
     def test_empty_sections(self):
-        voicemail_conf = VoicemailConf([], [])
-        voicemail_conf.generate(self._output)
+        self.voicemail_conf.generate(self._output)
 
         result = self._parse_ast_cfg()
         expected = {u'general': [],
@@ -41,11 +46,10 @@ class TestVoicemailConf(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_one_element_general_section(self):
-        voicemail = [{'category': u'general',
+        self.voicemail_conf._voicemail_settings = [{'category': u'general',
                       'var_name': u'foo',
                       'var_val': u'bar'}]
-        voicemail_conf = VoicemailConf(voicemail, [])
-        voicemail_conf.generate(self._output)
+        self.voicemail_conf.generate(self._output)
 
         result = self._parse_ast_cfg()
         expected = {u'general': [u'foo = bar'],
@@ -53,11 +57,10 @@ class TestVoicemailConf(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_one_element_zonemessages_section(self):
-        voicemail = [{'category': u'zonemessages',
+        self.voicemail_conf._voicemail_settings = [{'category': u'zonemessages',
                       'var_name': u'foo',
                       'var_val': u'bar'}]
-        voicemail_conf = VoicemailConf(voicemail, [])
-        voicemail_conf.generate(self._output)
+        self.voicemail_conf.generate(self._output)
 
         result = self._parse_ast_cfg()
         expected = {u'general': [],
@@ -65,11 +68,10 @@ class TestVoicemailConf(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_escape_general_emailbody_option(self):
-        voicemail = [{'category': u'general',
+        self.voicemail_conf._voicemail_settings = [{'category': u'general',
                       'var_name': u'emailbody',
                       'var_val': u'foo\nbar'}]
-        voicemail_conf = VoicemailConf(voicemail, [])
-        voicemail_conf.generate(self._output)
+        self.voicemail_conf.generate(self._output)
 
         result = self._parse_ast_cfg()
         expected = {u'general': [u'emailbody = foo\\nbar'],
@@ -77,14 +79,13 @@ class TestVoicemailConf(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_one_mailbox(self):
-        voicemails = [{'context': u'default',
+        self.voicemail_conf._voicemails = [{'context': u'default',
                        'mailbox': u'm1',
                        'password': u'p1',
                        'fullname': u'Foo Bar',
                        'email': u'foo@example.org',
                        'pager': u''}]
-        voicemail_conf = VoicemailConf([], voicemails)
-        voicemail_conf.generate(self._output)
+        self.voicemail_conf.generate(self._output)
 
         result = self._parse_ast_cfg()
         expected = {u'general': [],
@@ -93,7 +94,7 @@ class TestVoicemailConf(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_two_mailboxes_same_context(self):
-        voicemails = [{'context': u'ctx1',
+        self.voicemail_conf._voicemails = [{'context': u'ctx1',
                        'mailbox': u'm1',
                        'password': u'',
                        'fullname': u'f1',
@@ -105,8 +106,7 @@ class TestVoicemailConf(unittest.TestCase):
                        'fullname': u'f2',
                        'email': u'',
                        'pager': u''}]
-        voicemail_conf = VoicemailConf([], voicemails)
-        voicemail_conf.generate(self._output)
+        self.voicemail_conf.generate(self._output)
 
         result = self._parse_ast_cfg()
         expected = {u'general': [],
@@ -116,7 +116,7 @@ class TestVoicemailConf(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_two_mailboxes_different_context(self):
-        voicemails = [{'context': u'ctx1',
+        self.voicemail_conf._voicemails = [{'context': u'ctx1',
                        'mailbox': u'm1',
                        'password': u'',
                        'fullname': u'f1',
@@ -129,8 +129,7 @@ class TestVoicemailConf(unittest.TestCase):
                        'email': u'',
                        'pager': u''},
                       ]
-        voicemail_conf = VoicemailConf([], voicemails)
-        voicemail_conf.generate(self._output)
+        self.voicemail_conf.generate(self._output)
 
         result = self._parse_ast_cfg()
         expected = {u'general': [],
@@ -138,10 +137,3 @@ class TestVoicemailConf(unittest.TestCase):
                     u'ctx1': [u'm1 => ,f1,,,'],
                     u'ctx2': [u'm2 => ,f2,,,']}
         self.assertEqual(expected, result)
-
-    def test_new_from_backend(self):
-        backend = mock.Mock()
-        VoicemailConf.new_from_backend(backend)
-
-        backend.voicemail.all.assert_called_once_with(commented=False)
-        backend.voicemails.all.assert_called_once_with(commented=False)

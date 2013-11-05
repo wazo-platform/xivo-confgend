@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import time
 import sys
 from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
-from xivo_confgen.xivo_db import XivoDBBackend
 from twisted.internet.protocol import Protocol, ServerFactory
 
 
@@ -26,15 +26,17 @@ class Confgen(Protocol):
 
     def dataReceived(self, data):
         try:
+            t1 = time.time()
             self._write_response(data)
+            t2 = time.time()
+
+            print "serving %s in %.3f seconds" % (data, t2 - t1)
         finally:
             self.transport.loseConnection()
 
     def _write_response(self, data):
         if data[-1] == '\n':
             data = data[:-1]
-
-        print "serving", data
 
         # 'asterisk/sip.conf' => ('asterisk', 'sip_conf')
         try:
@@ -55,7 +57,11 @@ class Confgen(Protocol):
         if content is None:
             # get cache content
             print "cache hit on %s" % data
-            content = self.factory.cache.get(data).decode('utf8')
+            try:
+                content = self.factory.cache.get(data).decode('utf8')
+            except AttributeError, e:
+                print "No such configuration for %s" % data
+                return
         else:
             # write to cache
             self.factory.cache.put(data, content.encode('utf8'))
@@ -71,11 +77,6 @@ class ConfgendFactory(ServerFactory):
         self.cache = cache.FileCache(cachedir)
 
     def _new_asterisk_frontend(self, config):
-        backend = self._new_xivo_db_backend(config)
-        asterisk_frontend = AsteriskFrontend(backend)
+        asterisk_frontend = AsteriskFrontend()
         asterisk_frontend.contextsconf = config.get('asterisk', 'contextsconf')
         return asterisk_frontend
-
-    def _new_xivo_db_backend(self, config):
-        uri = config.get('xivodb', 'uri')
-        return XivoDBBackend(uri)

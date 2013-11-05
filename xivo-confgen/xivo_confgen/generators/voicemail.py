@@ -18,12 +18,14 @@
 from collections import defaultdict
 from xivo_confgen.generators.util import format_ast_section, \
     format_ast_option, format_ast_object_option, format_none_as_empty
+from xivo_dao import asterisk_conf_dao
 
 
 class VoicemailConf(object):
-    def __init__(self, voicemail, voicemails):
-        self._voicemail = voicemail
-        self._voicemails = voicemails
+
+    def __init__(self):
+        self._voicemail_settings = asterisk_conf_dao.find_voicemail_general_settings()
+        self._voicemails = asterisk_conf_dao.find_voicemail_activated()
 
     def generate(self, output):
         self._gen_general_section(output)
@@ -34,7 +36,7 @@ class VoicemailConf(object):
 
     def _gen_general_section(self, output):
         print >> output, u'[general]'
-        for item in self._voicemail:
+        for item in self._voicemail_settings:
             if item['category'] == u'general':
                 opt_name = item['var_name']
                 if opt_name == u'emailbody':
@@ -48,7 +50,7 @@ class VoicemailConf(object):
 
     def _gen_zonemessages_section(self, output):
         print >> output, u'[zonemessages]'
-        for item in self._voicemail:
+        for item in self._voicemail_settings:
             if item['category'] == u'zonemessages':
                 print >> output, format_ast_option(item['var_name'], item['var_val'])
 
@@ -83,9 +85,3 @@ class VoicemailConf(object):
         return u'|'.join(u'%s=%s' % (name, value)
                          for name, value in mailbox.iteritems()
                          if value is not None and name not in self._MAILBOX_NOT_OPTIONS)
-
-    @classmethod
-    def new_from_backend(cls, backend):
-        voicemail = backend.voicemail.all(commented=False)
-        voicemails = backend.voicemails.all(commented=False)
-        return cls(voicemail, voicemails)

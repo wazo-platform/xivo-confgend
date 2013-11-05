@@ -17,8 +17,9 @@
 
 import re
 from StringIO import StringIO
+
 from xivo import OrderedConf, xivo_helpers
-from xivo_dao import callfilter_dao
+from xivo_dao import asterisk_conf_dao, callfilter_dao
 
 
 DEFAULT_EXTENFEATURES = {
@@ -58,24 +59,21 @@ DEFAULT_EXTENFEATURES = {
 
 
 class ExtensionsConf(object):
-    def __init__(self, backend, contextsconf):
-        self.backend = backend
+
+    def __init__(self, contextsconf):
         self.contextsconf = contextsconf
 
     def generate(self, output):
-        self.generate_voice_menus(self.backend.voicemenus.all(commented=0, order='name'), output)
-
         options = output
-        conf = None
         existing_hints = set()
 
-        # load context templates
-        if hasattr(self, 'contextsconf'):
+        if self.contextsconf is not None:
+            # load context templates
             conf = OrderedConf.OrderedRawConf(filename=self.contextsconf)
             if conf.has_conflicting_section_names():
                 raise ValueError("%s has conflicting section names" % self.contextsconf)
             if not conf.has_section('template'):
-                raise ValueError("Template section doesn't exist")
+                raise ValueError("Template section doesn't exist in %s" % self.contextsconf)
 
         # hints & features (init)
         xfeatures = {
@@ -88,15 +86,16 @@ class ExtensionsConf(object):
             'fwdrna': {},
             'fwdunc': {},
             'phoneprogfunckey': {},
-            'vmusermsg': {}}
+            'vmusermsg': {}
+        }
 
-        extensions = self.backend.extenfeatures.all(features=xfeatures.keys())
+        extensions = asterisk_conf_dao.find_extenfeatures_settings(features=xfeatures.keys())
         xfeatures.update(dict([x['typeval'], {'exten': x['exten'], 'commented': x['commented']}] for x in extensions))
 
         # foreach active context
-        for ctx in self.backend.contexts.all(commented=False, order='name', asc=False):
+        for ctx in asterisk_conf_dao.find_context_settings():
             # context name preceded with '!' is ignored
-            if conf.has_section('!' + ctx['name']):
+            if conf and conf.has_section('!%s' % ctx['name']):
                 continue
 
             print >> options, "\n[%s]" % ctx['name']
@@ -117,12 +116,12 @@ class ExtensionsConf(object):
                 print >> options, "%s = %s" % (option.get_name(), option.get_value().replace('%%CONTEXT%%', ctx['name']))
 
             # context includes
-            for row in self.backend.contextincludes.all(context=ctx['name'], order='priority'):
+            for row in asterisk_conf_dao.find_contextincludes_settings(ctx['name']):
                 print >> options, "include = %s" % row['include']
             print >> options
 
             # objects extensions (user, group, ...)
-            for exten in self.backend.extensions.all(context=ctx['name'], commented=False, order='exten'):
+            for exten in asterisk_conf_dao.find_exten_settings(ctx['name']):
                 exten_type = exten['type']
                 exten_typeval = exten['typeval']
                 if exten_type == 'incall':
@@ -133,12 +132,12 @@ class ExtensionsConf(object):
                 self.gen_dialplan_from_template(tmpl, exten, options)
 
             # phone (user) hints
-            hints = self.backend.hints.all(context=ctx['name'])
+            hints = asterisk_conf_dao.find_exten_hints_settings(context_name=ctx['name'])
             if len(hints) > 0:
                 print >> options, "; phones hints"
 
             for hint in hints:
-                xid = hint['id']
+                xid = hint['user_id']
                 number = hint['number']
                 name = hint['name']
                 proto = hint['protocol'].upper()
@@ -158,14 +157,14 @@ class ExtensionsConf(object):
                     print >> options, "exten = %s,hint,%s" % (number, interface)
                     existing_hints.add(number)
 
-                if not xfeatures['vmusermsg'].get('commented', 1) and int(hint['enablevoicemail']) and hint['uniqueid']:
+                if (not xfeatures['vmusermsg'].get('commented', 1) and int(hint['enablevoicemail']) and hint['voicemail_id']):
                     if proto == 'CUSTOM':
                         fullexten = xfeatures['vmusermsg']['exten'] + number
                         print >> options, "exten = %s,hint,%s" % (fullexten, interface)
                         existing_hints.add(fullexten)
 
             # objects(user,group,...) supervision
-            phonesfk = self.backend.phonefunckeys.all(context=ctx['name'])
+            phonesfk = asterisk_conf_dao.find_exten_phonefunckeys_settings(context_name=ctx['name'])
             if len(phonesfk) > 0:
                 print >> options, "\n; phones supervision"
 
@@ -221,7 +220,7 @@ class ExtensionsConf(object):
             print >> options, "%s = %s" % (option.get_name(), option.get_value().replace('%%CONTEXT%%', context))
             print >> options
 
-        for exten in self.backend.extensions.all(context='xivo-features', commented=False):
+        for exten in asterisk_conf_dao.find_exten_xivofeatures_setting():
             name = exten['typeval']
             if name in DEFAULT_EXTENFEATURES:
                 exten['action'] = DEFAULT_EXTENFEATURES[name]
@@ -244,7 +243,7 @@ class ExtensionsConf(object):
 
     def _prog_funckeys(self, context, xfeatures, existing_hints):
         options = StringIO()
-        progfunckeys = self.backend.progfunckeys.all(context=context['name'])
+        progfunckeys = asterisk_conf_dao.find_exten_progfunckeys_settings(context_name=context['name'])
         extens = set()
 
         for k in progfunckeys:
@@ -256,7 +255,7 @@ class ExtensionsConf(object):
             extens.add(xivo_helpers.fkey_extension(xfeatures['phoneprogfunckey'].get('exten'),
                                                    (k['iduserfeatures'], k['leftexten'], exten)))
 
-        customkeys = self.backend.progfunckeys.custom(context=context['name'])
+        customkeys = asterisk_conf_dao.find_exten_progfunckeys_custom_settings(context_name=context['name'])
         for k in customkeys:
             if k['exten'] not in existing_hints:
                 extens.add(k['exten'])
@@ -280,14 +279,6 @@ class ExtensionsConf(object):
             print >> output, prefix, line
         print >> output
 
-    def generate_voice_menus(self, voicemenus, output):
-        for vm_context in voicemenus:
-            print >> output, "[voicemenu-%s]" % vm_context['name']
-            for act in self.backend.extensions.all(context='voicemenu-' + vm_context['name'], commented=0):
-                values = (act['exten'], act['priority'], act['app'], act['appdata'].replace('|', ','))
-                print >> output, "exten = %s,%s,%s(%s)" % values
-            print >> output
-
     @staticmethod
     def _build_sorted_bsfilter(query_result):
         numbers = []
@@ -300,7 +291,3 @@ class ExtensionsConf(object):
                 pass
             numbers.append((boss, secretary))
         return set(numbers)
-
-    @classmethod
-    def new_from_backend(cls, backend, contextconfs):
-        return cls(backend, contextconfs)

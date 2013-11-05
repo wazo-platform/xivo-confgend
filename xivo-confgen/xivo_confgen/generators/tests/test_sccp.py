@@ -18,15 +18,22 @@
 import os
 import StringIO
 import unittest
-import mock
+from mock import Mock, patch
+
 from xivo_confgen.generators.sccp import SccpConf, _SccpGeneralSettingsConf, _SccpLineConf, _SccpDeviceConf, \
     _SccpSpeedDialConf
 from xivo_confgen.generators.tests.util import parse_ast_config
 
 
 class TestSccpConf(unittest.TestCase):
+
+    @patch('xivo_dao.asterisk_conf_dao.find_sccp_general_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_sccp_line_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_sccp_device_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_sccp_speeddial_settings', Mock(return_value=[]))
     def setUp(self):
         self._output = StringIO.StringIO()
+        self.sccp_conf = SccpConf()
 
     def _parse_ast_cfg(self):
         self._output.seek(os.SEEK_SET)
@@ -35,8 +42,12 @@ class TestSccpConf(unittest.TestCase):
     def assertConfigEqual(self, configExpected, configResult):
         self.assertEqual(configExpected.replace(' ', ''), configResult.replace(' ', ''))
 
+    @patch('xivo_dao.asterisk_conf_dao.find_sccp_general_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_sccp_line_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_sccp_device_settings', Mock(return_value=[]))
+    @patch('xivo_dao.asterisk_conf_dao.find_sccp_speeddial_settings', Mock(return_value=[]))
     def test_empty_sections(self):
-        sccp_conf = SccpConf([], [], [], [])
+        sccp_conf = SccpConf()
         sccp_conf.generate(self._output)
 
         result = self._parse_ast_cfg()
@@ -180,36 +191,27 @@ class TestSccpConf(unittest.TestCase):
         self.assertConfigEqual(expected, self._output.getvalue())
 
     def test_general_section(self):
-        sccp = [{'option_name': u'bindaddr',
-                 'option_value': u'0.0.0.0'},
-                {'option_name': u'dateformat',
-                 'option_value': u'D.M.Y'},
-                {'option_name': u'keepalive',
-                 'option_value': u'10'},
-                {'option_name': u'authtimeout',
-                 'option_value': u'10'}]
+        sccpgeneralsettings = [
+            {'option_name': u'bindaddr',
+             'option_value': u'0.0.0.0'},
+            {'option_name': u'dateformat',
+             'option_value': u'D.M.Y'},
+            {'option_name': u'keepalive',
+             'option_value': u'10'},
+            {'option_name': u'authtimeout',
+             'option_value': u'10'}
+        ]
 
-        sccp_conf = SccpConf(sccp, [], [], [])
-        sccp_conf.generate(self._output)
+        sccp_conf = _SccpGeneralSettingsConf()
+        sccp_conf.generate(sccpgeneralsettings, self._output)
 
         result = self._parse_ast_cfg()
         expected = {u'general': [u'bindaddr = 0.0.0.0',
                                  u'dateformat = D.M.Y',
                                  u'keepalive = 10',
-                                 u'authtimeout = 10'],
-                    u'lines': [],
-                    u'devices': [],
-                    u'speeddials': []}
+                                 u'authtimeout = 10']}
 
         self.assertEqual(expected, result)
-
-    def test_new_from_backend(self):
-        backend = mock.Mock()
-        SccpConf.new_from_backend(backend)
-        backend.sccpgeneralsettings.all.assert_called_once_with()
-        backend.sccpline.all.assert_called_once_with()
-        backend.sccpdevice.all.assert_called_once_with()
-        backend.sccpspeeddial.all.assert_called_once_with()
 
     def test_multiple_speedials_devices_section(self):
         sccpdevice = [{'category': u'devices',

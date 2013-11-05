@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from StringIO import StringIO
-from mock import Mock
-from xivo_confgen.generators.extensionsconf import ExtensionsConf
 import unittest
+from mock import Mock, patch
+from StringIO import StringIO
+
 from xivo import xivo_helpers
+from xivo_confgen.generators.extensionsconf import ExtensionsConf
 
 
 class TestExtensionsConf(unittest.TestCase):
@@ -28,7 +29,7 @@ class TestExtensionsConf(unittest.TestCase):
         self.assertEqual(configExpected.replace(' ', ''), configResult.replace(' ', ''))
 
     def setUp(self):
-        self.extensionsconf = ExtensionsConf(None, 'context.conf')
+        self.extensionsconf = ExtensionsConf('context.conf')
 
     def tearDown(self):
         pass
@@ -40,28 +41,6 @@ class TestExtensionsConf(unittest.TestCase):
         self.extensionsconf.gen_dialplan_from_template(template, exten, output)
 
         self.assertEqual(output.getvalue(), "exten = *98,1,Set('XIVO_BASE_CONTEXT': ${CONTEXT})\n\n")
-
-    def test_generate_voice_menus(self):
-        output = StringIO()
-        voicemenus = [{'name': u'menu1',
-                       },
-                      {'name': u'menu2',
-                       }
-                      ]
-
-        self.extensionsconf.backend = Mock()
-        self.extensionsconf.backend.extensions.all.return_value = \
-            [{'exten':u'2300', 'app':u'GoSub', 'priority':1, 'appdata':u'    endcall,s,1(hangup)'}]
-        self.extensionsconf.generate_voice_menus(voicemenus, output)
-
-        self.assertConfigEqual("""\
-                                        [voicemenu-menu1]
-                                        exten=2300,1,GoSub(endcall,s,1(hangup))
-                                        
-                                        [voicemenu-menu2]
-                                        exten=2300,1,GoSub(endcall,s,1(hangup))
-                                        
-                                        """, output.getvalue())
 
     def test_bsfilter_build_extens(self):
         bs1 = {'bsfilter': 'boss',
@@ -111,7 +90,9 @@ class TestExtensionsConf(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
-    def test_prog_funckeys(self):
+    @patch('xivo_dao.asterisk_conf_dao.find_exten_progfunckeys_custom_settings')
+    @patch('xivo_dao.asterisk_conf_dao.find_exten_progfunckeys_settings')
+    def test_prog_funckeys(self, progfunckeys, custom_progfunckeys):
         standard_keys = [{'exten': '1234',
                           'iduserfeatures': 2,
                           'leftexten': '*31'},
@@ -129,9 +110,8 @@ class TestExtensionsConf(unittest.TestCase):
             return exten + str(uplet[0]) + str(uplet[1]) + str(uplet[2])
 
         xivo_helpers.fkey_extension = side_effect
-        self.extensionsconf.backend = Mock()
-        self.extensionsconf.backend.progfunckeys.all.return_value = standard_keys
-        self.extensionsconf.backend.progfunckeys.custom.return_value = custom_keys
+        progfunckeys.return_value = standard_keys
+        custom_progfunckeys.return_value = custom_keys
         existing_hints = set(['1234', '5678'])
 
         result = self.extensionsconf._prog_funckeys({'name': 'default'}, xfeatures, existing_hints)

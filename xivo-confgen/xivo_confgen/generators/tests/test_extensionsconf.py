@@ -94,11 +94,11 @@ class TestExtensionsConf(unittest.TestCase):
     @patch('xivo_dao.asterisk_conf_dao.find_exten_progfunckeys_settings')
     def test_prog_funckeys(self, progfunckeys, custom_progfunckeys):
         standard_keys = [{'exten': '1234',
-                          'iduserfeatures': 2,
+                          'user_id': 2,
                           'leftexten': '*31'},
                          {'exten': None,
                           'typevalextenumbersright': '20',
-                          'iduserfeatures': 3,
+                          'user_id': 3,
                           'leftexten': '*21'}]
         custom_keys = [{'exten': '*4567'},
                        {'exten': '1234'}]

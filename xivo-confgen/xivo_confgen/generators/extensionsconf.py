@@ -253,7 +253,7 @@ class ExtensionsConf(object):
                 exten = "*%s" % k['typevalextenumbersright']
 
             extens.add(xivo_helpers.fkey_extension(xfeatures['phoneprogfunckey'].get('exten'),
-                                                   (k['iduserfeatures'], k['leftexten'], exten)))
+                                                   (k['user_id'], k['leftexten'], exten)))
 
         customkeys = asterisk_conf_dao.find_exten_progfunckeys_custom_settings(context_name=context['name'])
         for k in customkeys:

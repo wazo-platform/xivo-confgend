@@ -69,9 +69,6 @@ class AsteriskFrontend(object):
         for trunk in asterisk_conf_dao.find_iax_trunk_settings():
             print >> output, self._gen_iax_trunk(trunk)
 
-        # section::users
-        print >> output, self._gen_iax_users(asterisk_conf_dao.find_iax_user_settings())
-
         return output.getvalue()
 
     def _gen_iax_general(self, data_iax_general):
@@ -92,29 +89,6 @@ class AsteriskFrontend(object):
                 print >> output, 'disallow = all'
                 for c in item['var_val'].split(','):
                     print >> output, 'allow = %s' % c
-
-        return output.getvalue()
-
-    def _gen_iax_users(self, data_iax_users):
-        output = StringIO()
-        ignored_columns = ('id', 'name', 'protocol', 'category', 'commented', 'initialized', 'disallow')
-
-        for user in data_iax_users:
-            print >> output, "\n[%s]" % user['name']
-
-            for k, v in user.iteritems():
-                if k in ignored_columns or v in (None, ''):
-                    continue
-
-                if isinstance(v, unicode):
-                    v = v.encode('utf8')
-
-                if k == 'allow':
-                    print >> output, "disallow = all"
-                    for c in v.split(','):
-                        print >> output, "allow = " + str(c)
-                else:
-                    print >> output, k, "=", str(v)
 
         return output.getvalue()
 

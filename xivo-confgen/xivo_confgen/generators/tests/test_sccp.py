@@ -61,20 +61,6 @@ class TestSccpConf(_BaseSccpTestCase):
 
         self.assertEqual(expected, result)
 
-    def test_one_element_general_section(self):
-        sccpgeneralsettings = [{'option_name': u'foo',
-                                'option_value': u'bar'}]
-
-        sccp_conf = _SccpGeneralSettingsConf()
-        sccp_conf.generate(sccpgeneralsettings, self._output)
-
-        expected = """\
-                    [general]
-                    foo=bar
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
-
     def test_one_element_speeddials_section(self):
         speedials = [{'exten':'1001',
                       'fknum': 1,
@@ -142,29 +128,6 @@ class TestSccpConf(_BaseSccpTestCase):
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
 
-    def test_general_section(self):
-        sccpgeneralsettings = [
-            {'option_name': u'bindaddr',
-             'option_value': u'0.0.0.0'},
-            {'option_name': u'dateformat',
-             'option_value': u'D.M.Y'},
-            {'option_name': u'keepalive',
-             'option_value': u'10'},
-            {'option_name': u'authtimeout',
-             'option_value': u'10'}
-        ]
-
-        sccp_conf = _SccpGeneralSettingsConf()
-        sccp_conf.generate(sccpgeneralsettings, self._output)
-
-        result = self._parse_ast_cfg()
-        expected = {u'general': [u'bindaddr = 0.0.0.0',
-                                 u'dateformat = D.M.Y',
-                                 u'keepalive = 10',
-                                 u'authtimeout = 10']}
-
-        self.assertEqual(expected, result)
-
     def test_multiple_speedials_devices_section(self):
         sccpdevice = [{'category': u'devices',
                        'name': u'SEPACA016FDF235',
@@ -198,6 +161,27 @@ class TestSccpConf(_BaseSccpTestCase):
                     voicemail=103
                     speeddial=1229-1
                     speeddial=1229-2
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+
+class TestSccpGeneralConf(_BaseSccpTestCase):
+
+    def setUp(self):
+        self._general_conf = _SccpGeneralSettingsConf()
+        self._output = StringIO.StringIO()
+
+    def test_one_element_general_section(self):
+        sccpgeneralsettings = [{'option_name': u'foo',
+                                'option_value': u'bar'}]
+
+        sccp_conf = _SccpGeneralSettingsConf()
+        sccp_conf.generate(sccpgeneralsettings, self._output)
+
+        expected = """\
+                    [general]
+                    foo=bar
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())

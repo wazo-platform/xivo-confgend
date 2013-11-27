@@ -45,13 +45,18 @@ class SccpConf(object):
 
 
 class _SccpGeneralSettingsConf(object):
+
     def generate(self, sccpgeneralsettings, output):
         print >> output, u'[general]'
         for item in sccpgeneralsettings:
+            option_name = item['option_name']
             option_value = item['option_value']
-            if item['option_name'] == 'directmedia':
-                option_value = '0' if item['option_value'] == 'no' else '1'
-            print >> output, format_ast_option(item['option_name'], option_value)
+
+            if option_name == 'allow':
+                print >> output, format_ast_option('disallow', 'all')
+            if option_name  == 'directmedia':
+                option_value = '0' if option_value == 'no' else '1'
+            print >> output, format_ast_option(option_name, option_value)
         print >> output
 
 

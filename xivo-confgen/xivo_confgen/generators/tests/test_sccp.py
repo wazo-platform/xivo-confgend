@@ -176,12 +176,26 @@ class TestSccpGeneralConf(_BaseSccpTestCase):
         sccpgeneralsettings = [{'option_name': u'foo',
                                 'option_value': u'bar'}]
 
-        sccp_conf = _SccpGeneralSettingsConf()
-        sccp_conf.generate(sccpgeneralsettings, self._output)
+        self._general_conf.generate(sccpgeneralsettings, self._output)
 
         expected = """\
                     [general]
                     foo=bar
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_allow_option(self):
+        sccpgeneralsettings = [
+            {'option_name': 'allow', 'option_value': 'ulaw'},
+        ]
+
+        self._general_conf.generate(sccpgeneralsettings, self._output)
+
+        expected = """\
+                   [general]
+                   disallow = all
+                   allow = ulaw
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())

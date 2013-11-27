@@ -25,7 +25,13 @@ from xivo_confgen.generators.sccp import SccpConf, _SccpGeneralSettingsConf, _Sc
 from xivo_confgen.generators.tests.util import parse_ast_config
 
 
-class TestSccpConf(unittest.TestCase):
+class _BaseSccpTestCase(unittest.TestCase):
+
+    def assertConfigEqual(self, configExpected, configResult):
+        self.assertEqual(configExpected.replace(' ', ''), configResult.replace(' ', ''))
+
+
+class TestSccpConf(_BaseSccpTestCase):
 
     @patch('xivo_dao.asterisk_conf_dao.find_sccp_general_settings', Mock(return_value=[]))
     @patch('xivo_dao.asterisk_conf_dao.find_sccp_line_settings', Mock(return_value=[]))
@@ -38,9 +44,6 @@ class TestSccpConf(unittest.TestCase):
     def _parse_ast_cfg(self):
         self._output.seek(os.SEEK_SET)
         return parse_ast_config(self._output)
-
-    def assertConfigEqual(self, configExpected, configResult):
-        self.assertEqual(configExpected.replace(' ', ''), configResult.replace(' ', ''))
 
     @patch('xivo_dao.asterisk_conf_dao.find_sccp_general_settings', Mock(return_value=[]))
     @patch('xivo_dao.asterisk_conf_dao.find_sccp_line_settings', Mock(return_value=[]))
@@ -68,57 +71,6 @@ class TestSccpConf(unittest.TestCase):
         expected = """\
                     [general]
                     foo=bar
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
-
-    def test_one_element_lines_section(self):
-        sccpline = [{'category': u'lines',
-                     'name': u'100',
-                     'cid_name': u'jimmy',
-                     'cid_num': u'100',
-                     'user_id': u'1',
-                     'language': u'fr_FR',
-                     'number': 100,
-                     'context': u'a_context'}]
-
-        sccp_conf = _SccpLineConf()
-        sccp_conf.generate(sccpline, self._output)
-
-        expected = """\
-                    [lines]
-                    [100]
-                    cid_name=jimmy
-                    cid_num=100
-                    setvar=XIVO_USERID=1
-                    setvar=PICKUPMARK=100%a_context
-                    language=fr_FR
-                    context=a_context
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
-
-    def test_one_element_lines_section_no_language(self):
-        sccpline = [{'category': u'lines',
-                     'name': u'100',
-                     'cid_name': u'jimmy',
-                     'cid_num': u'100',
-                     'user_id': u'1',
-                     'language': None,
-                     'number': 100,
-                     'context': u'a_context'}]
-
-        sccp_conf = _SccpLineConf()
-        sccp_conf.generate(sccpline, self._output)
-
-        expected = """\
-                    [lines]
-                    [100]
-                    cid_name=jimmy
-                    cid_num=100
-                    setvar=XIVO_USERID=1
-                    setvar=PICKUPMARK=100%a_context
-                    context=a_context
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
@@ -246,6 +198,124 @@ class TestSccpConf(unittest.TestCase):
                     voicemail=103
                     speeddial=1229-1
                     speeddial=1229-2
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+
+class TestSccpLineConf(_BaseSccpTestCase):
+
+    def setUp(self):
+        self._line_conf = _SccpLineConf()
+        self._output = StringIO.StringIO()
+
+    def test_one_element_lines_section(self):
+        sccpline = [{
+            'category': u'lines',
+            'name': u'100',
+            'cid_name': u'jimmy',
+            'cid_num': u'100',
+            'user_id': u'1',
+            'language': u'fr_FR',
+            'number': 100,
+            'context': u'a_context',
+        }]
+
+        self._line_conf.generate(sccpline, self._output)
+
+        expected = """\
+                    [lines]
+                    [100]
+                    cid_name=jimmy
+                    cid_num=100
+                    setvar=XIVO_USERID=1
+                    setvar=PICKUPMARK=100%a_context
+                    language=fr_FR
+                    context=a_context
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_one_element_lines_section_no_language(self):
+        sccpline = [{
+            'category': u'lines',
+            'name': u'100',
+            'cid_name': u'jimmy',
+            'cid_num': u'100',
+            'user_id': u'1',
+            'language': None,
+            'number': 100,
+            'context': u'a_context',
+        }]
+
+        self._line_conf.generate(sccpline, self._output)
+
+        expected = """\
+                    [lines]
+                    [100]
+                    cid_name=jimmy
+                    cid_num=100
+                    setvar=XIVO_USERID=1
+                    setvar=PICKUPMARK=100%a_context
+                    context=a_context
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_allow_no_disallow(self):
+        sccpline = [{
+            'category': u'lines',
+            'name': u'100',
+            'cid_name': u'jimmy',
+            'cid_num': u'100',
+            'user_id': u'1',
+            'language': None,
+            'number': 100,
+            'context': u'a_context',
+            'allow': u'g729,ulaw',
+        }]
+
+        self._line_conf.generate(sccpline, self._output)
+
+        expected = """\
+                    [lines]
+                    [100]
+                    cid_name=jimmy
+                    cid_num=100
+                    setvar=XIVO_USERID=1
+                    setvar=PICKUPMARK=100%a_context
+                    context=a_context
+                    allow=g729,ulaw
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_disallow_all_allow_order(self):
+        sccpline = [{
+            'category': u'lines',
+            'name': u'100',
+            'cid_name': u'jimmy',
+            'cid_num': u'100',
+            'user_id': u'1',
+            'language': None,
+            'number': 100,
+            'context': u'a_context',
+            'allow': u'g729,ulaw',
+            'disallow': u'all',
+        }]
+
+        self._line_conf.generate(sccpline, self._output)
+
+        expected = """\
+                    [lines]
+                    [100]
+                    cid_name=jimmy
+                    cid_num=100
+                    setvar=XIVO_USERID=1
+                    setvar=PICKUPMARK=100%a_context
+                    context=a_context
+                    disallow=all
+                    allow=g729,ulaw
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())

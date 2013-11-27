@@ -57,22 +57,26 @@ class _SccpGeneralSettingsConf(object):
 
 class _SccpLineConf(object):
 
-    def generate(self, sccpline, output):
+    def generate(self, sccplines, output):
         print >> output, u'[lines]'
-        for item in sccpline:
-            print >> output, format_ast_section(item['name'])
-            print >> output, format_ast_option('cid_name', item['cid_name'])
-            print >> output, format_ast_option('cid_num', item['cid_num'])
-            print >> output, format_ast_option('setvar', 'XIVO_USERID=%s' % item['user_id'])
-            print >> output, format_ast_option('setvar', 'PICKUPMARK=%(number)s%%%(context)s' % item)
-            if item['language']:
-                print >> output, format_ast_option('language', item['language'])
-            print >> output, format_ast_option('context', item['context'])
-            if 'disallow' in item:
-                print >> output, format_ast_option('disallow', item['disallow'])
-            if 'allow' in item:
-                print >> output, format_ast_option('allow', item['allow'])
-            print >> output
+
+        for line in sccplines:
+            self._generate_line(line, output)
+
+    def _generate_line(self, line, output):
+        print >> output, format_ast_section(line['name'])
+        print >> output, format_ast_option('cid_name', line['cid_name'])
+        print >> output, format_ast_option('cid_num', line['cid_num'])
+        print >> output, format_ast_option('setvar', 'XIVO_USERID=%s' % line['user_id'])
+        print >> output, format_ast_option('setvar', 'PICKUPMARK=%(number)s%%%(context)s' % line)
+        if line['language']:
+            print >> output, format_ast_option('language', line['language'])
+        print >> output, format_ast_option('context', line['context'])
+        if 'disallow' in line:
+            print >> output, format_ast_option('disallow', line['disallow'])
+        if 'allow' in line:
+            print >> output, format_ast_option('allow', line['allow'])
+        print >> output
 
 
 class _SccpDeviceConf(object):

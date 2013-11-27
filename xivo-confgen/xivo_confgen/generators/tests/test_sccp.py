@@ -261,3 +261,61 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_allow_no_disallow(self):
+        sccpline = [{
+            'category': u'lines',
+            'name': u'100',
+            'cid_name': u'jimmy',
+            'cid_num': u'100',
+            'user_id': u'1',
+            'language': None,
+            'number': 100,
+            'context': u'a_context',
+            'allow': u'g729,ulaw',
+        }]
+
+        self._line_conf.generate(sccpline, self._output)
+
+        expected = """\
+                    [lines]
+                    [100]
+                    cid_name=jimmy
+                    cid_num=100
+                    setvar=XIVO_USERID=1
+                    setvar=PICKUPMARK=100%a_context
+                    context=a_context
+                    allow=g729,ulaw
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_disallow_all_allow_order(self):
+        sccpline = [{
+            'category': u'lines',
+            'name': u'100',
+            'cid_name': u'jimmy',
+            'cid_num': u'100',
+            'user_id': u'1',
+            'language': None,
+            'number': 100,
+            'context': u'a_context',
+            'allow': u'g729,ulaw',
+            'disallow': u'all',
+        }]
+
+        self._line_conf.generate(sccpline, self._output)
+
+        expected = """\
+                    [lines]
+                    [100]
+                    cid_name=jimmy
+                    cid_num=100
+                    setvar=XIVO_USERID=1
+                    setvar=PICKUPMARK=100%a_context
+                    context=a_context
+                    disallow=all
+                    allow=g729,ulaw
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())

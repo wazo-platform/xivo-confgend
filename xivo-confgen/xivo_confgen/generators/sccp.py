@@ -56,6 +56,7 @@ class _SccpGeneralSettingsConf(object):
 
 
 class _SccpLineConf(object):
+
     def generate(self, sccpline, output):
         print >> output, u'[lines]'
         for item in sccpline:
@@ -63,10 +64,14 @@ class _SccpLineConf(object):
             print >> output, format_ast_option('cid_name', item['cid_name'])
             print >> output, format_ast_option('cid_num', item['cid_num'])
             print >> output, format_ast_option('setvar', 'XIVO_USERID=%s' % item['user_id'])
-            print >> output, format_ast_option('setvar', 'PICKUPMARK=%s%%%s' % (item['number'], item['context']))
+            print >> output, format_ast_option('setvar', 'PICKUPMARK=%(number)s%%%(context)s' % item)
             if item['language']:
                 print >> output, format_ast_option('language', item['language'])
             print >> output, format_ast_option('context', item['context'])
+            if 'disallow' in item:
+                print >> output, format_ast_option('disallow', item['disallow'])
+            if 'allow' in item:
+                print >> output, format_ast_option('allow', item['allow'])
             print >> output
 
 

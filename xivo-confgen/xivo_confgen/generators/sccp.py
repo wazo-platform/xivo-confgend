@@ -53,11 +53,14 @@ class _SccpGeneralSettingsConf(object):
             option_value = item['option_value']
 
             if option_name == 'allow':
+                if not option_value:
+                    continue
                 print >> output, format_ast_option('disallow', 'all')
-            if option_name == 'disallow':
+            elif option_name == 'disallow':
                 continue
-            if option_name  == 'directmedia':
+            elif option_name  == 'directmedia':
                 option_value = '0' if option_value == 'no' else '1'
+
             print >> output, format_ast_option(option_name, option_value)
         print >> output
 

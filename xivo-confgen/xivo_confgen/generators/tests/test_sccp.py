@@ -200,6 +200,19 @@ class TestSccpGeneralConf(_BaseSccpTestCase):
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
 
+    def test_empty_allow_option(self):
+        sccpgeneralsettings = [
+            {'option_name': 'allow', 'option_value': ''},
+        ]
+
+        self._general_conf.generate(sccpgeneralsettings, self._output)
+
+        expected = """\
+                   [general]
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
     def test_disallow_option_is_ignored(self):
         sccpgeneralsettings = [
             {'option_name': 'disallow', 'option_value': 'foobar'},

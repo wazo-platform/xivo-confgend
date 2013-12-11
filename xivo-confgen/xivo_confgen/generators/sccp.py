@@ -58,7 +58,7 @@ class _SccpGeneralSettingsConf(object):
                 print >> output, format_ast_option('disallow', 'all')
             elif option_name == 'disallow':
                 continue
-            elif option_name  == 'directmedia':
+            elif option_name == 'directmedia':
                 option_value = '0' if option_value == 'no' else '1'
 
             print >> output, format_ast_option(option_name, option_value)
@@ -79,6 +79,7 @@ class _SccpLineConf(object):
         print >> output, format_ast_option('cid_num', line['cid_num'])
         print >> output, format_ast_option('setvar', 'XIVO_USERID=%s' % line['user_id'])
         print >> output, format_ast_option('setvar', 'PICKUPMARK=%(number)s%%%(context)s' % line)
+        print >> output, format_ast_option('setvar', 'TRANSFER_CONTEXT=%s' % line['context'])
         if line['language']:
             print >> output, format_ast_option('language', line['language'])
         print >> output, format_ast_option('context', line['context'])

@@ -254,6 +254,7 @@ class TestSccpLineConf(_BaseSccpTestCase):
                     cid_num=100
                     setvar=XIVO_USERID=1
                     setvar=PICKUPMARK=100%a_context
+                    setvar=TRANSFER_CONTEXT=a_context
                     language=fr_FR
                     context=a_context
 
@@ -281,6 +282,7 @@ class TestSccpLineConf(_BaseSccpTestCase):
                     cid_num=100
                     setvar=XIVO_USERID=1
                     setvar=PICKUPMARK=100%a_context
+                    setvar=TRANSFER_CONTEXT=a_context
                     context=a_context
 
                    """
@@ -308,6 +310,7 @@ class TestSccpLineConf(_BaseSccpTestCase):
                     cid_num=100
                     setvar=XIVO_USERID=1
                     setvar=PICKUPMARK=100%a_context
+                    setvar=TRANSFER_CONTEXT=a_context
                     context=a_context
                     allow=g729,ulaw
 
@@ -337,6 +340,7 @@ class TestSccpLineConf(_BaseSccpTestCase):
                     cid_num=100
                     setvar=XIVO_USERID=1
                     setvar=PICKUPMARK=100%a_context
+                    setvar=TRANSFER_CONTEXT=a_context
                     context=a_context
                     disallow=all
                     allow=g729,ulaw

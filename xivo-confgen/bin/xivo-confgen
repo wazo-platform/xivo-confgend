@@ -37,7 +37,7 @@ class Options(usage.Options):
             ['server' , 's', 'localhost', 'confgend server host/ip', str],
             ['port'   , 'p', 5035       , 'confgend server port', int],
             ['timeout', 't', 5          , 'connexion timeout', int],
-            ['conf'   , 'c', '/etc/pf-xivo/xivo-confgen.conf', 'Configuration file', str],
+            ['conf'   , 'c', '/etc/xivo/xivo-confgen.conf', 'Configuration file', str],
     ]
 
     def parseArgs(self, confkey):
@@ -63,7 +63,7 @@ def main():
 
         # coerce value
         if key in o._dispatch:
-            #NOTE: cannot directly use CoerceParameter.dispatch() as it affect result to opts dict
+            # NOTE: cannot directly use CoerceParameter.dispatch() as it affect result to opts dict
             try:
                 value = o._dispatch[key].coerce(value)
             except ValueError, e:

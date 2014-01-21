@@ -1,0 +1,3 @@
+etc/xivo
+etc/xivo/xivo-confgend/asterisk
+var/lib/xivo-confgend

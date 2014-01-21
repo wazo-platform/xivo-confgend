@@ -1,0 +1,108 @@
+xivo-confgen (1:14.01~20140113.151047.8d8996e-wheezy-5) xivo-dev; urgency=low
+
+  * add epoch in version limiting moving conffile
+
+ -- Sebastien Duthil <sduthil@avencall.com>  Thu, 16 Jan 2014 08:22:24 -0500
+
+xivo-confgen (1:14.01~20140113.151047.8d8996e-wheezy-4) xivo-dev; urgency=low
+
+  * remove the double DEBHELPER tag in xivo-confgend postinst
+
+ -- Pascal Cadotte Michaud <pcadottemichaud@avencall.com>  Tue, 14 Jan 2014 13:22:12 -0500
+
+xivo-confgen (1:14.01~20140113.151047.8d8996e-wheezy-3) xivo-dev; urgency=low
+
+  * use maintscript instead of hand written postinst to rename pf-xivo to xivo
+
+ -- Pascal Cadotte Michaud <pcadottemichaud@avencall.com>  Tue, 14 Jan 2014 09:40:58 -0500
+
+xivo-confgen (1:14.01~20140113.151047.8d8996e-wheezy-2) xivo-dev; urgency=low
+
+  * rename configuration paths from pf-xivo to xivo when copying conffiles
+
+ -- Sebastien Duthil <sduthil@avencall.com>  Mon, 13 Jan 2014 11:13:16 -0500
+
+xivo-confgen (1:13.23~20131106.152948.eae555e-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * depends on xivo-dao
+
+ -- Sebastien Duthil <sduthil@avencall.com>  Tue, 19 Nov 2013 09:28:42 -0500
+
+xivo-confgen (1:13.04~20130220.204524.daf172e-4) squeeze-xivo-skaro-dev; urgency=low
+
+  * revert init script 
+
+ -- Nicolas HICHER <nhicher@avencall.com>  Sat, 23 Feb 2013 08:52:20 -0500
+
+xivo-confgen (1:13.04~20130220.204524.daf172e-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * fix init script (status on stopped service must return 3)
+
+ -- Nicolas HICHER <nhicher@avencall.com>  Fri, 22 Feb 2013 12:36:19 -0500
+
+xivo-confgen (1:13.04~20130125.161225.0e59336-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * depends on xivo-web-interface 
+
+ -- Nicolas HICHER (atarakt) <nhicher@proformatique.com>  Tue, 19 Feb 2013 14:17:14 -0500
+
+xivo-confgen (1:13.03~20130125.161225.0e59336-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * add default file for xivo
+
+ -- Cedric Abunar <cabunar@avencall.com>  Tue, 05 Feb 2013 10:05:17 -0500
+
+xivo-confgen (1:12.22~20121106.150019.36f1a82-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * fix depends, now on xivo-lib-python
+
+ -- Nicolas HICHER (atarakt) <nhicher@proformatique.com>  Wed, 07 Nov 2012 11:21:34 -0500
+
+xivo-confgen (1:1.2~beta-2-1) squeeze-xivo-skaro-dev; urgency=low
+
+  * fix version
+
+ -- Nicolas HICHER (atarakt) <nhicher@proformatique.com>  Mon, 12 Dec 2011 13:31:22 -0500
+
+xivo-confgen (1:1.2~20110804.172823.296324a-3) squeeze-xivo-skaro-dev; urgency=low
+
+  * package renamed to xivo-confgen
+
+ -- Jean-Yves LEBLEU <jylebleu@avencall.com>  Fri, 21 Oct 2011 15:42:56 -0400
+
+pf-xivo-confgen (1:1.2~20110804.172823.296324a-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * add status in initscript help message.
+
+ -- Etienne Lessard <edesrocherslessard@avencall.com>  Thu, 11 Aug 2011 10:52:07 -0400
+
+pf-xivo-confgen (1:1.2~svn10243-0) squeeze-xivo-skaro-dev; urgency=low
+
+  * new package pf-xivo-libconfgend
+
+ -- Nicolas HICHER (atarakt) <nhicher@proformatique.com>  Wed, 23 Feb 2011 11:02:37 +0100
+
+pf-xivo-confgen (1:1.2~svn10232-1) squeeze-xivo-skaro-dev; urgency=low
+
+  * [AUTOBUILD] Rebuild.
+  * [AUTOBUILD] New upstream development snapshot.
+
+ -- Proformatique Maintainance Team <technique@proformatique.com>  Fri, 18 Feb 2011 08:16:13 +0100
+
+pf-xivo-confgen (1:1.2~svn10211-0) pf-xivo-skaro-dev; urgency=low
+
+  * Fix for nono
+
+ -- Sylvain Boily <sboily@proformatique.com>  Wed, 16 Feb 2011 13:07:23 -0500
+
+pf-xivo-confgen (1:1.2~svn9859-0) pf-xivo-skaro-dev; urgency=low
+
+  *  new setup.py
+
+ -- Nicolas HICHER (atarakt) <nhicher@proformatique.com>  Tue, 04 Jan 2011 16:25:22 +0100
+
+pf-xivo-confgen (1.2.0-0) pf-xivo-skaro-dev; urgency=low
+
+  * Initial release.
+
+ -- Nicolas HICHER (atarakt) <nhicher@proformatique.com>  Tue, 07 Dec 2010 15:39:42 +0100

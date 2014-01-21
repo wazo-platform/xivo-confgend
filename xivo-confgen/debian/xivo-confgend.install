@@ -1,0 +1,3 @@
+debian/tmp/etc/xivo/xivo-confgend.conf etc/xivo/
+debian/tmp/etc/xivo/xivo-confgend etc/xivo/
+debian/tmp/usr/bin/xivo-confgend usr/bin/

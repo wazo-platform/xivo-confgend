@@ -1,0 +1,66 @@
+Source: xivo-confgen
+Section: python
+Priority: extra
+Maintainer: XiVO Dev Team <dev@avencall.com>
+Uploaders: XiVO Builder Team <release@xivo.fr>
+Build-Depends: debhelper (>= 8), dh-python, python-all (>= 2.7), python-setuptools
+Standards-Version: 3.9.4
+X-Python-Version: >= 2.7
+Homepage: http://wiki.xivo.fr/
+
+Package: xivo-confgen
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python-twisted
+Provides: pf-xivo-confgen
+Replaces: pf-xivo-confgen
+Conflicts: pf-xivo-confgen
+Description: XIVO telephony systems configurations generator
+ XIVO is a system based on a powerful IPBX, to bring an easy to
+ install solution for telephony and related services.
+ .
+ Confgen generate asterisk/freeswitch or any other telephony system 
+ configuration from a XiVO configuration
+ Confgen is build on a flexible architecture of frontends (targeted systems) 
+ and backends (data source).
+ .
+ confgen is the client part of the generator.
+ .
+
+Package: xivo-confgend
+Architecture: all
+Pre-Depends: xivo-libconfgend
+Depends: ${python:Depends}, ${misc:Depends}, python-twisted, xivo-lib-python
+Provides: pf-xivo-confgend
+Replaces: pf-xivo-confgend
+Conflicts: pf-xivo-confgend
+Suggests: xivo-confgen
+Description: XIVO telephony systems configurations generator
+ XIVO is a system based on a powerful IPBX, to bring an easy to
+ install solution for telephony and related services.
+ .
+ Confgen generate asterisk/freeswitch or any other telephony system 
+ configuration from a XiVO configuration.
+ Confgen is build on a flexible architecture of frontends (targeted systems) 
+ and backends (data source).
+ .
+ confgend is the server part of the generator
+ .
+
+Package: xivo-libconfgend
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, xivo-libdao
+Suggests: xivo-confgen, xivo-web-interface
+Provides: pf-xivo-libconfgend
+Replaces: pf-xivo-libconfgend
+Conflicts: pf-xivo-libconfgend
+Description: XIVO telephony systems configurations generator
+ XIVO is a system based on a powerful IPBX, to bring an easy to
+ install solution for telephony and related services.
+ .
+ Confgen generate asterisk/freeswitch or any other telephony system 
+ configuration from a XiVO configuration.
+ Confgen is build on a flexible architecture of frontends (targeted systems) 
+ and backends (data source).
+ .
+ confgend is the server part of the generator
+ .

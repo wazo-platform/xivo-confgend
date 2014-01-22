@@ -1,0 +1,6 @@
+nose
+mock
+psycopg2
+sqlalchemy==0.7.2
+svn+https://github.com/xivo-pbx/xivo-lib-python/trunk/xivo-lib-python
+svn+https://github.com/xivo-pbx/xivo-dao/trunk/xivo-dao

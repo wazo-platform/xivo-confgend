@@ -1,5 +1,0 @@
-To run tests install :
-
-python-twisted
-
-mock 0.8.0 needed (pip install --upgrade mock)

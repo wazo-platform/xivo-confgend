@@ -20,7 +20,6 @@ from xivo_confgen.generators.extensionsconf import ExtensionsConf
 from xivo_confgen.generators.queues import QueuesConf
 from xivo_confgen.generators.sip import SipConf
 from xivo_confgen.generators.sccp import SccpConf
-from xivo_confgen.generators.sccp_next import SccpNextConf
 from xivo_confgen.generators.voicemail import VoicemailConf
 from xivo_dao import asterisk_conf_dao
 
@@ -29,10 +28,6 @@ class AsteriskFrontend(object):
 
     def sccp_conf(self):
         config_generator = SccpConf()
-        return self._generate_conf_from_generator(config_generator)
-
-    def sccp_next_conf(self):
-        config_generator = SccpNextConf()
         return self._generate_conf_from_generator(config_generator)
 
     def sip_conf(self):

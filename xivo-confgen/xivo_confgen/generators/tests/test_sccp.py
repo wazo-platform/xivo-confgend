@@ -15,14 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import os
+import itertools
 import StringIO
 import unittest
 from mock import Mock, patch
 
 from xivo_confgen.generators.sccp import SccpConf, _SccpGeneralSettingsConf, _SccpLineConf, _SccpDeviceConf, \
-    _SccpSpeedDialConf
-from xivo_confgen.generators.tests.util import parse_ast_config
+    _SccpSpeedDialConf, _SplittedGeneralSettings
 
 
 class _BaseSccpTestCase(unittest.TestCase):
@@ -39,27 +38,20 @@ class TestSccpConf(_BaseSccpTestCase):
     @patch('xivo_dao.asterisk_conf_dao.find_sccp_speeddial_settings', Mock(return_value=[]))
     def setUp(self):
         self._output = StringIO.StringIO()
-        self.sccp_conf = SccpConf()
+        self._conf = SccpConf()
 
-    def _parse_ast_cfg(self):
-        self._output.seek(os.SEEK_SET)
-        return parse_ast_config(self._output)
+    def test_generate(self):
+        self._conf.generate(self._output)
 
-    @patch('xivo_dao.asterisk_conf_dao.find_sccp_general_settings', Mock(return_value=[]))
-    @patch('xivo_dao.asterisk_conf_dao.find_sccp_line_settings', Mock(return_value=[]))
-    @patch('xivo_dao.asterisk_conf_dao.find_sccp_device_settings', Mock(return_value=[]))
-    @patch('xivo_dao.asterisk_conf_dao.find_sccp_speeddial_settings', Mock(return_value=[]))
-    def test_empty_sections(self):
-        sccp_conf = SccpConf()
-        sccp_conf.generate(self._output)
+        expected = """\
+                   [general]
 
-        result = self._parse_ast_cfg()
-        expected = {u'general': [],
-                    u'devices': [],
-                    u'lines': [],
-                    u'speeddials': []}
+                   [xivo_device_tpl](!)
 
-        self.assertEqual(expected, result)
+                   [xivo_line_tpl](!)
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
 
     def test_one_element_speeddials_section(self):
         speedials = [{'exten':'1001',
@@ -73,11 +65,89 @@ class TestSccpConf(_BaseSccpTestCase):
         sccp_conf.generate(speedials, self._output)
 
         expected = """\
-                    [speeddials]
                     [1229-1]
+                    type = speeddial
                     extension = 1001
                     label = user001
                     blf = 0
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+
+class TestSccpGeneralConf(_BaseSccpTestCase):
+
+    def setUp(self):
+        self._general_conf = _SccpGeneralSettingsConf()
+        self._output = StringIO.StringIO()
+
+    def test_one_element_general_section(self):
+        items = [{'option_name': u'foo',
+                  'option_value': u'bar'}]
+
+        self._general_conf.generate(items, self._output)
+
+        expected = """\
+                   [general]
+                   foo=bar
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+
+class TestSccpSplittedGeneralSettings(unittest.TestCase):
+
+    def test_split_options(self):
+        general_items = [
+            {'option_name': 'foo'},
+        ]
+        device_items = [
+            {'option_name': 'keepalive'},
+        ]
+        line_items = [
+            {'option_name': 'language'},
+        ]
+        items = list(itertools.chain(general_items, device_items, line_items))
+
+        splitted_settings = _SplittedGeneralSettings.new_from_dao_general_settings(items)
+
+        self.assertEqual(general_items, splitted_settings.general_items)
+        self.assertEqual(device_items, splitted_settings.device_items)
+        self.assertEqual(line_items, splitted_settings.line_items)
+
+
+class TestSccpDeviceConf(_BaseSccpTestCase):
+
+    def setUp(self):
+        self._device_conf = _SccpDeviceConf([])
+        self._output = StringIO.StringIO()
+
+    def test_template_items(self):
+        items = [
+            {'option_name': 'foo', 'option_value': 'bar'},
+        ]
+
+        self._device_conf._generate_template(items, self._output)
+
+        expected = """\
+                   [xivo_device_tpl](!)
+                   foo = bar
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_one_device_no_line_no_voicemail(self):
+        sccpdevice = [{'category': u'devices',
+                       'name': u'SEPACA016FDF235',
+                       'device': u'SEPACA016FDF235',
+                       'line': u'',
+                       'voicemail': u''}]
+
+        self._device_conf._generate_devices(sccpdevice, self._output)
+
+        expected = """\
+                    [SEPACA016FDF235](xivo_device_tpl)
+                    type=device
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
@@ -96,34 +166,15 @@ class TestSccpConf(_BaseSccpTestCase):
                            'user_id': 1229,
                            'device': 'SEPACA016FDF235'}]
 
-        sccp_conf = _SccpDeviceConf(sccpspeeddials)
-        sccp_conf.generate(sccpdevice, self._output)
+        device_conf = _SccpDeviceConf(sccpspeeddials)
+        device_conf._generate_devices(sccpdevice, self._output)
 
         expected = """\
-                    [devices]
-                    [SEPACA016FDF235]
-                    device=SEPACA016FDF235
+                    [SEPACA016FDF235](xivo_device_tpl)
+                    type=device
                     line=103
                     voicemail=103
                     speeddial=1229-1
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
-
-    def test_one_device_no_line_no_voicemail(self):
-        sccpdevice = [{'category': u'devices',
-                       'name': u'SEPACA016FDF235',
-                       'device': u'SEPACA016FDF235',
-                       'line': u'',
-                       'voicemail': u''}]
-
-        sccp_conf = _SccpDeviceConf([])
-        sccp_conf.generate(sccpdevice, self._output)
-
-        expected = """\
-                    [devices]
-                    [SEPACA016FDF235]
-                    device=SEPACA016FDF235
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
@@ -150,78 +201,16 @@ class TestSccpConf(_BaseSccpTestCase):
              'device': 'SEPACA016FDF235'},
         ]
 
-        sccp_conf = _SccpDeviceConf(sccpspeeddials)
-        sccp_conf.generate(sccpdevice, self._output)
+        device_conf = _SccpDeviceConf(sccpspeeddials)
+        device_conf._generate_devices(sccpdevice, self._output)
 
         expected = """\
-                    [devices]
-                    [SEPACA016FDF235]
-                    device=SEPACA016FDF235
+                    [SEPACA016FDF235](xivo_device_tpl)
+                    type=device
                     line=103
                     voicemail=103
                     speeddial=1229-1
                     speeddial=1229-2
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
-
-
-class TestSccpGeneralConf(_BaseSccpTestCase):
-
-    def setUp(self):
-        self._general_conf = _SccpGeneralSettingsConf()
-        self._output = StringIO.StringIO()
-
-    def test_one_element_general_section(self):
-        sccpgeneralsettings = [{'option_name': u'foo',
-                                'option_value': u'bar'}]
-
-        self._general_conf.generate(sccpgeneralsettings, self._output)
-
-        expected = """\
-                    [general]
-                    foo=bar
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
-
-    def test_allow_option(self):
-        sccpgeneralsettings = [
-            {'option_name': 'allow', 'option_value': 'ulaw'},
-        ]
-
-        self._general_conf.generate(sccpgeneralsettings, self._output)
-
-        expected = """\
-                   [general]
-                   disallow = all
-                   allow = ulaw
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
-
-    def test_empty_allow_option(self):
-        sccpgeneralsettings = [
-            {'option_name': 'allow', 'option_value': ''},
-        ]
-
-        self._general_conf.generate(sccpgeneralsettings, self._output)
-
-        expected = """\
-                   [general]
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
-
-    def test_disallow_option_is_ignored(self):
-        sccpgeneralsettings = [
-            {'option_name': 'disallow', 'option_value': 'foobar'},
-        ]
-
-        self._general_conf.generate(sccpgeneralsettings, self._output)
-
-        expected = """\
-                   [general]
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
@@ -232,6 +221,61 @@ class TestSccpLineConf(_BaseSccpTestCase):
     def setUp(self):
         self._line_conf = _SccpLineConf()
         self._output = StringIO.StringIO()
+
+    def test_template_directmedia_option(self):
+        items = [
+            {'option_name': 'directmedia', 'option_value': 'no'},
+        ]
+
+        self._line_conf._generate_template(items, self._output)
+
+        expected = """\
+                   [xivo_line_tpl](!)
+                   directmedia = 0
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_template_allow_option(self):
+        items = [
+            {'option_name': 'allow', 'option_value': 'ulaw'},
+        ]
+
+        self._line_conf._generate_template(items, self._output)
+
+        expected = """\
+                   [xivo_line_tpl](!)
+                   disallow = all
+                   allow = ulaw
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_template_empty_allow_option(self):
+        items = [
+            {'option_name': 'allow', 'option_value': ''},
+        ]
+
+        self._line_conf._generate_template(items, self._output)
+
+        expected = """\
+                   [xivo_line_tpl](!)
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_template_disallow_option_is_ignored(self):
+        items = [
+            {'option_name': 'disallow', 'option_value': 'foobar'},
+        ]
+
+        self._line_conf._generate_template(items, self._output)
+
+        expected = """\
+                   [xivo_line_tpl](!)
+
+                   """
+        self.assertConfigEqual(expected, self._output.getvalue())
 
     def test_one_element_lines_section(self):
         sccpline = [{
@@ -245,11 +289,11 @@ class TestSccpLineConf(_BaseSccpTestCase):
             'context': u'a_context',
         }]
 
-        self._line_conf.generate(sccpline, self._output)
+        self._line_conf._generate_lines(sccpline, self._output)
 
         expected = """\
-                    [lines]
-                    [100]
+                    [100](xivo_line_tpl)
+                    type=line
                     cid_name=jimmy
                     cid_num=100
                     setvar=XIVO_USERID=1
@@ -273,11 +317,11 @@ class TestSccpLineConf(_BaseSccpTestCase):
             'context': u'a_context',
         }]
 
-        self._line_conf.generate(sccpline, self._output)
+        self._line_conf._generate_lines(sccpline, self._output)
 
         expected = """\
-                    [lines]
-                    [100]
+                    [100](xivo_line_tpl)
+                    type=line
                     cid_name=jimmy
                     cid_num=100
                     setvar=XIVO_USERID=1
@@ -301,11 +345,11 @@ class TestSccpLineConf(_BaseSccpTestCase):
             'allow': u'g729,ulaw',
         }]
 
-        self._line_conf.generate(sccpline, self._output)
+        self._line_conf._generate_lines(sccpline, self._output)
 
         expected = """\
-                    [lines]
-                    [100]
+                    [100](xivo_line_tpl)
+                    type=line
                     cid_name=jimmy
                     cid_num=100
                     setvar=XIVO_USERID=1
@@ -331,11 +375,11 @@ class TestSccpLineConf(_BaseSccpTestCase):
             'disallow': u'all',
         }]
 
-        self._line_conf.generate(sccpline, self._output)
+        self._line_conf._generate_lines(sccpline, self._output)
 
         expected = """\
-                    [lines]
-                    [100]
+                    [100](xivo_line_tpl)
+                    type=line
                     cid_name=jimmy
                     cid_num=100
                     setvar=XIVO_USERID=1

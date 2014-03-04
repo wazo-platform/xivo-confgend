@@ -20,6 +20,14 @@ def format_ast_section(name):
     return u'[%s]' % name
 
 
+def format_ast_section_tpl(name):
+    return u'[%s](!)' % name
+
+
+def format_ast_section_using_tpl(name, tpl_name):
+    return u'[%s](%s)' % (name, tpl_name)
+
+
 def format_ast_option(name, value):
     return u'%s = %s' % (name, value)
 

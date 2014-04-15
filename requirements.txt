@@ -1,4 +1,3 @@
-nose
 mock
 psycopg2
 sqlalchemy==0.7.2

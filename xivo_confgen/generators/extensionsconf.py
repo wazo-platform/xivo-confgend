@@ -162,7 +162,7 @@ class ExtensionsConf(object):
                         existing_hints.add(fullexten)
 
             # conference supervision
-            conferences = asterisk_conf_dao.find_exten_conferences_settings()
+            conferences = asterisk_conf_dao.find_exten_conferences_settings(context_name=ctx['name'])
             if len(conferences) > 0:
                 print >> options, "\n; conferences supervision"
 

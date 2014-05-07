@@ -78,9 +78,7 @@ class ExtensionsConf(object):
         # hints & features (init)
         xfeatures = {
             'bsfilter': {},
-            'callgroup': {},
             'callmeetme': {},
-            'callqueue': {},
             'calluser': {},
             'fwdbusy': {},
             'fwdrna': {},
@@ -163,30 +161,19 @@ class ExtensionsConf(object):
                         print >> options, "exten = %s,hint,%s" % (fullexten, interface)
                         existing_hints.add(fullexten)
 
-            # objects(user,group,...) supervision
-            phonesfk = asterisk_conf_dao.find_exten_phonefunckeys_settings(context_name=ctx['name'])
-            if len(phonesfk) > 0:
-                print >> options, "\n; phones supervision"
+            # conference supervision
+            conferences = asterisk_conf_dao.find_exten_conferences_settings(context_name=ctx['name'])
+            if len(conferences) > 0:
+                print >> options, "\n; conferences supervision"
 
-            xset = set()
-            for pkey in phonesfk:
-                xtype = pkey['typeextenumbersright']
-                calltype = "call%s" % xtype
-
-                if pkey['exten'] is not None:
-                    exten = xivo_helpers.clean_extension(pkey['exten'])
-                elif calltype in xfeatures and not xfeatures[calltype].get('commented', 1):
-                    exten = xivo_helpers.fkey_extension(
-                        xfeatures[calltype]['exten'],
-                        (pkey['typevalextenumbersright'],))
+            for conference in conferences:
+                if conference['exten'] is not None:
+                    exten = xivo_helpers.clean_extension(conference['exten'])
                 else:
                     continue
 
-                xset.add((exten, ("MeetMe:%s" if xtype == 'meetme' else "Custom:%s") % exten))
-
-            for hint in xset:
-                print >> options, "exten = %s,hint,%s" % hint
-                existing_hints.add(hint[0])
+                print >> options, "exten = %s,hint,MeetMe:%s" % (exten, exten)
+                existing_hints.add(exten)
 
             # BS filters supervision
             callfiltermemberids = callfilter_dao.get_secretaries_id_by_context(ctx['name'])

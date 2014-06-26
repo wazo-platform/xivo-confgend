@@ -9,7 +9,7 @@ setup(
     description='XIVO Configurations Generator',
     author='Avencall',
     author_email='xivo-dev@lists.proformatique.com',
-    url='http://wiki.xivo.fr/',
+    url='http://wiki.xivo.io/',
     license='GPLv3',
     packages=['xivo_confgen',
               'xivo_confgen.generators'],

@@ -162,6 +162,11 @@ class _SccpLineConf(object):
                 print >> output, format_ast_option('disallow', item['disallow'])
             if 'allow' in item:
                 print >> output, format_ast_option('allow', item['allow'])
+            if 'callgroup' in item:
+                print >> output, format_ast_option('callgroup', ','.join(str(i) for i in item['callgroup']))
+            if 'pickupgroup' in item:
+                print >> output, format_ast_option('pickupgroup', ','.join(str(i) for i in item['pickupgroup']))
+
             print >> output
 
 

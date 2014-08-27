@@ -391,3 +391,35 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
                    """
         self.assertConfigEqual(expected, self._output.getvalue())
+
+    def test_call_and_pickup_groups(self):
+        sccpline = [
+            {'category': u'lines',
+             'name': u'100',
+             'cid_name': u'jimmy',
+             'cid_num': u'100',
+             'user_id': u'1',
+             'language': None,
+             'number': 100,
+             'context': u'a_context',
+             'callgroup': [1, 2, 3, 4],
+             'pickupgroup': [3, 4]},
+        ]
+
+        self._line_conf._generate_lines(sccpline, self._output)
+
+        expected = """\
+                    [100](xivo_line_tpl)
+                    type=line
+                    cid_name=jimmy
+                    cid_num=100
+                    setvar=XIVO_USERID=1
+                    setvar=PICKUPMARK=100%a_context
+                    setvar=TRANSFER_CONTEXT=a_context
+                    context=a_context
+                    callgroup = 1,2,3,4
+                    pickupgroup = 3,4
+
+                   """
+
+        self.assertConfigEqual(expected, self._output.getvalue())

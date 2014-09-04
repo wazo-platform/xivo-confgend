@@ -135,9 +135,8 @@ class SipConf(object):
     def _ccss_policy(self, data_ccss):
         if data_ccss:
             ccss_info = data_ccss[0]
-            if 'commented' in ccss_info:
-                if ccss_info['commented'] == 0:
-                    return 'generic'
+            if ccss_info.get('commented') == 0:
+                return 'generic'
 
         return 'never'
 

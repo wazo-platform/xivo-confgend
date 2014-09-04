@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import textwrap
 import unittest
 from StringIO import StringIO
 
@@ -116,6 +117,7 @@ class TestSipConf(unittest.TestCase):
         self.assertTrue(u'username = cedric_51' in result)
 
     def test__gen_user(self):
+        pickup = ccss = []
         user = [{'name': 'jean-yves',
                 'amaflags': 'default',
                 'callerid': '"lucky" <45789>',
@@ -123,7 +125,7 @@ class TestSipConf(unittest.TestCase):
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user([], user, output)
+        self.sip_conf._gen_user(pickup, user, ccss, output)
         result = output.getvalue()
         self.assertTrue(u'[jean-yves]' in result)
         self.assertTrue(u'amaflags = default' in result)
@@ -131,65 +133,78 @@ class TestSipConf(unittest.TestCase):
         self.assertTrue(u'callerid = "lucky" <45789>' in result)
 
     def test__gen_user_with_accent(self):
+        pickup = ccss = []
         user = [{'name': 'papi',
                 'callerid': '"pépè" <45789>',
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user([], user, output)
-        result = output.getvalue()
-        self.assertEqual(result, u'\n[papi]\ncontext = default\ncallerid = "pépè" <45789>\nsetvar = PICKUPMARK=101%default\nsetvar = TRANSFER_CONTEXT=default\n')
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
+        self.assertIn(u'callerid = "pépè" <45789>', output.getvalue())
 
     def test__gen_user_empty_value(self):
+        pickup = ccss = []
         user = [{'name': 'novalue',
                  'foobar': '',
                  'number': 101,
                  'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user([], user, output)
-        result = output.getvalue()
-        print "RESULT", result
-        self.assertEqual(result, u'\n[novalue]\ncontext = default\nsetvar = PICKUPMARK=101%default\nsetvar = TRANSFER_CONTEXT=default\n')
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
+        self.assertNotIn(u'foobar', output.getvalue())
 
         user = [{'name': 'novalue',
                  'foobar': None,
                  'number': 101,
                  'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user([], user, output)
-        result = output.getvalue()
-        self.assertEqual(result, u'\n[novalue]\ncontext = default\nsetvar = PICKUPMARK=101%default\nsetvar = TRANSFER_CONTEXT=default\n')
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
+        self.assertNotIn(u'foobar', output.getvalue())
 
     def test__gen_user_codec(self):
+        pickup = ccss = []
         user = [{'name': 'papi',
                 'allow': 'g723,gsm',
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user([], user, output)
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
         result = output.getvalue()
-        self.assertEqual(result, u'\n[papi]\ncontext = default\ndisallow = all\nallow = g723\nallow = gsm\nsetvar = PICKUPMARK=101%default\nsetvar = TRANSFER_CONTEXT=default\n')
+        self.assertIn('disallow = all', result)
+        self.assertIn('allow = g723', result)
+        self.assertIn('allow = gsm', result)
 
     def test__gen_user_subscribemwi(self):
+        pickup = ccss = []
         user = [{'name': 'voicemail',
                 'subscribemwi': 0,
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user([], user, output)
-        result = output.getvalue()
-        self.assertEqual(result, u'\n[voicemail]\ncontext = default\nsubscribemwi = no\nsetvar = PICKUPMARK=101%default\nsetvar = TRANSFER_CONTEXT=default\n')
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
+        self.assertIn('subscribemwi = no', output.getvalue())
 
         user = [{'name': 'voicemail',
                 'subscribemwi': 1,
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user([], user, output)
-        result = output.getvalue()
-        self.assertEqual(result, u'\n[voicemail]\ncontext = default\nsubscribemwi = yes\nsetvar = PICKUPMARK=101%default\nsetvar = TRANSFER_CONTEXT=default\n')
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
+        self.assertIn('subscribemwi = yes', output.getvalue())
 
     def test__gen_user_unused_keys(self):
+        pickup = ccss = []
         user = [{'id': 1,
                 'name': 'unused',
                 'protocol': 'sip',
@@ -204,15 +219,68 @@ class TestSipConf(unittest.TestCase):
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user([], user, output)
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
         result = output.getvalue()
-        self.assertEqual(result, u'\n[unused]\ncontext = default\nsetvar = PICKUPMARK=101%default\nsetvar = TRANSFER_CONTEXT=default\n')
+        self.assertNotIn('id', result)
+        self.assertNotIn('protocol', result)
+        self.assertNotIn('category', result)
+        self.assertNotIn('commented', result)
+        self.assertNotIn('initialized', result)
+        self.assertNotIn('disallow', result)
+        self.assertNotIn('regseconds', result)
+        self.assertNotIn('lastms', result)
+        self.assertNotIn('fullcontact', result)
+        self.assertNotIn('ipaddr', result)
+        self.assertNotIn('number', result)
 
     def test__gen_user_transfer_context(self):
+        pickup = ccss = []
         user = [{'name': 'othercontext',
                  'number': 101,
                  'context': 'mycontext'}]
         output = StringIO()
-        self.sip_conf._gen_user([], user, output)
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
+        self.assertIn('setvar = TRANSFER_CONTEXT=mycontext', output.getvalue())
+
+    def test__gen_user_pickupmark(self):
+        pickup = ccss = []
+        user = [{'name': 'othercontext',
+                 'number': 101,
+                 'context': 'mycontext'}]
+        output = StringIO()
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
+        self.assertIn('setvar = PICKUPMARK=101%mycontext', output.getvalue())
+
+    def test__gen_user_ccss_disabled(self):
+        pickup = []
+        user = [{'name': 'username',
+                 'number': '1234',
+                 'context': 'mycontext'}]
+        ccss = [{'commented': 1}]
+        output = StringIO()
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
         result = output.getvalue()
-        self.assertEqual(result, u'\n[othercontext]\ncontext = mycontext\nsetvar = PICKUPMARK=101%mycontext\nsetvar = TRANSFER_CONTEXT=mycontext\n')
+        self.assertIn('cc_agent_policy = never', result)
+        self.assertIn('cc_monitor_policy = never', result)
+
+    def test__gen_user_ccss_enabled(self):
+        pickup = []
+        user = [{'name': 'username',
+                 'number': '1234',
+                 'context': 'mycontext'}]
+        ccss = [{'commented': 0}]
+        output = StringIO()
+
+        self.sip_conf._gen_user(pickup, user, ccss, output)
+
+        result = output.getvalue()
+        self.assertIn('cc_agent_policy = generic', result)
+        self.assertIn('cc_monitor_policy = generic', result)

@@ -17,6 +17,15 @@
 
 from xivo_dao import asterisk_conf_dao
 
+CC_POLICY_ENABLED = 'generic'
+CC_POLICY_DISABLED = 'never'
+CC_OFFER_TIMER = 30
+CC_RECALL_TIMER = 20
+CC_MAX_AGENTS = 5
+CC_MAX_MONITORS = 5
+CCBS_AVAILABLE_TIMER = 900
+CCNR_AVAILABLE_TIMER = 900
+
 
 class SipConf(object):
 
@@ -129,16 +138,30 @@ class SipConf(object):
                 if 'pickup' in p:
                     print >> output, "callgroup = " + ','.join(frozenset(p['pickup']))
 
-            print >> output, gen_value_line('cc_agent_policy', self._ccss_policy(data_ccss))
-            print >> output, gen_value_line('cc_monitor_policy', self._ccss_policy(data_ccss))
+            for ccss_option, value in self._ccss_config(data_ccss).iteritems():
+                print >> output, gen_value_line(ccss_option, value)
 
-    def _ccss_policy(self, data_ccss):
+    def _ccss_config(self, data_ccss):
         if data_ccss:
             ccss_info = data_ccss[0]
             if ccss_info.get('commented') == 0:
-                return 'generic'
+                return {
+                    'cc_agent_policy': CC_POLICY_ENABLED,
+                    'cc_agent_dialstring': '',
+                    'cc_callback_macro': '',
+                    'cc_max_agents': CC_MAX_AGENTS,
+                    'cc_max_monitors': CC_MAX_MONITORS,
+                    'cc_monitor_policy': CC_POLICY_ENABLED,
+                    'cc_offer_timer': CC_OFFER_TIMER,
+                    'cc_recall_timer': CC_RECALL_TIMER,
+                    'ccbs_available_timer': CCBS_AVAILABLE_TIMER,
+                    'ccnr_available_timer': CCNR_AVAILABLE_TIMER,
+                }
 
-        return 'never'
+        return {
+            'cc_agent_policy': CC_POLICY_DISABLED,
+            'cc_monitor_policy': CC_POLICY_DISABLED,
+        }
 
 
 def gen_value_line(key, value):

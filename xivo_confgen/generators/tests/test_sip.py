@@ -270,6 +270,14 @@ class TestSipConf(unittest.TestCase):
         result = output.getvalue()
         self.assertIn('cc_agent_policy = never', result)
         self.assertIn('cc_monitor_policy = never', result)
+        self.assertNotIn('cc_agent_dialstring', result)
+        self.assertNotIn('cc_callback_macro', result)
+        self.assertNotIn('cc_max_agents', result)
+        self.assertNotIn('cc_max_monitors', result)
+        self.assertNotIn('cc_offer_timer', result)
+        self.assertNotIn('cc_recall_timer', result)
+        self.assertNotIn('ccbs_available_timer', result)
+        self.assertNotIn('ccnr_available_timer', result)
 
     def test__gen_user_ccss_enabled(self):
         pickup = []
@@ -282,5 +290,13 @@ class TestSipConf(unittest.TestCase):
         self.sip_conf._gen_user(pickup, user, ccss, output)
 
         result = output.getvalue()
+        self.assertIn('cc_agent_dialstring = ', result)
         self.assertIn('cc_agent_policy = generic', result)
+        self.assertIn('cc_callback_macro = ', result)
+        self.assertIn('cc_max_agents = 5', result)
+        self.assertIn('cc_max_monitors = 5', result)
         self.assertIn('cc_monitor_policy = generic', result)
+        self.assertIn('cc_offer_timer = 30', result)
+        self.assertIn('cc_recall_timer = 20', result)
+        self.assertIn('ccbs_available_timer = 900', result)
+        self.assertIn('ccnr_available_timer = 900', result)

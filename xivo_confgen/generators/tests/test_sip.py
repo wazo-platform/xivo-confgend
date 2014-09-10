@@ -116,7 +116,10 @@ class TestSipConf(unittest.TestCase):
         self.assertTrue(u'username = cedric_51' in result)
 
     def test__gen_user(self):
-        pickup = ccss = []
+        pickup = []
+        ccss_options = {
+            'cc_foobar': 'foo',
+        }
         user = [{'name': 'jean-yves',
                 'amaflags': 'default',
                 'callerid': '"lucky" <45789>',
@@ -124,34 +127,37 @@ class TestSipConf(unittest.TestCase):
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, output)
         result = output.getvalue()
-        self.assertTrue(u'[jean-yves]' in result)
-        self.assertTrue(u'amaflags = default' in result)
-        self.assertTrue(u'call-limit = 10' in result)
-        self.assertTrue(u'callerid = "lucky" <45789>' in result)
+        self.assertIn(u'[jean-yves]', result)
+        self.assertIn(u'amaflags = default', result)
+        self.assertIn(u'call-limit = 10', result)
+        self.assertIn(u'callerid = "lucky" <45789>', result)
+        self.assertIn(u'cc_foobar = foo', result)
 
     def test__gen_user_with_accent(self):
-        pickup = ccss = []
+        pickup = []
+        ccss_options = {}
         user = [{'name': 'papi',
                 'callerid': '"pépè" <45789>',
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, output)
 
         self.assertIn(u'callerid = "pépè" <45789>', output.getvalue())
 
     def test__gen_user_empty_value(self):
-        pickup = ccss = []
+        pickup = []
+        ccss_options = {}
         user = [{'name': 'novalue',
                  'foobar': '',
                  'number': 101,
                  'context': 'default'}]
         output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, output)
 
         self.assertNotIn(u'foobar', output.getvalue())
 
@@ -161,19 +167,20 @@ class TestSipConf(unittest.TestCase):
                  'context': 'default'}]
         output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, output)
 
         self.assertNotIn(u'foobar', output.getvalue())
 
     def test__gen_user_codec(self):
-        pickup = ccss = []
+        pickup = []
+        ccss_options = {}
         user = [{'name': 'papi',
                 'allow': 'g723,gsm',
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, output)
 
         result = output.getvalue()
         self.assertIn('disallow = all', result)
@@ -181,14 +188,15 @@ class TestSipConf(unittest.TestCase):
         self.assertIn('allow = gsm', result)
 
     def test__gen_user_subscribemwi(self):
-        pickup = ccss = []
+        pickup = []
+        ccss_options = {}
         user = [{'name': 'voicemail',
                 'subscribemwi': 0,
                 'number': 101,
                 'context': 'default'}]
         output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, output)
 
         self.assertIn('subscribemwi = no', output.getvalue())
 
@@ -198,12 +206,13 @@ class TestSipConf(unittest.TestCase):
                 'context': 'default'}]
         output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, output)
 
         self.assertIn('subscribemwi = yes', output.getvalue())
 
     def test__gen_user_unused_keys(self):
-        pickup = ccss = []
+        pickup = []
+        ccss_options = {}
         user = [{'id': 1,
                 'name': 'unused',
                 'protocol': 'sip',
@@ -219,7 +228,7 @@ class TestSipConf(unittest.TestCase):
                 'context': 'default'}]
         output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, output)
 
         result = output.getvalue()
         self.assertNotIn('id', result)
@@ -235,59 +244,41 @@ class TestSipConf(unittest.TestCase):
         self.assertNotIn('number', result)
 
     def test__gen_user_transfer_context(self):
-        pickup = ccss = []
+        pickup = []
+        ccss_options = {}
         user = [{'name': 'othercontext',
                  'number': 101,
                  'context': 'mycontext'}]
         output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, output)
 
         self.assertIn('setvar = TRANSFER_CONTEXT=mycontext', output.getvalue())
 
     def test__gen_user_pickupmark(self):
-        pickup = ccss = []
+        pickup = []
+        ccss_options = {}
         user = [{'name': 'othercontext',
                  'number': 101,
                  'context': 'mycontext'}]
         output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, output)
 
         self.assertIn('setvar = PICKUPMARK=101%mycontext', output.getvalue())
 
-    def test__gen_user_ccss_disabled(self):
-        pickup = []
-        user = [{'name': 'username',
-                 'number': '1234',
-                 'context': 'mycontext'}]
-        ccss = [{'commented': 1}]
-        output = StringIO()
+    def test__ccss_options_enabled(self):
+        data_ccss = [{'commented': 0}]
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        ccss_options = self.sip_conf._ccss_options(data_ccss)
 
-        result = output.getvalue()
-        self.assertIn('cc_agent_policy = never', result)
-        self.assertIn('cc_monitor_policy = never', result)
-        self.assertNotIn('cc_offer_timer', result)
-        self.assertNotIn('cc_recall_timer', result)
-        self.assertNotIn('ccbs_available_timer', result)
-        self.assertNotIn('ccnr_available_timer', result)
+        self.assertEqual('generic', ccss_options['cc_agent_policy'])
+        self.assertEqual('generic', ccss_options['cc_monitor_policy'])
 
-    def test__gen_user_ccss_enabled(self):
-        pickup = []
-        user = [{'name': 'username',
-                 'number': '1234',
-                 'context': 'mycontext'}]
-        ccss = [{'commented': 0}]
-        output = StringIO()
+    def test__ccss_options_disabled(self):
+        data_ccss = [{'commented': 1}]
 
-        self.sip_conf._gen_user(pickup, user, ccss, output)
+        ccss_options = self.sip_conf._ccss_options(data_ccss)
 
-        result = output.getvalue()
-        self.assertIn('cc_agent_policy = generic', result)
-        self.assertIn('cc_monitor_policy = generic', result)
-        self.assertIn('cc_offer_timer = 30', result)
-        self.assertIn('cc_recall_timer = 20', result)
-        self.assertIn('ccbs_available_timer = 900', result)
-        self.assertIn('ccnr_available_timer = 900', result)
+        self.assertEqual('never', ccss_options['cc_agent_policy'])
+        self.assertEqual('never', ccss_options['cc_monitor_policy'])

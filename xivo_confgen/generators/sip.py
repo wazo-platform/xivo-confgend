@@ -43,7 +43,8 @@ class SipConf(object):
         data_pickup = asterisk_conf_dao.find_sip_pickup_settings()
         data_user = asterisk_conf_dao.find_sip_user_settings()
         data_ccss = asterisk_conf_dao.find_extenfeatures_settings(['cctoggle'])
-        self._gen_user(data_pickup, data_user, data_ccss, output)
+        ccss_options = self._ccss_options(data_ccss)
+        self._gen_user(data_pickup, data_user, ccss_options, output)
 
     def _gen_general(self, data_general, output):
         print >> output, '[general]'
@@ -91,7 +92,7 @@ class SipConf(object):
                 else:
                     print >> output, k, '=', v
 
-    def _gen_user(self, data_pickup, data_user, data_ccss, output):
+    def _gen_user(self, data_pickup, data_user, ccss_options, output):
         sip_unused_values = (
             'id', 'name', 'protocol',
             'category', 'commented', 'initialized',
@@ -136,10 +137,10 @@ class SipConf(object):
                 if 'pickup' in p:
                     print >> output, "callgroup = " + ','.join(frozenset(p['pickup']))
 
-            for ccss_option, value in self._ccss_config(data_ccss).iteritems():
+            for ccss_option, value in ccss_options.iteritems():
                 print >> output, gen_value_line(ccss_option, value)
 
-    def _ccss_config(self, data_ccss):
+    def _ccss_options(self, data_ccss):
         if data_ccss:
             ccss_info = data_ccss[0]
             if ccss_info.get('commented') == 0:

@@ -17,6 +17,13 @@
 
 from xivo_dao import asterisk_conf_dao
 
+CC_POLICY_ENABLED = 'generic'
+CC_POLICY_DISABLED = 'never'
+CC_OFFER_TIMER = 30
+CC_RECALL_TIMER = 20
+CCBS_AVAILABLE_TIMER = 900
+CCNR_AVAILABLE_TIMER = 900
+
 
 class SipConf(object):
 
@@ -35,7 +42,9 @@ class SipConf(object):
 
         data_pickup = asterisk_conf_dao.find_sip_pickup_settings()
         data_user = asterisk_conf_dao.find_sip_user_settings()
-        self._gen_user(data_pickup, data_user, output)
+        data_ccss = asterisk_conf_dao.find_extenfeatures_settings(['cctoggle'])
+        ccss_options = self._ccss_options(data_ccss)
+        self._gen_user(data_pickup, data_user, ccss_options, output)
 
     def _gen_general(self, data_general, output):
         print >> output, '[general]'
@@ -83,7 +92,7 @@ class SipConf(object):
                 else:
                     print >> output, k, '=', v
 
-    def _gen_user(self, data_pickup, data_user, output):
+    def _gen_user(self, data_pickup, data_user, ccss_options, output):
         sip_unused_values = (
             'id', 'name', 'protocol',
             'category', 'commented', 'initialized',
@@ -127,6 +136,27 @@ class SipConf(object):
                     print >> output, "pickupgroup = " + ','.join(frozenset(p['member']))
                 if 'pickup' in p:
                     print >> output, "callgroup = " + ','.join(frozenset(p['pickup']))
+
+            for ccss_option, value in ccss_options.iteritems():
+                print >> output, gen_value_line(ccss_option, value)
+
+    def _ccss_options(self, data_ccss):
+        if data_ccss:
+            ccss_info = data_ccss[0]
+            if ccss_info.get('commented') == 0:
+                return {
+                    'cc_agent_policy': CC_POLICY_ENABLED,
+                    'cc_monitor_policy': CC_POLICY_ENABLED,
+                    'cc_offer_timer': CC_OFFER_TIMER,
+                    'cc_recall_timer': CC_RECALL_TIMER,
+                    'ccbs_available_timer': CCBS_AVAILABLE_TIMER,
+                    'ccnr_available_timer': CCNR_AVAILABLE_TIMER,
+                }
+
+        return {
+            'cc_agent_policy': CC_POLICY_DISABLED,
+            'cc_monitor_policy': CC_POLICY_DISABLED,
+        }
 
 
 def gen_value_line(key, value):

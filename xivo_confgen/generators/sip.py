@@ -21,8 +21,6 @@ CC_POLICY_ENABLED = 'generic'
 CC_POLICY_DISABLED = 'never'
 CC_OFFER_TIMER = 30
 CC_RECALL_TIMER = 20
-CC_MAX_AGENTS = 5
-CC_MAX_MONITORS = 5
 CCBS_AVAILABLE_TIMER = 900
 CCNR_AVAILABLE_TIMER = 900
 
@@ -147,10 +145,6 @@ class SipConf(object):
             if ccss_info.get('commented') == 0:
                 return {
                     'cc_agent_policy': CC_POLICY_ENABLED,
-                    'cc_agent_dialstring': '',
-                    'cc_callback_macro': '',
-                    'cc_max_agents': CC_MAX_AGENTS,
-                    'cc_max_monitors': CC_MAX_MONITORS,
                     'cc_monitor_policy': CC_POLICY_ENABLED,
                     'cc_offer_timer': CC_OFFER_TIMER,
                     'cc_recall_timer': CC_RECALL_TIMER,

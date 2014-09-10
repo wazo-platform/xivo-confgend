@@ -18,26 +18,26 @@
 import unittest
 from StringIO import StringIO
 
-from xivo_confgen.generators.sip import SipConf, gen_value_line, unicodify_string
+from xivo_confgen.generators import sip
 
 
 class TestSipConf(unittest.TestCase):
 
     def setUp(self):
-        self.sip_conf = SipConf()
+        self.sip_conf = sip.SipConf()
 
     def tearDown(self):
         pass
 
     def test_get_line(self):
-        result = gen_value_line('emailbody', 'pépè')
+        result = sip.gen_value_line('emailbody', 'pépè')
         self.assertEqual(result, u'emailbody = pépè')
 
     def test_unicodify_string(self):
-        self.assertEqual(u'pépé', unicodify_string(u'pépé'))
-        self.assertEqual(u'pépé', unicodify_string(u'pépé'.encode('utf8')))
-        self.assertEqual(u'pépé', unicodify_string('pépé'))
-        self.assertEqual(u'8', unicodify_string(8))
+        self.assertEqual(u'pépé', sip.unicodify_string(u'pépé'))
+        self.assertEqual(u'pépé', sip.unicodify_string(u'pépé'.encode('utf8')))
+        self.assertEqual(u'pépé', sip.unicodify_string('pépé'))
+        self.assertEqual(u'8', sip.unicodify_string(8))
 
     def test_gen_general(self):
         staticsip = [
@@ -274,6 +274,10 @@ class TestSipConf(unittest.TestCase):
 
         self.assertEqual('generic', ccss_options['cc_agent_policy'])
         self.assertEqual('generic', ccss_options['cc_monitor_policy'])
+        self.assertEqual(sip.CC_OFFER_TIMER, ccss_options['cc_offer_timer'])
+        self.assertEqual(sip.CC_RECALL_TIMER, ccss_options['cc_recall_timer'])
+        self.assertEqual(sip.CCBS_AVAILABLE_TIMER, ccss_options['ccbs_available_timer'])
+        self.assertEqual(sip.CCNR_AVAILABLE_TIMER, ccss_options['ccnr_available_timer'])
 
     def test__ccss_options_disabled(self):
         data_ccss = [{'commented': 1}]
@@ -282,3 +286,7 @@ class TestSipConf(unittest.TestCase):
 
         self.assertEqual('never', ccss_options['cc_agent_policy'])
         self.assertEqual('never', ccss_options['cc_monitor_policy'])
+        self.assertNotIn('cc_offer_timer', ccss_options)
+        self.assertNotIn('cc_recall_timer', ccss_options)
+        self.assertNotIn('ccbs_available_timer', ccss_options)
+        self.assertNotIn('ccnr_available_timer', ccss_options)

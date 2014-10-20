@@ -1,0 +1,45 @@
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2014 Avencall
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+from xivo_confgen.hints import adaptor
+from xivo_dao.data_handler.func_key import hint_dao
+
+
+class HintGenerator(object):
+
+    HINT = "exten = {extension},hint,{supervised}"
+
+    @classmethod
+    def build(cls):
+        return cls(adaptor.UserAdaptor(hint_dao),
+                   adaptor.ConferenceAdaptor(hint_dao),
+                   adaptor.ServiceAdaptor(hint_dao),
+                   adaptor.ForwardAdaptor(hint_dao),
+                   adaptor.AgentAdaptor(hint_dao),
+                   adaptor.CustomAdaptor(hint_dao))
+
+    def __init__(self, adaptors):
+        self.adaptors = adaptors
+
+    def generate(self):
+        existing = set()
+        for adaptor in self.adaptors:
+            for hint in adaptor.generate():
+                if hint not in existing:
+                    yield self.HINT.format(extension=hint[0],
+                                           supervised=hint[1])
+                existing.add(hint)

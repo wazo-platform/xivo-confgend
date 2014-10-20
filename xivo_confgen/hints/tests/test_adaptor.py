@@ -1,0 +1,146 @@
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2014 Avencall
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+
+import unittest
+
+from mock import Mock
+from hamcrest import assert_that, contains, has_item
+
+from xivo_confgen.hints.adaptor import UserAdaptor
+from xivo_confgen.hints.adaptor import ConferenceAdaptor
+from xivo_confgen.hints.adaptor import ForwardAdaptor
+from xivo_confgen.hints.adaptor import ServiceAdaptor
+from xivo_confgen.hints.adaptor import AgentAdaptor
+from xivo_confgen.hints.adaptor import CustomAdaptor
+from xivo_confgen.hints.adaptor import BSFilterAdaptor
+
+from xivo_dao.data_handler.func_key.model import Hint
+
+
+class TestUserAdaptor(unittest.TestCase):
+
+    def setUp(self):
+        dao = Mock()
+        dao.calluser_extension.return_value = '*666'
+        dao.user_hints.return_value = [Hint(user_id=42,
+                                            extension='1000',
+                                            argument='SIP/abcdef')]
+
+        self.adaptor = UserAdaptor(dao)
+
+    def test_adaptor_generates_user_hint(self):
+        assert_that(self.adaptor.generate(), has_item(('1000', 'SIP/abcdef')))
+
+    def test_adaptor_generates_calluser_hint(self):
+        assert_that(self.adaptor.generate(), has_item(('*66642', 'SIP/abcdef')))
+
+
+class TestConferenceAdaptor(unittest.TestCase):
+
+    def test_adaptor_generates_conference_hint(self):
+        dao = Mock()
+        dao.conference_hints.return_value = [Hint(user_id=None,
+                                                  extension='4000',
+                                                  argument=None)]
+
+        adaptor = ConferenceAdaptor(dao)
+
+        assert_that(adaptor.generate(), contains(('4000', 'Meetme:4000')))
+
+
+class TestForwardAdaptor(unittest.TestCase):
+
+    def setUp(self):
+        self.dao = Mock()
+        self.dao.progfunckey_extension.return_value = '*735'
+
+        self.adaptor = ForwardAdaptor(self.dao)
+
+    def test_given_hint_with_argument_then_generates_progfunckey_with_argument(self):
+        self.dao.forward_hints.return_value = [Hint(user_id=42,
+                                               extension='*23',
+                                               argument='1234')]
+
+        assert_that(self.adaptor.generate(),
+                    contains(('*73542***223*1234', 'Custom:*73542***223*1234')))
+
+    def test_given_hint_without_argument_then_generates_progfunckey_without_argument(self):
+        self.dao.forward_hints.return_value = [Hint(user_id=42,
+                                               extension='*23',
+                                               argument=None)]
+
+        assert_that(self.adaptor.generate(),
+                    contains(('*73542***223', 'Custom:*73542***223')))
+
+
+class TestServiceAdaptor(unittest.TestCase):
+
+    def test_adaptor_generates_service_hint(self):
+        dao = Mock()
+        dao.progfunckey_extension.return_value = '*735'
+        dao.service_hints.return_value = [Hint(user_id=42,
+                                               extension='*26',
+                                               argument=None)]
+
+        adaptor = ServiceAdaptor(dao)
+
+        assert_that(adaptor.generate(),
+                    contains(('*73542***226', 'Custom:*73542***226')))
+
+
+class TestAgentAdaptor(unittest.TestCase):
+
+    def test_adaptor_generates_service_hint(self):
+        dao = Mock()
+        dao.progfunckey_extension.return_value = '*735'
+        dao.agent_hints.return_value = [Hint(user_id=42,
+                                             extension='*31',
+                                             argument='56')]
+
+        adaptor = AgentAdaptor(dao)
+
+        assert_that(adaptor.generate(),
+                    contains(('*73542***231***356', 'Custom:*73542***231***356')))
+
+
+class TestCustomAdaptor(unittest.TestCase):
+
+    def test_adaptor_generates_custom_hint(self):
+        dao = Mock()
+        dao.custom_hints.return_value = [Hint(user_id=None,
+                                              extension='1234',
+                                              argument=None)]
+
+        adaptor = CustomAdaptor(dao)
+
+        assert_that(adaptor.generate(),
+                    contains(('1234', 'Custom:1234')))
+
+
+class TestBSFilterAdaptor(unittest.TestCase):
+
+    def test_adaptor_generates_bsfilter_hint(self):
+        dao = Mock()
+        dao.bsfilter_hints.return_value = [Hint(user_id=42,
+                                                extension='*37',
+                                                argument='12')]
+
+        adaptor = BSFilterAdaptor(dao)
+
+        assert_that(adaptor.generate(),
+                    contains(('*3712', 'Custom:*3712')))

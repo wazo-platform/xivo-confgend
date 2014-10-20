@@ -61,8 +61,9 @@ DEFAULT_EXTENFEATURES = {
 
 class ExtensionsConf(object):
 
-    def __init__(self, contextsconf):
+    def __init__(self, contextsconf, hint_generator):
         self.contextsconf = contextsconf
+        self.hint_generator = hint_generator
 
     def generate(self, output):
         options = output
@@ -141,6 +142,7 @@ class ExtensionsConf(object):
                     continue
 
         print >> options, self._extensions_features(conf, xfeatures)
+        self._generate_hints(options)
         return options.getvalue()
 
     def _extensions_features(self, conf, xfeatures):
@@ -205,3 +207,7 @@ class ExtensionsConf(object):
                 pass
             numbers.append((boss, secretary))
         return set(numbers)
+
+    def _generate_hints(self, output):
+        for line in self.hint_generator.generate():
+            print >> output, line

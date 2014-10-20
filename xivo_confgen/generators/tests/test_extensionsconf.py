@@ -18,7 +18,10 @@
 import unittest
 from StringIO import StringIO
 
+from mock import Mock
+
 from xivo_confgen.generators.extensionsconf import ExtensionsConf
+from xivo_confgen.hints.generator import HintGenerator
 
 
 class TestExtensionsConf(unittest.TestCase):
@@ -27,7 +30,8 @@ class TestExtensionsConf(unittest.TestCase):
         self.assertEqual(configExpected.replace(' ', ''), configResult.replace(' ', ''))
 
     def setUp(self):
-        self.extensionsconf = ExtensionsConf('context.conf')
+        self.hint_generator = Mock(HintGenerator)
+        self.extensionsconf = ExtensionsConf('context.conf', self.hint_generator)
 
     def tearDown(self):
         pass
@@ -87,3 +91,18 @@ class TestExtensionsConf(unittest.TestCase):
         expected = set([(1000, 1001), (1000, 1002)])
 
         self.assertEqual(result, expected)
+
+    def test_generate_hints(self):
+        output = StringIO()
+        hints = [
+            'exten = 1000,hint,SIP/abcdef',
+            'exten = 4000,hint,MeetMe:4000',
+            'exten = *7351***223*1234,hint,Custom:*7351***223*1234',
+        ]
+
+        self.hint_generator.generate.return_value = hints
+
+        self.extensionsconf._generate_hints(output)
+
+        for hint in hints:
+            self.assertTrue(hint in output.getvalue())

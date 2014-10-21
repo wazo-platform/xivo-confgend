@@ -102,7 +102,8 @@ class TestExtensionsConf(unittest.TestCase):
 
         self.hint_generator.generate.return_value = hints
 
-        self.extensionsconf._generate_hints(output)
+        self.extensionsconf._generate_hints('context', output)
 
+        self.hint_generator.generate.assert_called_once_with('context')
         for hint in hints:
             self.assertTrue(hint in output.getvalue())

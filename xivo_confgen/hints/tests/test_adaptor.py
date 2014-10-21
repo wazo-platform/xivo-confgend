@@ -31,26 +31,35 @@ from xivo_confgen.hints.adaptor import BSFilterAdaptor
 
 from xivo_dao.data_handler.func_key.model import Hint
 
+CONTEXT = 'context'
 
-class TestUserAdaptor(unittest.TestCase):
+
+class TestAdaptor(unittest.TestCase):
+    pass
+
+
+class TestUserAdaptor(TestAdaptor):
 
     def setUp(self):
-        dao = Mock()
-        dao.calluser_extension.return_value = '*666'
-        dao.user_hints.return_value = [Hint(user_id=42,
-                                            extension='1000',
-                                            argument='SIP/abcdef')]
+        super(TestUserAdaptor, self).setUp()
+        self.dao = Mock()
+        self.dao.calluser_extension.return_value = '*666'
+        self.dao.user_hints.return_value = [Hint(user_id=42,
+                                                 extension='1000',
+                                                 argument='SIP/abcdef')]
 
-        self.adaptor = UserAdaptor(dao)
+        self.adaptor = UserAdaptor(self.dao)
 
     def test_adaptor_generates_user_hint(self):
-        assert_that(self.adaptor.generate(), has_item(('1000', 'SIP/abcdef')))
+        assert_that(self.adaptor.generate(CONTEXT), has_item(('1000', 'SIP/abcdef')))
+        self.dao.user_hints.assert_called_once_with(CONTEXT)
 
     def test_adaptor_generates_calluser_hint(self):
-        assert_that(self.adaptor.generate(), has_item(('*66642', 'SIP/abcdef')))
+        assert_that(self.adaptor.generate(CONTEXT), has_item(('*66642', 'SIP/abcdef')))
+        self.dao.user_hints.assert_called_once_with(CONTEXT)
 
 
-class TestConferenceAdaptor(unittest.TestCase):
+class TestConferenceAdaptor(TestAdaptor):
 
     def test_adaptor_generates_conference_hint(self):
         dao = Mock()
@@ -60,12 +69,14 @@ class TestConferenceAdaptor(unittest.TestCase):
 
         adaptor = ConferenceAdaptor(dao)
 
-        assert_that(adaptor.generate(), contains(('4000', 'Meetme:4000')))
+        assert_that(adaptor.generate(CONTEXT), contains(('4000', 'Meetme:4000')))
+        dao.conference_hints.assert_called_once_with(CONTEXT)
 
 
-class TestForwardAdaptor(unittest.TestCase):
+class TestForwardAdaptor(TestAdaptor):
 
     def setUp(self):
+        super(TestForwardAdaptor, self).setUp()
         self.dao = Mock()
         self.dao.progfunckey_extension.return_value = '*735'
 
@@ -76,19 +87,20 @@ class TestForwardAdaptor(unittest.TestCase):
                                                extension='*23',
                                                argument='1234')]
 
-        assert_that(self.adaptor.generate(),
+        assert_that(self.adaptor.generate(CONTEXT),
                     contains(('*73542***223*1234', 'Custom:*73542***223*1234')))
+        self.dao.forward_hints.assert_called_once_with(CONTEXT)
 
     def test_given_hint_without_argument_then_generates_progfunckey_without_argument(self):
         self.dao.forward_hints.return_value = [Hint(user_id=42,
                                                extension='*23',
                                                argument=None)]
 
-        assert_that(self.adaptor.generate(),
+        assert_that(self.adaptor.generate(CONTEXT),
                     contains(('*73542***223', 'Custom:*73542***223')))
 
 
-class TestServiceAdaptor(unittest.TestCase):
+class TestServiceAdaptor(TestAdaptor):
 
     def test_adaptor_generates_service_hint(self):
         dao = Mock()
@@ -99,11 +111,12 @@ class TestServiceAdaptor(unittest.TestCase):
 
         adaptor = ServiceAdaptor(dao)
 
-        assert_that(adaptor.generate(),
+        assert_that(adaptor.generate(CONTEXT),
                     contains(('*73542***226', 'Custom:*73542***226')))
+        dao.service_hints.assert_called_once_with(CONTEXT)
 
 
-class TestAgentAdaptor(unittest.TestCase):
+class TestAgentAdaptor(TestAdaptor):
 
     def test_adaptor_generates_service_hint(self):
         dao = Mock()
@@ -114,11 +127,12 @@ class TestAgentAdaptor(unittest.TestCase):
 
         adaptor = AgentAdaptor(dao)
 
-        assert_that(adaptor.generate(),
+        assert_that(adaptor.generate(CONTEXT),
                     contains(('*73542***231***356', 'Custom:*73542***231***356')))
+        dao.agent_hints.assert_called_once_with(CONTEXT)
 
 
-class TestCustomAdaptor(unittest.TestCase):
+class TestCustomAdaptor(TestAdaptor):
 
     def test_adaptor_generates_custom_hint(self):
         dao = Mock()
@@ -128,11 +142,12 @@ class TestCustomAdaptor(unittest.TestCase):
 
         adaptor = CustomAdaptor(dao)
 
-        assert_that(adaptor.generate(),
+        assert_that(adaptor.generate(CONTEXT),
                     contains(('1234', 'Custom:1234')))
+        dao.custom_hints.assert_called_once_with(CONTEXT)
 
 
-class TestBSFilterAdaptor(unittest.TestCase):
+class TestBSFilterAdaptor(TestAdaptor):
 
     def test_adaptor_generates_bsfilter_hint(self):
         dao = Mock()
@@ -142,5 +157,6 @@ class TestBSFilterAdaptor(unittest.TestCase):
 
         adaptor = BSFilterAdaptor(dao)
 
-        assert_that(adaptor.generate(),
+        assert_that(adaptor.generate(CONTEXT),
                     contains(('*3712', 'Custom:*3712')))
+        dao.bsfilter_hints.assert_called_once_with(CONTEXT)

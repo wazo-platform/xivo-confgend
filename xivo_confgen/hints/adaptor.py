@@ -23,15 +23,15 @@ class HintAdaptor(object):
     def __init__(self, dao):
         self.dao = dao
 
-    def generate(self):
+    def generate(self, context):
         raise NotImplementedError("hint generation must be implemented in a child class")
 
 
 class ProgfunckeyAdaptor(HintAdaptor):
 
-    def generate(self):
+    def generate(self, context):
         progfunckey = self.dao.progfunckey_extension()
-        for hint in self.find_hints():
+        for hint in self.find_hints(context):
             arguments = self.progfunckey_arguments(hint)
             extension = fkey_extension(progfunckey, arguments)
             yield (extension, 'Custom:{}'.format(extension))
@@ -39,9 +39,9 @@ class ProgfunckeyAdaptor(HintAdaptor):
 
 class UserAdaptor(HintAdaptor):
 
-    def generate(self):
+    def generate(self, context):
         calluser_extension = self.dao.calluser_extension()
-        for hint in self.dao.user_hints():
+        for hint in self.dao.user_hints(context):
             calluser = '{}{}'.format(calluser_extension, hint.user_id)
             yield (hint.extension, hint.argument)
             yield (calluser, hint.argument)
@@ -49,15 +49,15 @@ class UserAdaptor(HintAdaptor):
 
 class ConferenceAdaptor(HintAdaptor):
 
-    def generate(self):
-        for hint in self.dao.conference_hints():
+    def generate(self, context):
+        for hint in self.dao.conference_hints(context):
             yield (hint.extension, 'Meetme:{}'.format(hint.extension))
 
 
 class ForwardAdaptor(ProgfunckeyAdaptor):
 
-    def find_hints(self):
-        return self.dao.forward_hints()
+    def find_hints(self, context):
+        return self.dao.forward_hints(context)
 
     def progfunckey_arguments(self, hint):
         return [hint.user_id, hint.extension, hint.argument]
@@ -65,8 +65,8 @@ class ForwardAdaptor(ProgfunckeyAdaptor):
 
 class ServiceAdaptor(ProgfunckeyAdaptor):
 
-    def find_hints(self):
-        return self.dao.service_hints()
+    def find_hints(self, context):
+        return self.dao.service_hints(context)
 
     def progfunckey_arguments(self, hint):
         return [hint.user_id, hint.extension, hint.argument]
@@ -74,8 +74,8 @@ class ServiceAdaptor(ProgfunckeyAdaptor):
 
 class AgentAdaptor(ProgfunckeyAdaptor):
 
-    def find_hints(self):
-        return self.dao.agent_hints()
+    def find_hints(self, context):
+        return self.dao.agent_hints(context)
 
     def progfunckey_arguments(self, hint):
         return [hint.user_id, hint.extension, '*' + hint.argument]
@@ -83,14 +83,14 @@ class AgentAdaptor(ProgfunckeyAdaptor):
 
 class CustomAdaptor(HintAdaptor):
 
-    def generate(self):
-        for hint in self.dao.custom_hints():
+    def generate(self, context):
+        for hint in self.dao.custom_hints(context):
             yield (hint.extension, 'Custom:{}'.format(hint.extension))
 
 
 class BSFilterAdaptor(HintAdaptor):
 
-    def generate(self):
-        for hint in self.dao.bsfilter_hints():
+    def generate(self, context):
+        for hint in self.dao.bsfilter_hints(context):
             extension = '{}{}'.format(hint.extension, hint.argument)
             yield (extension, 'Custom:{}'.format(extension))

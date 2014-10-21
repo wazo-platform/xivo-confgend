@@ -23,6 +23,8 @@ from hamcrest import assert_that, contains
 from xivo_confgen.hints.generator import HintGenerator
 from xivo_confgen.hints.adaptor import HintAdaptor
 
+CONTEXT = 'context'
+
 
 class TestGenerator(unittest.TestCase):
 
@@ -32,7 +34,7 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([adaptor])
 
-        assert_that(generator.generate(), contains())
+        assert_that(generator.generate(CONTEXT), contains())
 
     def test_given_an_adaptor_generates_a_hint_then_generator_returns_formatted_hint(self):
         adaptor = Mock(HintAdaptor)
@@ -40,7 +42,8 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([adaptor])
 
-        assert_that(generator.generate(), contains('exten = 4000,hint,Meetme:4000'))
+        assert_that(generator.generate(CONTEXT), contains('exten = 4000,hint,Meetme:4000'))
+        adaptor.generate.assert_called_once_with(CONTEXT)
 
     def test_given_2_adaptors_then_generates_hint_for_all_adaptors(self):
         first_adaptor = Mock(HintAdaptor)
@@ -51,9 +54,11 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([first_adaptor, second_adaptor])
 
-        assert_that(generator.generate(),
+        assert_that(generator.generate(CONTEXT),
                     contains('exten = 1000,hint,1000',
                              'exten = 4000,hint,Meetme:4000'))
+        first_adaptor.generate.assert_called_once_with(CONTEXT)
+        second_adaptor.generate.assert_called_once_with(CONTEXT)
 
     def test_given_2_adaptors_generate_same_hint_then_generator_returns_hint_only_once(self):
         adaptor = Mock(HintAdaptor)
@@ -61,4 +66,5 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([adaptor, adaptor])
 
-        assert_that(generator.generate(), contains('exten = 1000,hint,1000'))
+        assert_that(generator.generate(CONTEXT), contains('exten = 1000,hint,1000'))
+        adaptor.generate.assert_any_call(CONTEXT)

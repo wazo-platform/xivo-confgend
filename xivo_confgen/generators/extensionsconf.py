@@ -141,8 +141,9 @@ class ExtensionsConf(object):
                 else:
                     continue
 
+            self._generate_hints(ctx['name'], options)
+
         print >> options, self._extensions_features(conf, xfeatures)
-        self._generate_hints(options)
         return options.getvalue()
 
     def _extensions_features(self, conf, xfeatures):
@@ -208,6 +209,6 @@ class ExtensionsConf(object):
             numbers.append((boss, secretary))
         return set(numbers)
 
-    def _generate_hints(self, output):
-        for line in self.hint_generator.generate():
+    def _generate_hints(self, context, output):
+        for line in self.hint_generator.generate(context):
             print >> output, line

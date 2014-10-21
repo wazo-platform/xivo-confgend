@@ -35,10 +35,10 @@ class HintGenerator(object):
     def __init__(self, adaptors):
         self.adaptors = adaptors
 
-    def generate(self):
+    def generate(self, context):
         existing = set()
         for adaptor in self.adaptors:
-            for hint in adaptor.generate():
+            for hint in adaptor.generate(context):
                 if hint not in existing:
                     yield self.HINT.format(extension=hint[0],
                                            supervised=hint[1])

@@ -43,7 +43,6 @@ class TestUserAdaptor(TestAdaptor):
     def setUp(self):
         super(TestUserAdaptor, self).setUp()
         self.dao = Mock()
-        self.dao.calluser_extension.return_value = '*666'
         self.dao.user_hints.return_value = [Hint(user_id=42,
                                                  extension='1000',
                                                  argument='SIP/abcdef')]
@@ -52,10 +51,6 @@ class TestUserAdaptor(TestAdaptor):
 
     def test_adaptor_generates_user_hint(self):
         assert_that(self.adaptor.generate(CONTEXT), has_item(('1000', 'SIP/abcdef')))
-        self.dao.user_hints.assert_called_once_with(CONTEXT)
-
-    def test_adaptor_generates_calluser_hint(self):
-        assert_that(self.adaptor.generate(CONTEXT), has_item(('*66642', 'SIP/abcdef')))
         self.dao.user_hints.assert_called_once_with(CONTEXT)
 
 

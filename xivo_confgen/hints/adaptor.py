@@ -40,11 +40,8 @@ class ProgfunckeyAdaptor(HintAdaptor):
 class UserAdaptor(HintAdaptor):
 
     def generate(self, context):
-        calluser_extension = self.dao.calluser_extension()
         for hint in self.dao.user_hints(context):
-            calluser = '{}{}'.format(calluser_extension, hint.user_id)
             yield (hint.extension, hint.argument)
-            yield (calluser, hint.argument)
 
 
 class ConferenceAdaptor(HintAdaptor):

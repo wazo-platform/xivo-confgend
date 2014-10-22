@@ -1,3 +1,4 @@
+hamcrest
 mock
 pika
 psycopg2

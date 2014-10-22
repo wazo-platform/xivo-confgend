@@ -25,12 +25,13 @@ class HintGenerator(object):
 
     @classmethod
     def build(cls):
-        return cls(adaptor.UserAdaptor(hint_dao),
-                   adaptor.ConferenceAdaptor(hint_dao),
-                   adaptor.ServiceAdaptor(hint_dao),
-                   adaptor.ForwardAdaptor(hint_dao),
-                   adaptor.AgentAdaptor(hint_dao),
-                   adaptor.CustomAdaptor(hint_dao))
+        return cls([adaptor.UserAdaptor(hint_dao),
+                    adaptor.ConferenceAdaptor(hint_dao),
+                    adaptor.ServiceAdaptor(hint_dao),
+                    adaptor.ForwardAdaptor(hint_dao),
+                    adaptor.AgentAdaptor(hint_dao),
+                    adaptor.BSFilterAdaptor(hint_dao),
+                    adaptor.CustomAdaptor(hint_dao)])
 
     def __init__(self, adaptors):
         self.adaptors = adaptors

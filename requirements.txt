@@ -1,4 +1,4 @@
-hamcrest
+pyhamcrest
 mock
 pika
 psycopg2

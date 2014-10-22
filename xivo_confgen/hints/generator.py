@@ -21,7 +21,7 @@ from xivo_dao.data_handler.func_key import hint_dao
 
 class HintGenerator(object):
 
-    HINT = "exten = {extension},hint,{supervised}"
+    DIALPLAN = "exten = {extension},hint,{hint}"
 
     @classmethod
     def build(cls):
@@ -39,8 +39,8 @@ class HintGenerator(object):
     def generate(self, context):
         existing = set()
         for adaptor in self.adaptors:
-            for hint in adaptor.generate(context):
-                if hint not in existing:
-                    yield self.HINT.format(extension=hint[0],
-                                           supervised=hint[1])
-                existing.add(hint)
+            for extension, hint in adaptor.generate(context):
+                if extension not in existing:
+                    yield self.DIALPLAN.format(extension=extension,
+                                               hint=hint)
+                    existing.add(extension)

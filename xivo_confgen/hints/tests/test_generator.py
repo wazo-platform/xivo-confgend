@@ -61,10 +61,14 @@ class TestGenerator(unittest.TestCase):
         second_adaptor.generate.assert_called_once_with(CONTEXT)
 
     def test_given_2_adaptors_generate_same_hint_then_generator_returns_hint_only_once(self):
-        adaptor = Mock(HintAdaptor)
-        adaptor.generate.return_value = [('1000', '1000')]
+        first_adaptor = Mock(HintAdaptor)
+        first_adaptor.generate.return_value = [('1000', 'SIP/abcdef')]
 
-        generator = HintGenerator([adaptor, adaptor])
+        second_adaptor = Mock(HintAdaptor)
+        second_adaptor.generate.return_value = [('1000', 'Custom:1000')]
 
-        assert_that(generator.generate(CONTEXT), contains('exten = 1000,hint,1000'))
-        adaptor.generate.assert_any_call(CONTEXT)
+        generator = HintGenerator([first_adaptor, second_adaptor])
+
+        assert_that(generator.generate(CONTEXT), contains('exten = 1000,hint,SIP/abcdef'))
+        first_adaptor.generate.assert_called_once_with(CONTEXT)
+        second_adaptor.generate.assert_called_once_with(CONTEXT)

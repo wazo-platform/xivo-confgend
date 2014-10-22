@@ -69,7 +69,7 @@ class TestConferenceAdaptor(TestAdaptor):
 
         adaptor = ConferenceAdaptor(dao)
 
-        assert_that(adaptor.generate(CONTEXT), contains(('4000', 'Meetme:4000')))
+        assert_that(adaptor.generate(CONTEXT), contains(('4000', 'MeetMe:4000')))
         dao.conference_hints.assert_called_once_with(CONTEXT)
 
 

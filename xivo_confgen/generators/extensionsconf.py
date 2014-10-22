@@ -19,7 +19,7 @@ import re
 from StringIO import StringIO
 
 from xivo import OrderedConf, xivo_helpers
-from xivo_dao import asterisk_conf_dao, callfilter_dao
+from xivo_dao import asterisk_conf_dao
 
 
 DEFAULT_EXTENFEATURES = {
@@ -61,12 +61,12 @@ DEFAULT_EXTENFEATURES = {
 
 class ExtensionsConf(object):
 
-    def __init__(self, contextsconf):
+    def __init__(self, contextsconf, hint_generator):
         self.contextsconf = contextsconf
+        self.hint_generator = hint_generator
 
     def generate(self, output):
         options = output
-        existing_hints = set()
 
         if self.contextsconf is not None:
             # load context templates
@@ -130,38 +130,6 @@ class ExtensionsConf(object):
 
                 self.gen_dialplan_from_template(tmpl, exten, options)
 
-            # phone (user) hints
-            hints = asterisk_conf_dao.find_exten_hints_settings(context_name=ctx['name'])
-            if len(hints) > 0:
-                print >> options, "; phones hints"
-
-            for hint in hints:
-                xid = hint['user_id']
-                number = hint['number']
-                name = hint['name']
-                proto = hint['protocol'].upper()
-                if proto == 'IAX':
-                    proto = 'IAX2'
-
-                interface = "%s/%s" % (proto, name)
-                if proto == 'CUSTOM':
-                    interface = name
-
-                if number:
-                    print >> options, "exten = %s,hint,%s" % (number, interface)
-                    existing_hints.add(number)
-
-                if not xfeatures['calluser'].get('commented', 1):
-                    number = xivo_helpers.fkey_extension(xfeatures['calluser']['exten'], (xid,))
-                    print >> options, "exten = %s,hint,%s" % (number, interface)
-                    existing_hints.add(number)
-
-                if (not xfeatures['vmusermsg'].get('commented', 1) and int(hint['enablevoicemail']) and hint['voicemail_id']):
-                    if proto == 'CUSTOM':
-                        fullexten = xfeatures['vmusermsg']['exten'] + number
-                        print >> options, "exten = %s,hint,%s" % (fullexten, interface)
-                        existing_hints.add(fullexten)
-
             # conference supervision
             conferences = asterisk_conf_dao.find_exten_conferences_settings(context_name=ctx['name'])
             if len(conferences) > 0:
@@ -173,21 +141,7 @@ class ExtensionsConf(object):
                 else:
                     continue
 
-                print >> options, "exten = %s,hint,MeetMe:%s" % (exten, exten)
-                existing_hints.add(exten)
-
-            # BS filters supervision
-            callfiltermemberids = callfilter_dao.get_secretaries_id_by_context(ctx['name'])
-
-            if len(callfiltermemberids) > 0:
-                bsfilter_exten = xfeatures['bsfilter'].get('exten')
-                print >> options, "\n; BS filters supervision"
-                for callfiltermemberid in callfiltermemberids:
-                    exten = xivo_helpers.fkey_extension(bsfilter_exten, callfiltermemberid)
-                    print >> options, "exten = %s,hint,Custom:%s" % (exten, exten)
-                    existing_hints.add(exten)
-
-            print >> options, self._prog_funckeys(ctx, xfeatures, existing_hints)
+            self._generate_hints(ctx['name'], options)
 
         print >> options, self._extensions_features(conf, xfeatures)
         return options.getvalue()
@@ -229,31 +183,6 @@ class ExtensionsConf(object):
 
         return options.getvalue()
 
-    def _prog_funckeys(self, context, xfeatures, existing_hints):
-        options = StringIO()
-        progfunckeys = asterisk_conf_dao.find_exten_progfunckeys_settings(context_name=context['name'])
-        extens = set()
-
-        for k in progfunckeys:
-            exten = k['exten']
-
-            if exten is None and k['typevalextenumbersright'] is not None:
-                exten = "*%s" % k['typevalextenumbersright']
-
-            extens.add(xivo_helpers.fkey_extension(xfeatures['phoneprogfunckey'].get('exten'),
-                                                   (k['user_id'], k['leftexten'], exten)))
-
-        customkeys = asterisk_conf_dao.find_exten_progfunckeys_custom_settings(context_name=context['name'])
-        for k in customkeys:
-            if k['exten'] not in existing_hints:
-                extens.add(k['exten'])
-
-        if len(extens) > 0:
-            print >> options, "\n; prog funckeys supervision"
-            for exten in extens:
-                print >> options, "exten = %s,hint,Custom:%s" % (exten, exten)
-        return options.getvalue()
-
     def gen_dialplan_from_template(self, template, exten, output):
         if 'priority' not in exten:
             exten['priority'] = 1
@@ -279,3 +208,7 @@ class ExtensionsConf(object):
                 pass
             numbers.append((boss, secretary))
         return set(numbers)
+
+    def _generate_hints(self, context, output):
+        for line in self.hint_generator.generate(context):
+            print >> output, line

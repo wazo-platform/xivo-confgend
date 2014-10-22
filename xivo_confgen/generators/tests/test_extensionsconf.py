@@ -16,11 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
-from mock import Mock, patch
 from StringIO import StringIO
 
-from xivo import xivo_helpers
+from mock import Mock
+
 from xivo_confgen.generators.extensionsconf import ExtensionsConf
+from xivo_confgen.hints.generator import HintGenerator
 
 
 class TestExtensionsConf(unittest.TestCase):
@@ -29,7 +30,8 @@ class TestExtensionsConf(unittest.TestCase):
         self.assertEqual(configExpected.replace(' ', ''), configResult.replace(' ', ''))
 
     def setUp(self):
-        self.extensionsconf = ExtensionsConf('context.conf')
+        self.hint_generator = Mock(HintGenerator)
+        self.extensionsconf = ExtensionsConf('context.conf', self.hint_generator)
 
     def tearDown(self):
         pass
@@ -90,37 +92,18 @@ class TestExtensionsConf(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
-    @patch('xivo_dao.asterisk_conf_dao.find_exten_progfunckeys_custom_settings')
-    @patch('xivo_dao.asterisk_conf_dao.find_exten_progfunckeys_settings')
-    def test_prog_funckeys(self, progfunckeys, custom_progfunckeys):
-        standard_keys = [{'exten': '1234',
-                          'user_id': 2,
-                          'leftexten': '*31'},
-                         {'exten': None,
-                          'typevalextenumbersright': '20',
-                          'user_id': 3,
-                          'leftexten': '*21'}]
-        custom_keys = [{'exten': '*4567'},
-                       {'exten': '1234'}]
-        keyfeature = Mock()
-        keyfeature.get.return_value = '**432'
-        xfeatures = {'phoneprogfunckey': keyfeature}
+    def test_generate_hints(self):
+        output = StringIO()
+        hints = [
+            'exten = 1000,hint,SIP/abcdef',
+            'exten = 4000,hint,MeetMe:4000',
+            'exten = *7351***223*1234,hint,Custom:*7351***223*1234',
+        ]
 
-        def side_effect(exten, uplet):
-            return exten + str(uplet[0]) + str(uplet[1]) + str(uplet[2])
+        self.hint_generator.generate.return_value = hints
 
-        xivo_helpers.fkey_extension = side_effect
-        progfunckeys.return_value = standard_keys
-        custom_progfunckeys.return_value = custom_keys
-        existing_hints = set(['1234', '5678'])
+        self.extensionsconf._generate_hints('context', output)
 
-        result = self.extensionsconf._prog_funckeys({'name': 'default'}, xfeatures, existing_hints)
-
-        expected_result = '''
-; prog funckeys supervision
-exten = **4322*311234,hint,Custom:**4322*311234
-exten = **4323*21*20,hint,Custom:**4323*21*20
-exten = *4567,hint,Custom:*4567
-'''
-
-        self.assertEquals(expected_result, result)
+        self.hint_generator.generate.assert_called_once_with('context')
+        for hint in hints:
+            self.assertTrue(hint in output.getvalue())

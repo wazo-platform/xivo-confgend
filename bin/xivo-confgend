@@ -2,6 +2,7 @@
 # -*- coding: utf8 -*-
 
 import sys, ConfigParser
+import xivo_dao
 
 from twisted.python             import usage
 from twisted.internet           import reactor
@@ -17,6 +18,7 @@ class Options(usage.Options):
         ['port'     , 'p', 5035, 'confgend server port'      , int],
         ['cache'    , 'a', '/var/lib/xivo-confgend', 'config cache', str],
         ['conf'     , 'c', '/etc/xivo/xivo-confgend.conf', 'Configuration file', str],
+        ['db_uri'   , 'd', 'postgresql://asterisk:proformatique@localhost/asterisk', 'DB URI', str],
     ]
 
 options = Options()
@@ -49,6 +51,7 @@ for key, value in config.items('confgend'):
 if options['listen'] == '*':
     options['listen'] = ''
 
+xivo_dao.init_db(xivo_dao.DBContext(options['db_uri']))
 
 f = ConfgendFactory(options['cache'], config)
 

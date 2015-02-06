@@ -1,3 +1,4 @@
+pyaml
 pika
 psycopg2
 sqlalchemy==0.9.4

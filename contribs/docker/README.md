@@ -24,15 +24,15 @@ Or directly in the sources in contribs/docker
 
 To run the container, do the following:
 
-    docker run -v /conf/confgend:/etc/xivo/xivo-confgend -t xivo-confgend
+    docker run -v /conf/confgend:/etc/xivo/ -p 8669:8669 -t xivo-confgend
 
 On interactive mode :
 
-    docker run -it xivo-confgend /bin/bash
+    docker run -v /conf/confgend:/etc/xivo/ -p 8669:8669 -it xivo-confgend bash
 
 After launch xivo-confgend-service in /root directory.
 
-    xivo-confgend -d -f
+    xivo-confgend
 
 ## Infos
 

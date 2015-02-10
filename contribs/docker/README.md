@@ -32,7 +32,7 @@ On interactive mode :
 
 After launch xivo-confgend-service in /root directory.
 
-    xivo-confgend
+    twistd -no -y /usr/local/bin/xivo-confgend
 
 ## Infos
 

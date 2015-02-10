@@ -19,6 +19,7 @@ import time
 import sys
 from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
+from xivo_confgen.xivo import XivoFrontend
 from twisted.internet.protocol import Protocol, ServerFactory
 
 
@@ -46,13 +47,16 @@ class Confgen(Protocol):
             print "cannot split"
             return
 
+        content = None
         try:
-            content = getattr(self.factory.asterisk_frontend, callback)()
+            if frontend == 'asterisk':
+                content = getattr(self.factory.asterisk_frontend, callback)()
+            elif frontend == 'xivo':
+                content = getattr(self.factory.xivo_frontend, callback)()
         except Exception as e:
             import traceback
             print e
             traceback.print_exc(file=sys.stdout)
-            content = None
 
         if content is None:
             # get cache content
@@ -74,9 +78,14 @@ class ConfgendFactory(ServerFactory):
 
     def __init__(self, cachedir, config):
         self.asterisk_frontend = self._new_asterisk_frontend(config)
+        self.xivo_frontend = self._new_xivo_frontend(config)
         self.cache = cache.FileCache(cachedir)
 
     def _new_asterisk_frontend(self, config):
         asterisk_frontend = AsteriskFrontend()
         asterisk_frontend.contextsconf = config.get('asterisk', 'contextsconf')
         return asterisk_frontend
+
+    def _new_xivo_frontend(self, config):
+        xivo_frontend = XivoFrontend()
+        return xivo_frontend

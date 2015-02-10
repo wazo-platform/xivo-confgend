@@ -15,15 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import yaml
+
 from xivo_dao.data_handler.infos import services as infos_services
 
 
 class XivoFrontend(object):
 
     def uuid_yml(self):
-        content = '''\
-uuid: "{uuid}"
-'''
-        uuid = infos_services.get().uuid
-
-        return content.format(uuid=uuid)
+        content = {'uuid': infos_services.get().uuid}
+        return yaml.dump(content)

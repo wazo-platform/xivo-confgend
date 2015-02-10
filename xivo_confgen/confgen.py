@@ -47,6 +47,7 @@ class Confgen(Protocol):
             print "cannot split"
             return
 
+        content = None
         try:
             if frontend == 'asterisk':
                 content = getattr(self.factory.asterisk_frontend, callback)()
@@ -56,7 +57,6 @@ class Confgen(Protocol):
             import traceback
             print e
             traceback.print_exc(file=sys.stdout)
-            content = None
 
         if content is None:
             # get cache content

@@ -1,3 +1,9 @@
+xivo-confgend (1:15.03~20150210.164916.a49ee01-1) xivo-dev; urgency=low
+
+  * rename xivo-confgen to xivo-confgend
+
+ -- Sebastien Duthil <sduthil@avencall.com>  Tue, 17 Feb 2015 09:24:04 -0500
+
 xivo-confgen (1:14.01~20140113.151047.8d8996e-wheezy-5) xivo-dev; urgency=low
 
   * add epoch in version limiting moving conffile

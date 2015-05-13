@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo_confgen.hints import adaptor
-from xivo_dao.data_handler.func_key import hint_dao
+from xivo_confgen.hints import hint_adaptor
+from xivo_dao.resources.func_key import hint_dao
 
 
 class HintGenerator(object):
@@ -25,13 +25,13 @@ class HintGenerator(object):
 
     @classmethod
     def build(cls):
-        return cls([adaptor.UserAdaptor(hint_dao),
-                    adaptor.ConferenceAdaptor(hint_dao),
-                    adaptor.ServiceAdaptor(hint_dao),
-                    adaptor.ForwardAdaptor(hint_dao),
-                    adaptor.AgentAdaptor(hint_dao),
-                    adaptor.BSFilterAdaptor(hint_dao),
-                    adaptor.CustomAdaptor(hint_dao)])
+        return cls([hint_adaptor.UserAdaptor(hint_dao),
+                    hint_adaptor.ConferenceAdaptor(hint_dao),
+                    hint_adaptor.ServiceAdaptor(hint_dao),
+                    hint_adaptor.ForwardAdaptor(hint_dao),
+                    hint_adaptor.AgentAdaptor(hint_dao),
+                    hint_adaptor.BSFilterAdaptor(hint_dao),
+                    hint_adaptor.CustomAdaptor(hint_dao)])
 
     def __init__(self, adaptors):
         self.adaptors = adaptors

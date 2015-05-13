@@ -17,11 +17,11 @@
 
 import yaml
 
-from xivo_dao.data_handler.infos import services as infos_services
+from xivo_dao.resources.infos import dao as infos_dao
 
 
 class XivoFrontend(object):
 
     def uuid_yml(self):
-        content = {'uuid': infos_services.get().uuid}
+        content = {'uuid': infos_dao.get().uuid}
         return yaml.dump(content)

@@ -31,7 +31,7 @@ MockedInfo = namedtuple('MockedInfo', ['uuid'])
 
 class TestUUIDyml(unittest.TestCase):
 
-    @patch('xivo_confgen.xivo.infos_services.get',
+    @patch('xivo_confgen.xivo.infos_dao.get',
            Mock(return_value=MockedInfo(uuid='sentinel-uuid')))
     def test_uuid_yml(self):
         frontend = XivoFrontend()

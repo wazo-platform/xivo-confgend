@@ -29,7 +29,7 @@ from xivo_confgen.hints.adaptor import AgentAdaptor
 from xivo_confgen.hints.adaptor import CustomAdaptor
 from xivo_confgen.hints.adaptor import BSFilterAdaptor
 
-from xivo_dao.data_handler.func_key.model import Hint
+from xivo_dao.resources.func_key.model import Hint
 
 CONTEXT = 'context'
 

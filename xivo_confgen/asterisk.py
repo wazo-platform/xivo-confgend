@@ -18,6 +18,7 @@
 from StringIO import StringIO
 from xivo_confgen.generators.extensionsconf import ExtensionsConf
 from xivo_confgen.generators.queues import QueuesConf
+from xivo_confgen.generators.res_parking import ResParkingConf
 from xivo_confgen.generators.sip import SipConf
 from xivo_confgen.generators.sccp import SccpConf
 from xivo_confgen.generators.voicemail import VoicemailConf
@@ -26,6 +27,10 @@ from xivo_dao import asterisk_conf_dao
 
 
 class AsteriskFrontend(object):
+
+    def res_parking_conf(self):
+        config_generator = ResParkingConf()
+        return self._generate_conf_from_generator(config_generator)
 
     def sccp_conf(self):
         config_generator = SccpConf()

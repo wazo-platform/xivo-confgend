@@ -15,8 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from xivo_confgen.generators.util import AsteriskFileWriter
+from xivo_dao import asterisk_conf_dao
+
 
 class ResParkingConf(object):
 
+    def __init__(self):
+        self._settings = asterisk_conf_dao.find_parking_settings()
+
     def generate(self, output):
-        pass
+        ast_file = AsteriskFileWriter(output)
+        self._generate_general(ast_file)
+        self._generate_parking_lots(ast_file)
+
+    def _generate_general(self, ast_file):
+        ast_file.write_section(u'general')
+        ast_file.write_options(self._settings['general_options'])
+
+    def _generate_parking_lots(self, ast_file):
+        for parking_lot in self._settings['parking_lots']:
+            ast_file.write_section(parking_lot['name'])
+            ast_file.write_options(parking_lot['options'])

@@ -41,3 +41,38 @@ def format_none_as_empty(value):
         return u''
     else:
         return value
+
+
+class AsteriskFileWriter(object):
+
+    def __init__(self, fobj):
+        self._fobj = fobj
+        self._first_section = True
+
+    def write_section(self, name):
+        self._write_section_separator()
+        self._fobj.write(u'[{}]\n'.format(name))
+
+    def write_section_tpl(self, name):
+        self._write_section_separator()
+        self._fobj.write(u'[{}](!)\n'.format(name))
+
+    def write_section_using_tpl(self, name, tpl_name):
+        self._write_section_separator()
+        self._fobj.write(u'[{}]({})\n'.format(name, tpl_name))
+
+    def _write_section_separator(self):
+        if self._first_section:
+            self._first_section = False
+        else:
+            self._fobj.write('\n')
+
+    def write_option(self, name, value):
+        self._fobj.write(u'{} = {}\n'.format(name, value))
+
+    def write_options(self, options):
+        for name, value in options:
+            self._fobj.write(u'{} = {}\n'.format(name, value))
+
+    def write_object_option(self, name, value):
+        self._fobj.write(u'{} => {}\n'.format(name, value))

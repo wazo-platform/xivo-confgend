@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import StringIO
 import re
+
+from hamcrest import assert_that, equal_to
 
 
 class InvalidAstConfigException(Exception):
@@ -53,3 +56,21 @@ def parse_ast_config(fobj):
 
 def build_expected(output):
     return '\n'.join(line.lstrip() for line in output.split('\n'))
+
+
+def assert_generates_config(generator, expected):
+    output = StringIO.StringIO()
+    generator.generate(output)
+
+    actual_lines = []
+    for line in output.getvalue().split('\n'):
+        if line:
+            actual_lines.append(line)
+
+    expected_lines = []
+    for line in expected.split('\n'):
+        line = line.lstrip()
+        if line:
+            expected_lines.append(line)
+
+    assert_that('\n'.join(actual_lines), equal_to('\n'.join(expected_lines)))

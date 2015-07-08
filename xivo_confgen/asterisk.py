@@ -17,7 +17,9 @@
 
 from StringIO import StringIO
 from xivo_confgen.generators.extensionsconf import ExtensionsConf
+from xivo_confgen.generators.features import FeaturesConf
 from xivo_confgen.generators.queues import QueuesConf
+from xivo_confgen.generators.res_parking import ResParkingConf
 from xivo_confgen.generators.sip import SipConf
 from xivo_confgen.generators.sccp import SccpConf
 from xivo_confgen.generators.voicemail import VoicemailConf
@@ -26,6 +28,14 @@ from xivo_dao import asterisk_conf_dao
 
 
 class AsteriskFrontend(object):
+
+    def features_conf(self):
+        config_generator = FeaturesConf()
+        return self._generate_conf_from_generator(config_generator)
+
+    def res_parking_conf(self):
+        config_generator = ResParkingConf()
+        return self._generate_conf_from_generator(config_generator)
 
     def sccp_conf(self):
         config_generator = SccpConf()
@@ -141,19 +151,6 @@ class AsteriskFrontend(object):
                 print >> options, '\n[%s]' % cat
 
             print >> options, "%s = %s" % (m['var_name'], m['var_val'])
-
-        return options.getvalue()
-
-    def features_conf(self):
-        options = StringIO()
-
-        print >> options, '\n[general]'
-        for f in asterisk_conf_dao.find_general_features_settings():
-            print >> options, "%s = %s" % (f['var_name'], f['var_val'])
-
-        print >> options, '\n[featuremap]'
-        for f in asterisk_conf_dao.find_featuremap_features_settings():
-            print >> options, "%s = %s" % (f['var_name'], f['var_val'])
 
         return options.getvalue()
 

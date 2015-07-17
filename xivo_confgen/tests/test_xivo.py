@@ -37,7 +37,6 @@ class TestUUIDyml(unittest.TestCase):
         frontend = XivoFrontend()
 
         result = frontend.uuid_yml()
-        print result
 
         expected = {
             'uuid': 'sentinel-uuid',

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2011-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ import sys
 from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo import XivoFrontend
+from xivo_confgen.dird import DirdFrontend
 from twisted.internet.protocol import Protocol, ServerFactory
 
 
@@ -53,6 +54,9 @@ class Confgen(Protocol):
                 content = getattr(self.factory.asterisk_frontend, callback)()
             elif frontend == 'xivo':
                 content = getattr(self.factory.xivo_frontend, callback)()
+            elif frontend == 'dird':
+                content = getattr(self.factory.dird_frontend, callback)()
+
         except Exception as e:
             import traceback
             print e
@@ -79,6 +83,7 @@ class ConfgendFactory(ServerFactory):
     def __init__(self, cachedir, config):
         self.asterisk_frontend = self._new_asterisk_frontend(config)
         self.xivo_frontend = self._new_xivo_frontend(config)
+        self.dird_frontend = self._new_dird_frontend(config)
         self.cache = cache.FileCache(cachedir)
 
     def _new_asterisk_frontend(self, config):
@@ -89,3 +94,7 @@ class ConfgendFactory(ServerFactory):
     def _new_xivo_frontend(self, config):
         xivo_frontend = XivoFrontend()
         return xivo_frontend
+
+    def _new_dird_frontend(self, config):
+        dird_frontend = DirdFrontend()
+        return dird_frontend

@@ -36,7 +36,14 @@ sources = [
      'searched_columns': ['lastname'],
      'format_columns': {'number': '{exten}',
                         'mobile': '{mobile_phone_number}',
-                        'name': '{firstname} {lastname}'}}
+                        'name': '{firstname} {lastname}'}},
+    {'type': 'phonebook',
+     'name': 'xivodir',
+     'uri': 'http://localhost/service/ipbx/json.php/private/pbx_services/phonebook',
+     'searched_columns': ['firstname', 'lastname', 'company'],
+     'format_columns': {'firstname': '{phonebook.firstname}',
+                        'lastname': '{phonebook.lastname}',
+                        'number': '{phonebooknumber.office.number}'}},
 ]
 
 
@@ -91,6 +98,16 @@ class TestDirdFrontend(unittest.TestCase):
                         'version': '1.1',
                         'timeout': 4,
                     },
+                },
+                'xivodir': {
+                    'type': 'phonebook',
+                    'name': 'xivodir',
+                    'phonebook_url': 'http://localhost/service/ipbx/json.php/private/pbx_services/phonebook',
+                    'searched_columns': ['firstname', 'lastname', 'company'],
+                    'format_columns': {'firstname': '{phonebook.firstname}',
+                                       'lastname': '{phonebook.lastname}',
+                                       'number': '{phonebooknumber.office.number}'},
+                    'phonebook_timeout': 4,
                 },
             }
         }

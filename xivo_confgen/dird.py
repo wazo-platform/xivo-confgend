@@ -24,7 +24,8 @@ class DirdFrontend(object):
 
     confd_api_version = '1.1'
     confd_default_timeout = 4
-    supported_types = ['xivo']
+    phonebook_default_timeout = 4
+    supported_types = ['phonebook', 'xivo']
 
     def sources_yml(self):
         sources = dict(self._format_source(source)
@@ -44,8 +45,14 @@ class DirdFrontend(object):
 
         if type_ == 'xivo':
             config.update(self._format_xivo_source(source))
+        elif type_ == 'phonebook':
+            config.update(self._format_phonebook_source(source))
 
         return name, config
+
+    def _format_phonebook_source(self, source):
+        return {'phonebook_url': source['uri'],
+                'phonebook_timeout': 4}
 
     def _format_xivo_source(self, source):
         return {

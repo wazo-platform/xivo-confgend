@@ -36,12 +36,10 @@ class DirdFrontend(object):
     def _format_source(self, source):
         name = source['name']
         type_ = source['type']
-        config = {
-            'type': type_,
-            'name': name,
-            'searched_columns': source['searched_columns'],
-            'format_columns': source['format_columns'],
-        }
+        config = {'type': type_,
+                  'name': name,
+                  'searched_columns': source['searched_columns'],
+                  'format_columns': source['format_columns']}
 
         if type_ == 'xivo':
             config.update(self._format_xivo_source(source))
@@ -55,19 +53,15 @@ class DirdFrontend(object):
                 'phonebook_timeout': 4}
 
     def _format_xivo_source(self, source):
-        return {
-            'unique_column': 'id',
-            'confd_config': self._format_confd_config(source['uri']),
-        }
+        return {'unique_column': 'id',
+                'confd_config': self._format_confd_config(source['uri'])}
 
     def _format_confd_config(self, url):
         scheme, _, end = url.partition('://')
         host, _, port = end.partition(':')
 
-        return {
-            'https': scheme == 'https',
-            'host': host,
-            'port': int(port),
-            'timeout': self.confd_default_timeout,
-            'version': self.confd_api_version,
-        }
+        return {'https': scheme == 'https',
+                'host': host,
+                'port': int(port),
+                'timeout': self.confd_default_timeout,
+                'version': self.confd_api_version}

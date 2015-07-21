@@ -44,6 +44,12 @@ sources = [
      'format_columns': {'firstname': '{phonebook.firstname}',
                         'lastname': '{phonebook.lastname}',
                         'number': '{phonebooknumber.office.number}'}},
+    {'type': 'csv',
+     'name': 'mycsv',
+     'uri': 'file:///usr/tmp/test.csv',
+     'delimiter': '|',
+     'searched_columns': ['firstname', 'lastname'],
+     'format_columns': {'name': '{firstname} {lastname}'}},
 ]
 
 
@@ -108,6 +114,14 @@ class TestDirdFrontend(unittest.TestCase):
                                        'lastname': '{phonebook.lastname}',
                                        'number': '{phonebooknumber.office.number}'},
                     'phonebook_timeout': 4,
+                },
+                'mycsv': {
+                    'type': 'csv',
+                    'name': 'mycsv',
+                    'separator': '|',
+                    'file': '/usr/tmp/test.csv',
+                    'searched_columns': ['firstname', 'lastname'],
+                    'format_columns': {'name': '{firstname} {lastname}'},
                 },
             }
         }

@@ -90,7 +90,7 @@ class TestExtensionsConf(unittest.TestCase):
         output = StringIO()
         hints = [
             'exten = 1000,hint,SIP/abcdef',
-            'exten = 4000,hint,MeetMe:4000',
+            'exten = 4000,hint,meetme:4000',
             'exten = *7351***223*1234,hint,Custom:*7351***223*1234',
         ]
 

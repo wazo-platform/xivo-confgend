@@ -18,7 +18,9 @@
 import itertools
 import StringIO
 import unittest
+
 from mock import Mock, patch
+from xivo_confgen.generators.tests.util import assert_generates_config
 
 from xivo_confgen.generators.sccp import SccpConf, _SccpGeneralSettingsConf, _SccpLineConf, _SccpDeviceConf, \
     _SccpSpeedDialConf, _SplittedGeneralSettings
@@ -41,17 +43,13 @@ class TestSccpConf(_BaseSccpTestCase):
         self._conf = SccpConf()
 
     def test_generate(self):
-        self._conf.generate(self._output)
+        assert_generates_config(self._conf, '''
+            [general]
 
-        expected = """\
-                   [general]
+            [xivo_device_tpl](!)
 
-                   [xivo_device_tpl](!)
-
-                   [xivo_line_tpl](!)
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+            [xivo_line_tpl](!)
+        ''')
 
     def test_one_element_speeddials_section(self):
         speedials = [{'exten':'1001',

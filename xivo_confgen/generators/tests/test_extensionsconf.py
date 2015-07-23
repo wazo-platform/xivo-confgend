@@ -26,15 +26,9 @@ from xivo_confgen.hints.generator import HintGenerator
 
 class TestExtensionsConf(unittest.TestCase):
 
-    def assertConfigEqual(self, configExpected, configResult):
-        self.assertEqual(configExpected.replace(' ', ''), configResult.replace(' ', ''))
-
     def setUp(self):
         self.hint_generator = Mock(HintGenerator)
         self.extensionsconf = ExtensionsConf('context.conf', self.hint_generator)
-
-    def tearDown(self):
-        pass
 
     def test_generate_dialplan_from_template(self):
         output = StringIO()

@@ -15,17 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import StringIO
 import unittest
+
 from mock import patch, Mock
 from xivo_confgen.generators.queues import QueuesConf
-from xivo_confgen.generators.tests.util import build_expected
+from xivo_confgen.generators.tests.util import assert_generates_config
 
 
 class TestQueuesConf(unittest.TestCase):
 
     def setUp(self):
-        self.output = StringIO.StringIO()
         self.queues_conf = QueuesConf()
 
     @patch('xivo_dao.asterisk_conf_dao.find_queue_penalty_settings', Mock(return_value=[]))
@@ -33,12 +32,9 @@ class TestQueuesConf(unittest.TestCase):
     @patch('xivo_dao.asterisk_conf_dao.find_queue_general_settings', Mock(return_value=[]))
     @patch('xivo_dao.asterisk_conf_dao.find_queue_members_settings', Mock(return_value=[]))
     def test_empty_sections(self):
-        self.queues_conf.generate(self.output)
-
-        expected_output = build_expected('''\
+        assert_generates_config(self.queues_conf, '''
             [general]
         ''')
-        self.assertEqual(self.output.getvalue(), expected_output)
 
     @patch('xivo_dao.asterisk_conf_dao.find_queue_members_settings', Mock(return_value=[]))
     @patch('xivo_dao.asterisk_conf_dao.find_queue_penalty_settings', Mock(return_value=[]))
@@ -49,13 +45,10 @@ class TestQueuesConf(unittest.TestCase):
             {'var_name': 'autofill', 'var_val': 'no'},
         ]
 
-        self.queues_conf.generate(self.output)
-
-        expected_output = build_expected('''\
+        assert_generates_config(self.queues_conf, '''
             [general]
             autofill = no
         ''')
-        self.assertEqual(self.output.getvalue(), expected_output)
         find_queue_general_settings.assert_called_once_with()
 
     @patch('xivo_dao.asterisk_conf_dao.find_queue_penalty_settings', Mock(return_value=[]))
@@ -70,15 +63,12 @@ class TestQueuesConf(unittest.TestCase):
             {'interface': 'SIP/abc', 'penalty': 1, 'state_interface': '', 'skills': 'user-1'},
         ]
 
-        self.queues_conf.generate(self.output)
-
-        expected_output = build_expected('''\
+        assert_generates_config(self.queues_conf, '''
             [general]
 
             [queue1]
             wrapuptime = 0
             member => SIP/abc,1
         ''')
-        self.assertEqual(self.output.getvalue(), expected_output)
         find_queue_settings.assert_called_once_with()
         find_queue_members_settings.assert_called_once_with('queue1')

@@ -16,54 +16,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import StringIO
-import re
 
 from hamcrest import assert_that, equal_to
-
-
-class InvalidAstConfigException(Exception):
-    pass
-
-
-_SECTION_REGEX = re.compile(u'^\[([-\w]+)\]$')
-_OPTION_REGEX = re.compile(u'^[-\w]+ =>? .*$')
-
-
-def parse_ast_config(fobj):
-    ast_config = {}
-    cur_section = None
-    for raw_line in fobj:
-        line = raw_line.rstrip()
-        if not line or line.startswith(u';'):
-            continue
-
-        m = _OPTION_REGEX.match(line)
-        if m:
-            if cur_section is None:
-                raise InvalidAstConfigException('option %r not defined in a section' % line)
-            cur_section.append(line)
-        else:
-            m = _SECTION_REGEX.match(line)
-            if m:
-                name, = m.groups()
-                if name in ast_config:
-                    raise InvalidAstConfigException('redefinition of section %r' % name)
-                cur_section = ast_config.setdefault(name, [])
-            else:
-                raise InvalidAstConfigException('invalid line %r' % line)
-    return ast_config
-
-
-def build_expected(output):
-    return '\n'.join(line.lstrip() for line in output.split('\n'))
 
 
 def assert_generates_config(generator, expected):
     output = StringIO.StringIO()
     generator.generate(output)
 
+    assert_config_equal(output.getvalue(), expected)
+
+
+def assert_config_equal(config, expected):
     actual_lines = []
-    for line in output.getvalue().split('\n'):
+    for line in config.split('\n'):
         if line:
             actual_lines.append(line)
 

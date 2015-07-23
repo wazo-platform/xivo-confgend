@@ -19,15 +19,14 @@ import unittest
 from StringIO import StringIO
 
 from xivo_confgen.generators import sip
+from xivo_confgen.generators.tests.util import assert_config_equal
 
 
 class TestSipConf(unittest.TestCase):
 
     def setUp(self):
         self.sip_conf = sip.SipConf()
-
-    def tearDown(self):
-        pass
+        self.output = StringIO()
 
     def test_get_line(self):
         result = sip.gen_value_line('emailbody', 'pépè')
@@ -48,31 +47,35 @@ class TestSipConf(unittest.TestCase):
             {'filename': u'sip.conf', 'category': u'general', 'var_name': u'session-expires', 'var_val': u'600'},
             {'filename': u'sip.conf', 'category': u'general', 'var_name': u'vmexten', 'var_val': u'*98'},
         ]
-        output = StringIO()
-        self.sip_conf._gen_general(staticsip, output)
-        result = output.getvalue()
-        self.assertTrue(u'[general]' in result)
-        self.assertTrue(u'autocreate_prefix = apv6Ym3fJW' in result)
-        self.assertTrue(u'language = fr_FR' in result)
-        self.assertTrue(u'notifycid = no' in result)
-        self.assertTrue(u'session-expires = 600' in result)
-        self.assertTrue(u'vmexten = *98' in result)
+
+        self.sip_conf._gen_general(staticsip, self.output)
+
+        assert_config_equal(self.output.getvalue(), '''
+            [general]
+            autocreate_prefix = apv6Ym3fJW
+            language = fr_FR
+            notifycid = no
+            session-expires = 600
+            vmexten = *98
+        ''')
 
     def test_gen_authentication(self):
         sipauthentication = [{'id': 1, 'usersip_id': None, 'user': u'test', 'secretmode': u'md5',
                               'secret': u'test', 'realm': u'test.com'}]
-        output = StringIO()
-        self.sip_conf._gen_authentication(sipauthentication, output)
-        result = output.getvalue()
-        self.assertTrue(u'[authentication]' in result)
-        self.assertTrue(u'auth = test#test@test.com' in result)
+
+        self.sip_conf._gen_authentication(sipauthentication, self.output)
+
+        assert_config_equal(self.output.getvalue(), '''
+            [authentication]
+            auth = test#test@test.com
+        ''')
 
     def test_gen_authentication_empty(self):
         sipauthentication = []
-        output = StringIO()
-        self.sip_conf._gen_authentication(sipauthentication, output)
-        result = output.getvalue()
-        self.assertEqual(u'', result)
+
+        self.sip_conf._gen_authentication(sipauthentication, self.output)
+
+        self.assertEqual(u'', self.output.getvalue())
 
     def test_gen_trunk(self):
         trunksip = [{'id': 10, 'name': u'cedric_51', 'type': u'peer', 'username': u'cedric_51',
@@ -98,22 +101,24 @@ class TestSipConf(unittest.TestCase):
                     'use_q850_reason': None, 'encryption': None, 'snom_aoc_enabled': None, 'maxforwards': None,
                     'disallowed_methods': None, 'textsupport': None, 'callgroup': None, 'pickupgroup': None,
                     'commented': 0}]
-        output = StringIO()
-        self.sip_conf._gen_trunk(trunksip, output)
-        result = output.getvalue()
-        self.assertTrue(u'[cedric_51]' in result)
-        self.assertTrue(u'amaflags = default' in result)
-        self.assertTrue(u'call-limit = 0' in result)
-        self.assertTrue(u'context = default' in result)
-        self.assertTrue(u'directmedia = yes' in result)
-        self.assertTrue(u'host = dynamic' in result)
-        self.assertTrue(u'port = 5060' in result)
-        self.assertTrue(u'regseconds = 0' in result)
-        self.assertTrue(u'secret = cedric_51' in result)
-        self.assertTrue(u'subscribemwi = 0' in result)
-        self.assertTrue(u'transport = udp' in result)
-        self.assertTrue(u'type = peer' in result)
-        self.assertTrue(u'username = cedric_51' in result)
+
+        self.sip_conf._gen_trunk(trunksip, self.output)
+
+        assert_config_equal(self.output.getvalue(), '''
+            [cedric_51]
+            amaflags = default
+            regseconds = 0
+            call-limit = 0
+            port = 5060
+            transport = udp
+            directmedia = yes
+            host = dynamic
+            context = default
+            secret = cedric_51
+            type = peer
+            username = cedric_51
+            subscribemwi = 0
+        ''')
 
     def test__gen_user(self):
         pickup = []
@@ -121,19 +126,18 @@ class TestSipConf(unittest.TestCase):
             'cc_foobar': 'foo',
         }
         user = [{'name': 'jean-yves',
-                'amaflags': 'default',
-                'callerid': '"lucky" <45789>',
-                'call-limit': 10,
                 'number': 101,
                 'context': 'default'}]
-        output = StringIO()
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-        result = output.getvalue()
-        self.assertIn(u'[jean-yves]', result)
-        self.assertIn(u'amaflags = default', result)
-        self.assertIn(u'call-limit = 10', result)
-        self.assertIn(u'callerid = "lucky" <45789>', result)
-        self.assertIn(u'cc_foobar = foo', result)
+
+        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
+
+        assert_config_equal(self.output.getvalue(), '''
+            [jean-yves]
+            context = default
+            setvar = PICKUPMARK=101%default
+            setvar = TRANSFER_CONTEXT=default
+            cc_foobar = foo
+        ''')
 
     def test__gen_user_with_accent(self):
         pickup = []
@@ -142,11 +146,10 @@ class TestSipConf(unittest.TestCase):
                 'callerid': '"pépè" <45789>',
                 'number': 101,
                 'context': 'default'}]
-        output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
 
-        self.assertIn(u'callerid = "pépè" <45789>', output.getvalue())
+        self.assertIn(u'callerid = "pépè" <45789>', self.output.getvalue())
 
     def test__gen_user_empty_value(self):
         pickup = []
@@ -178,11 +181,10 @@ class TestSipConf(unittest.TestCase):
                 'allow': 'g723,gsm',
                 'number': 101,
                 'context': 'default'}]
-        output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
 
-        result = output.getvalue()
+        result = self.output.getvalue()
         self.assertIn('disallow = all', result)
         self.assertIn('allow = g723', result)
         self.assertIn('allow = gsm', result)
@@ -226,46 +228,15 @@ class TestSipConf(unittest.TestCase):
                 'ipaddr': None,
                 'number': 101,
                 'context': 'default'}]
-        output = StringIO()
 
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
+        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
 
-        result = output.getvalue()
-        self.assertNotIn('id', result)
-        self.assertNotIn('protocol', result)
-        self.assertNotIn('category', result)
-        self.assertNotIn('commented', result)
-        self.assertNotIn('initialized', result)
-        self.assertNotIn('disallow', result)
-        self.assertNotIn('regseconds', result)
-        self.assertNotIn('lastms', result)
-        self.assertNotIn('fullcontact', result)
-        self.assertNotIn('ipaddr', result)
-        self.assertNotIn('number', result)
-
-    def test__gen_user_transfer_context(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'othercontext',
-                 'number': 101,
-                 'context': 'mycontext'}]
-        output = StringIO()
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-
-        self.assertIn('setvar = TRANSFER_CONTEXT=mycontext', output.getvalue())
-
-    def test__gen_user_pickupmark(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'othercontext',
-                 'number': 101,
-                 'context': 'mycontext'}]
-        output = StringIO()
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-
-        self.assertIn('setvar = PICKUPMARK=101%mycontext', output.getvalue())
+        assert_config_equal(self.output.getvalue(), '''
+            [unused]
+            context = default
+            setvar = PICKUPMARK=101%default
+            setvar = TRANSFER_CONTEXT=default
+        ''')
 
     def test__ccss_options_enabled(self):
         data_ccss = [{'commented': 0}]

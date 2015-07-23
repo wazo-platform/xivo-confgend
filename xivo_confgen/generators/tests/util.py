@@ -24,8 +24,12 @@ def assert_generates_config(generator, expected):
     output = StringIO.StringIO()
     generator.generate(output)
 
+    assert_config_equal(output.getvalue(), expected)
+
+
+def assert_config_equal(config, expected):
     actual_lines = []
-    for line in output.getvalue().split('\n'):
+    for line in config.split('\n'):
         if line:
             actual_lines.append(line)
 

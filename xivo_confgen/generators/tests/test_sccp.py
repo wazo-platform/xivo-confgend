@@ -20,19 +20,14 @@ import StringIO
 import unittest
 
 from mock import Mock, patch
-from xivo_confgen.generators.tests.util import assert_generates_config
+from xivo_confgen.generators.tests.util import assert_generates_config,\
+    assert_config_equal
 
 from xivo_confgen.generators.sccp import SccpConf, _SccpGeneralSettingsConf, _SccpLineConf, _SccpDeviceConf, \
     _SccpSpeedDialConf, _SplittedGeneralSettings
 
 
-class _BaseSccpTestCase(unittest.TestCase):
-
-    def assertConfigEqual(self, configExpected, configResult):
-        self.assertEqual(configExpected.replace(' ', ''), configResult.replace(' ', ''))
-
-
-class TestSccpConf(_BaseSccpTestCase):
+class TestSccpConf(unittest.TestCase):
 
     @patch('xivo_dao.asterisk_conf_dao.find_sccp_general_settings', Mock(return_value=[]))
     @patch('xivo_dao.asterisk_conf_dao.find_sccp_line_settings', Mock(return_value=[]))
@@ -62,18 +57,16 @@ class TestSccpConf(_BaseSccpTestCase):
         sccp_conf = _SccpSpeedDialConf()
         sccp_conf.generate(speedials, self._output)
 
-        expected = """\
-                    [1229-1]
-                    type = speeddial
-                    extension = 1001
-                    label = user001
-                    blf = 0
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [1229-1]
+            type = speeddial
+            extension = 1001
+            label = user001
+            blf = 0
+        ''')
 
 
-class TestSccpGeneralConf(_BaseSccpTestCase):
+class TestSccpGeneralConf(unittest.TestCase):
 
     def setUp(self):
         self._general_conf = _SccpGeneralSettingsConf()
@@ -85,12 +78,10 @@ class TestSccpGeneralConf(_BaseSccpTestCase):
 
         self._general_conf.generate(items, self._output)
 
-        expected = """\
-                   [general]
-                   foo=bar
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [general]
+            foo = bar
+        ''')
 
 
 class TestSccpSplittedGeneralSettings(unittest.TestCase):
@@ -114,7 +105,7 @@ class TestSccpSplittedGeneralSettings(unittest.TestCase):
         self.assertEqual(line_items, splitted_settings.line_items)
 
 
-class TestSccpDeviceConf(_BaseSccpTestCase):
+class TestSccpDeviceConf(unittest.TestCase):
 
     def setUp(self):
         self._device_conf = _SccpDeviceConf([])
@@ -127,12 +118,10 @@ class TestSccpDeviceConf(_BaseSccpTestCase):
 
         self._device_conf._generate_template(items, self._output)
 
-        expected = """\
-                   [xivo_device_tpl](!)
-                   foo = bar
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [xivo_device_tpl](!)
+            foo = bar
+        ''')
 
     def test_one_device_no_line_no_voicemail(self):
         sccpdevice = [{'category': u'devices',
@@ -143,12 +132,10 @@ class TestSccpDeviceConf(_BaseSccpTestCase):
 
         self._device_conf._generate_devices(sccpdevice, self._output)
 
-        expected = """\
-                    [SEPACA016FDF235](xivo_device_tpl)
-                    type=device
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [SEPACA016FDF235](xivo_device_tpl)
+            type = device
+        ''')
 
     def test_one_element_devices_section(self):
         sccpdevice = [{'category': u'devices',
@@ -167,15 +154,13 @@ class TestSccpDeviceConf(_BaseSccpTestCase):
         device_conf = _SccpDeviceConf(sccpspeeddials)
         device_conf._generate_devices(sccpdevice, self._output)
 
-        expected = """\
-                    [SEPACA016FDF235](xivo_device_tpl)
-                    type=device
-                    line=103
-                    voicemail=103
-                    speeddial=1229-1
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [SEPACA016FDF235](xivo_device_tpl)
+            type = device
+            line = 103
+            voicemail = 103
+            speeddial = 1229-1
+        ''')
 
     def test_multiple_speedials_devices_section(self):
         sccpdevice = [{'category': u'devices',
@@ -202,19 +187,17 @@ class TestSccpDeviceConf(_BaseSccpTestCase):
         device_conf = _SccpDeviceConf(sccpspeeddials)
         device_conf._generate_devices(sccpdevice, self._output)
 
-        expected = """\
-                    [SEPACA016FDF235](xivo_device_tpl)
-                    type=device
-                    line=103
-                    voicemail=103
-                    speeddial=1229-1
-                    speeddial=1229-2
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [SEPACA016FDF235](xivo_device_tpl)
+            type = device
+            line = 103
+            voicemail = 103
+            speeddial = 1229-1
+            speeddial = 1229-2
+        ''')
 
 
-class TestSccpLineConf(_BaseSccpTestCase):
+class TestSccpLineConf(unittest.TestCase):
 
     def setUp(self):
         self._line_conf = _SccpLineConf()
@@ -227,12 +210,10 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
         self._line_conf._generate_template(items, self._output)
 
-        expected = """\
-                   [xivo_line_tpl](!)
-                   directmedia = 0
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [xivo_line_tpl](!)
+            directmedia = 0
+        ''')
 
     def test_template_allow_option(self):
         items = [
@@ -241,13 +222,11 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
         self._line_conf._generate_template(items, self._output)
 
-        expected = """\
-                   [xivo_line_tpl](!)
-                   disallow = all
-                   allow = ulaw
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [xivo_line_tpl](!)
+            disallow = all
+            allow = ulaw
+        ''')
 
     def test_template_empty_allow_option(self):
         items = [
@@ -256,11 +235,9 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
         self._line_conf._generate_template(items, self._output)
 
-        expected = """\
-                   [xivo_line_tpl](!)
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [xivo_line_tpl](!)
+        ''')
 
     def test_template_disallow_option_is_ignored(self):
         items = [
@@ -269,11 +246,9 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
         self._line_conf._generate_template(items, self._output)
 
-        expected = """\
-                   [xivo_line_tpl](!)
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [xivo_line_tpl](!)
+        ''')
 
     def test_one_element_lines_section(self):
         sccpline = [{
@@ -289,19 +264,17 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
         self._line_conf._generate_lines(sccpline, self._output)
 
-        expected = """\
-                    [100](xivo_line_tpl)
-                    type=line
-                    cid_name=jimmy
-                    cid_num=100
-                    setvar=XIVO_USERID=1
-                    setvar=PICKUPMARK=100%a_context
-                    setvar=TRANSFER_CONTEXT=a_context
-                    language=fr_FR
-                    context=a_context
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [100](xivo_line_tpl)
+            type = line
+            cid_name = jimmy
+            cid_num = 100
+            setvar = XIVO_USERID=1
+            setvar = PICKUPMARK=100%a_context
+            setvar = TRANSFER_CONTEXT=a_context
+            language = fr_FR
+            context = a_context
+        ''')
 
     def test_one_element_lines_section_no_language(self):
         sccpline = [{
@@ -317,18 +290,16 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
         self._line_conf._generate_lines(sccpline, self._output)
 
-        expected = """\
-                    [100](xivo_line_tpl)
-                    type=line
-                    cid_name=jimmy
-                    cid_num=100
-                    setvar=XIVO_USERID=1
-                    setvar=PICKUPMARK=100%a_context
-                    setvar=TRANSFER_CONTEXT=a_context
-                    context=a_context
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [100](xivo_line_tpl)
+            type = line
+            cid_name = jimmy
+            cid_num = 100
+            setvar = XIVO_USERID=1
+            setvar = PICKUPMARK=100%a_context
+            setvar = TRANSFER_CONTEXT=a_context
+            context = a_context
+        ''')
 
     def test_allow_no_disallow(self):
         sccpline = [{
@@ -345,19 +316,17 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
         self._line_conf._generate_lines(sccpline, self._output)
 
-        expected = """\
-                    [100](xivo_line_tpl)
-                    type=line
-                    cid_name=jimmy
-                    cid_num=100
-                    setvar=XIVO_USERID=1
-                    setvar=PICKUPMARK=100%a_context
-                    setvar=TRANSFER_CONTEXT=a_context
-                    context=a_context
-                    allow=g729,ulaw
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [100](xivo_line_tpl)
+            type = line
+            cid_name = jimmy
+            cid_num = 100
+            setvar = XIVO_USERID=1
+            setvar = PICKUPMARK=100%a_context
+            setvar = TRANSFER_CONTEXT=a_context
+            context = a_context
+            allow = g729,ulaw
+        ''')
 
     def test_disallow_all_allow_order(self):
         sccpline = [{
@@ -375,20 +344,18 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
         self._line_conf._generate_lines(sccpline, self._output)
 
-        expected = """\
-                    [100](xivo_line_tpl)
-                    type=line
-                    cid_name=jimmy
-                    cid_num=100
-                    setvar=XIVO_USERID=1
-                    setvar=PICKUPMARK=100%a_context
-                    setvar=TRANSFER_CONTEXT=a_context
-                    context=a_context
-                    disallow=all
-                    allow=g729,ulaw
-
-                   """
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [100](xivo_line_tpl)
+            type = line
+            cid_name = jimmy
+            cid_num = 100
+            setvar = XIVO_USERID=1
+            setvar = PICKUPMARK=100%a_context
+            setvar = TRANSFER_CONTEXT=a_context
+            context = a_context
+            disallow = all
+            allow = g729,ulaw
+        ''')
 
     def test_call_and_pickup_groups(self):
         sccpline = [
@@ -406,18 +373,15 @@ class TestSccpLineConf(_BaseSccpTestCase):
 
         self._line_conf._generate_lines(sccpline, self._output)
 
-        expected = """\
-                    [100](xivo_line_tpl)
-                    type=line
-                    cid_name=jimmy
-                    cid_num=100
-                    setvar=XIVO_USERID=1
-                    setvar=PICKUPMARK=100%a_context
-                    setvar=TRANSFER_CONTEXT=a_context
-                    context=a_context
-                    callgroup = 1,2,3,4
-                    pickupgroup = 3,4
-
-                   """
-
-        self.assertConfigEqual(expected, self._output.getvalue())
+        assert_config_equal(self._output.getvalue(), '''
+            [100](xivo_line_tpl)
+            type = line
+            cid_name = jimmy
+            cid_num = 100
+            setvar = XIVO_USERID=1
+            setvar = PICKUPMARK=100%a_context
+            setvar = TRANSFER_CONTEXT=a_context
+            context = a_context
+            callgroup = 1,2,3,4
+            pickupgroup = 3,4
+        ''')

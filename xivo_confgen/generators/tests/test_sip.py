@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2011-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ from StringIO import StringIO
 
 from xivo_confgen.generators import sip
 from xivo_confgen.generators.tests.util import assert_config_equal
+from xivo_confgen.generators.tests.util import assert_section_equal
 
 
 class TestSipConf(unittest.TestCase):
@@ -104,7 +105,7 @@ class TestSipConf(unittest.TestCase):
 
         self.sip_conf._gen_trunk(trunksip, self.output)
 
-        assert_config_equal(self.output.getvalue(), '''
+        assert_section_equal(self.output.getvalue(), '''
             [cedric_51]
             amaflags = default
             regseconds = 0

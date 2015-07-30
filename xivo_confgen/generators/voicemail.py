@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2011-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from collections import defaultdict
+from collections import OrderedDict
 from xivo_confgen.generators.util import format_ast_section, \
     format_ast_option, format_ast_object_option, format_none_as_empty
 from xivo_dao import asterisk_conf_dao
@@ -55,8 +55,9 @@ class VoicemailConf(object):
                 print >> output, format_ast_option(item['var_name'], item['var_val'])
 
     def _gen_context_sections(self, output):
-        mailbox_by_context = defaultdict(list)
+        mailbox_by_context = OrderedDict()
         for mailbox in self._voicemails:
+            mailbox_by_context.setdefault(mailbox['context'], [])
             mailbox_by_context[mailbox['context']].append(mailbox)
 
         for context, mailboxes in mailbox_by_context.iteritems():

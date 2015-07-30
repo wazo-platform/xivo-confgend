@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2011-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,13 @@
 
 import StringIO
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that
+from hamcrest import equal_to
+from hamcrest import all_of
+from hamcrest import starts_with
+from hamcrest import ends_with
+from hamcrest import equal_to_ignoring_whitespace
+from hamcrest import contains_inanyorder
 
 
 def assert_generates_config(generator, expected):
@@ -28,15 +34,28 @@ def assert_generates_config(generator, expected):
 
 
 def assert_config_equal(config, expected):
-    actual_lines = []
-    for line in config.split('\n'):
-        if line:
-            actual_lines.append(line)
-
-    expected_lines = []
-    for line in expected.split('\n'):
-        line = line.lstrip()
-        if line:
-            expected_lines.append(line)
+    actual_lines = clean_lines(config)
+    expected_lines = clean_lines(expected)
 
     assert_that('\n'.join(actual_lines), equal_to('\n'.join(expected_lines)))
+
+
+def assert_section_equal(config, expected):
+    config = clean_lines(config)
+    expected = clean_lines(expected)
+    # check section name is the same in the first line
+    assert_that(config[0], all_of(starts_with('['), ends_with(']')))
+    assert_that(config[0], equal_to_ignoring_whitespace(expected[0]))
+
+    # check section content
+    expected_matchers = [equal_to_ignoring_whitespace(line) for line in expected[1:]]
+    assert_that(config[1:], contains_inanyorder(*expected_matchers))
+
+
+def clean_lines(lines):
+    result = []
+    for line in lines.split('\n'):
+        line = line.lstrip()
+        if line:
+            result.append(line)
+    return result

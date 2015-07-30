@@ -79,28 +79,28 @@ class TestSipConf(unittest.TestCase):
 
     def test_gen_trunk(self):
         trunksip = [{'id': 10, 'name': u'cedric_51', 'type': u'peer', 'username': u'cedric_51',
-                    'secret': u'cedric_51', 'md5secret': u'', 'context': u'default', 'language': None,
-                    'accountcode': None, 'amaflags': u'default', 'allowtransfer': None, 'fromuser': None,
-                    'fromdomain': None, 'mailbox': None, 'subscribemwi': 0, 'buggymwi': None, 'call-limit': 0,
-                    'callerid': None, 'fullname': None, 'cid_number': None, 'maxcallbitrate': None,
-                    'insecure': None, 'nat': None, 'promiscredir': None, 'usereqphone': None,
-                    'videosupport': None, 'trustrpid': None, 'sendrpid': None, 'allowsubscribe': None,
-                    'allowoverlap': None, 'dtmfmode': None, 'rfc2833compensate': None, 'qualify': None,
-                    'g726nonstandard': None, 'disallow': None, 'allow': None, 'autoframing': None,
-                    'mohinterpret': None, 'mohsuggest': None, 'useclientcode': None, 'progressinband': None,
-                    't38pt_udptl': None, 't38pt_usertpsource': None, 'rtptimeout': None, 'rtpholdtimeout': None,
-                    'rtpkeepalive': None, 'deny': None, 'permit': None, 'defaultip': None, 'setvar': u'',
-                    'host': u'dynamic', 'port': 5060, 'regexten': None, 'subscribecontext': None,
-                    'fullcontact': None, 'vmexten': None, 'callingpres': None, 'ipaddr': u'', 'regseconds': 0,
-                    'regserver': None, 'lastms': u'', 'parkinglot': None, 'protocol': u'sip', 'category': u'trunk',
-                    'outboundproxy': None, 'transport': u'udp', 'remotesecret': None, 'directmedia': u'yes',
-                    'callcounter': None, 'busylevel': None, 'ignoresdpversion': None, 'session-timers': None,
-                    'session-expires': None, 'session-minse': None, 'session-refresher': None,
-                    'callbackextension': None, 'registertrying': None, 'timert1': None, 'timerb': None,
-                    'qualifyfreq': None, 'contactpermit': None, 'contactdeny': None, 'unsolicited_mailbox': None,
-                    'use_q850_reason': None, 'encryption': None, 'snom_aoc_enabled': None, 'maxforwards': None,
-                    'disallowed_methods': None, 'textsupport': None, 'callgroup': None, 'pickupgroup': None,
-                    'commented': 0}]
+                     'secret': u'cedric_51', 'md5secret': u'', 'context': u'default', 'language': None,
+                     'accountcode': None, 'amaflags': u'default', 'allowtransfer': None, 'fromuser': None,
+                     'fromdomain': None, 'mailbox': None, 'subscribemwi': 0, 'buggymwi': None, 'call-limit': 0,
+                     'callerid': None, 'fullname': None, 'cid_number': None, 'maxcallbitrate': None,
+                     'insecure': None, 'nat': None, 'promiscredir': None, 'usereqphone': None,
+                     'videosupport': None, 'trustrpid': None, 'sendrpid': None, 'allowsubscribe': None,
+                     'allowoverlap': None, 'dtmfmode': None, 'rfc2833compensate': None, 'qualify': None,
+                     'g726nonstandard': None, 'disallow': None, 'allow': None, 'autoframing': None,
+                     'mohinterpret': None, 'mohsuggest': None, 'useclientcode': None, 'progressinband': None,
+                     't38pt_udptl': None, 't38pt_usertpsource': None, 'rtptimeout': None, 'rtpholdtimeout': None,
+                     'rtpkeepalive': None, 'deny': None, 'permit': None, 'defaultip': None, 'setvar': u'',
+                     'host': u'dynamic', 'port': 5060, 'regexten': None, 'subscribecontext': None,
+                     'fullcontact': None, 'vmexten': None, 'callingpres': None, 'ipaddr': u'', 'regseconds': 0,
+                     'regserver': None, 'lastms': u'', 'parkinglot': None, 'protocol': u'sip', 'category': u'trunk',
+                     'outboundproxy': None, 'transport': u'udp', 'remotesecret': None, 'directmedia': u'yes',
+                     'callcounter': None, 'busylevel': None, 'ignoresdpversion': None, 'session-timers': None,
+                     'session-expires': None, 'session-minse': None, 'session-refresher': None,
+                     'callbackextension': None, 'registertrying': None, 'timert1': None, 'timerb': None,
+                     'qualifyfreq': None, 'contactpermit': None, 'contactdeny': None, 'unsolicited_mailbox': None,
+                     'use_q850_reason': None, 'encryption': None, 'snom_aoc_enabled': None, 'maxforwards': None,
+                     'disallowed_methods': None, 'textsupport': None, 'callgroup': None, 'pickupgroup': None,
+                     'commented': 0}]
 
         self.sip_conf._gen_trunk(trunksip, self.output)
 
@@ -126,8 +126,8 @@ class TestSipConf(unittest.TestCase):
             'cc_foobar': 'foo',
         }
         user = [{'name': 'jean-yves',
-                'number': 101,
-                'context': 'default'}]
+                 'number': 101,
+                 'context': 'default'}]
 
         self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
 
@@ -143,9 +143,9 @@ class TestSipConf(unittest.TestCase):
         pickup = []
         ccss_options = {}
         user = [{'name': 'papi',
-                'callerid': '"pépè" <45789>',
-                'number': 101,
-                'context': 'default'}]
+                 'callerid': '"pépè" <45789>',
+                 'number': 101,
+                 'context': 'default'}]
 
         self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
 
@@ -178,9 +178,9 @@ class TestSipConf(unittest.TestCase):
         pickup = []
         ccss_options = {}
         user = [{'name': 'papi',
-                'allow': 'g723,gsm',
-                'number': 101,
-                'context': 'default'}]
+                 'allow': 'g723,gsm',
+                 'number': 101,
+                 'context': 'default'}]
 
         self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
 
@@ -193,9 +193,9 @@ class TestSipConf(unittest.TestCase):
         pickup = []
         ccss_options = {}
         user = [{'name': 'voicemail',
-                'subscribemwi': 0,
-                'number': 101,
-                'context': 'default'}]
+                 'subscribemwi': 0,
+                 'number': 101,
+                 'context': 'default'}]
         output = StringIO()
 
         self.sip_conf._gen_user(pickup, user, ccss_options, output)
@@ -203,9 +203,9 @@ class TestSipConf(unittest.TestCase):
         self.assertIn('subscribemwi = no', output.getvalue())
 
         user = [{'name': 'voicemail',
-                'subscribemwi': 1,
-                'number': 101,
-                'context': 'default'}]
+                 'subscribemwi': 1,
+                 'number': 101,
+                 'context': 'default'}]
         output = StringIO()
 
         self.sip_conf._gen_user(pickup, user, ccss_options, output)
@@ -216,18 +216,18 @@ class TestSipConf(unittest.TestCase):
         pickup = []
         ccss_options = {}
         user = [{'id': 1,
-                'name': 'unused',
-                'protocol': 'sip',
-                'category': 5,
-                'commented': 0,
-                'initialized': 1,
-                'disallow': 'all',
-                'regseconds': 1,
-                'lastms': 5,
-                'fullcontact': 'pepe',
-                'ipaddr': None,
-                'number': 101,
-                'context': 'default'}]
+                 'name': 'unused',
+                 'protocol': 'sip',
+                 'category': 5,
+                 'commented': 0,
+                 'initialized': 1,
+                 'disallow': 'all',
+                 'regseconds': 1,
+                 'lastms': 5,
+                 'fullcontact': 'pepe',
+                 'ipaddr': None,
+                 'number': 101,
+                 'context': 'default'}]
 
         self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
 

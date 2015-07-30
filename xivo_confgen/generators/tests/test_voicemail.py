@@ -40,8 +40,8 @@ class TestVoicemailConf(unittest.TestCase):
 
     def test_one_element_general_section(self):
         self.voicemail_conf._voicemail_settings = [{'category': u'general',
-                      'var_name': u'foo',
-                      'var_val': u'bar'}]
+                                                    'var_name': u'foo',
+                                                    'var_val': u'bar'}]
 
         assert_generates_config(self.voicemail_conf, '''
             [general]
@@ -52,8 +52,8 @@ class TestVoicemailConf(unittest.TestCase):
 
     def test_one_element_zonemessages_section(self):
         self.voicemail_conf._voicemail_settings = [{'category': u'zonemessages',
-                      'var_name': u'foo',
-                      'var_val': u'bar'}]
+                                                    'var_name': u'foo',
+                                                    'var_val': u'bar'}]
 
         assert_generates_config(self.voicemail_conf, '''
             [general]
@@ -64,8 +64,8 @@ class TestVoicemailConf(unittest.TestCase):
 
     def test_escape_general_emailbody_option(self):
         self.voicemail_conf._voicemail_settings = [{'category': u'general',
-                      'var_name': u'emailbody',
-                      'var_val': u'foo\nbar'}]
+                                                    'var_name': u'emailbody',
+                                                    'var_val': u'foo\nbar'}]
 
         assert_generates_config(self.voicemail_conf, '''
             [general]
@@ -75,12 +75,14 @@ class TestVoicemailConf(unittest.TestCase):
         ''')
 
     def test_one_mailbox(self):
-        self.voicemail_conf._voicemails = [{'context': u'default',
-                       'mailbox': u'm1',
-                       'password': u'p1',
-                       'fullname': u'Foo Bar',
-                       'email': u'foo@example.org',
-                       'pager': u''}]
+        self.voicemail_conf._voicemails = [
+            {'context': u'default',
+             'mailbox': u'm1',
+             'password': u'p1',
+             'fullname': u'Foo Bar',
+             'email': u'foo@example.org',
+             'pager': u''}
+        ]
 
         assert_generates_config(self.voicemail_conf, '''
             [general]
@@ -92,18 +94,20 @@ class TestVoicemailConf(unittest.TestCase):
         ''')
 
     def test_two_mailboxes_same_context(self):
-        self.voicemail_conf._voicemails = [{'context': u'ctx1',
-                       'mailbox': u'm1',
-                       'password': u'',
-                       'fullname': u'f1',
-                       'email': u'',
-                       'pager': u''},
-                      {'context': u'ctx1',
-                       'mailbox': u'm2',
-                       'password': u'',
-                       'fullname': u'f2',
-                       'email': u'',
-                       'pager': u''}]
+        self.voicemail_conf._voicemails = [
+            {'context': u'ctx1',
+             'mailbox': u'm1',
+             'password': u'',
+             'fullname': u'f1',
+             'email': u'',
+             'pager': u''},
+            {'context': u'ctx1',
+             'mailbox': u'm2',
+             'password': u'',
+             'fullname': u'f2',
+             'email': u'',
+             'pager': u''}
+        ]
 
         assert_generates_config(self.voicemail_conf, '''
             [general]
@@ -116,19 +120,20 @@ class TestVoicemailConf(unittest.TestCase):
         ''')
 
     def test_two_mailboxes_different_context(self):
-        self.voicemail_conf._voicemails = [{'context': u'ctx1',
-                       'mailbox': u'm1',
-                       'password': u'',
-                       'fullname': u'f1',
-                       'email': u'',
-                       'pager': u''},
-                      {'context': u'ctx2',
-                       'mailbox': u'm2',
-                       'password': u'',
-                       'fullname': u'f2',
-                       'email': u'',
-                       'pager': u''},
-                      ]
+        self.voicemail_conf._voicemails = [
+            {'context': u'ctx1',
+             'mailbox': u'm1',
+             'password': u'',
+             'fullname': u'f1',
+             'email': u'',
+             'pager': u''},
+            {'context': u'ctx2',
+             'mailbox': u'm2',
+             'password': u'',
+             'fullname': u'f2',
+             'email': u'',
+             'pager': u''},
+        ]
 
         assert_generates_config(self.voicemail_conf, '''
             [general]

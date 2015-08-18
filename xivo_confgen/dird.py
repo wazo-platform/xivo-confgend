@@ -31,7 +31,7 @@ class DirdFrontend(object):
         sources = dict(self._format_source(source)
                        for source in directory_dao.get_all_sources()
                        if source['type'] in self.supported_types)
-        return yaml.dump({'sources': sources})
+        return yaml.safe_dump({'sources': sources})
 
     def _format_source(self, source):
         name = source['name']

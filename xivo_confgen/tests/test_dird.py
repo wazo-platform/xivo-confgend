@@ -50,6 +50,12 @@ sources = [
      'delimiter': '|',
      'searched_columns': ['firstname', 'lastname'],
      'format_columns': {'name': '{firstname} {lastname}'}},
+    {'type': 'csv_ws',
+     'name': 'my-csv',
+     'delimiter': '|',
+     'uri': 'http://localhost:5000/ws',
+     'searched_columns': ['firstname', 'lastname'],
+     'format_columns': {'name': '{firstname} {lastname}'}},
 ]
 
 
@@ -120,6 +126,14 @@ class TestDirdFrontend(unittest.TestCase):
                     'name': 'mycsv',
                     'separator': '|',
                     'file': '/usr/tmp/test.csv',
+                    'searched_columns': ['firstname', 'lastname'],
+                    'format_columns': {'name': '{firstname} {lastname}'},
+                },
+                'my-csv': {
+                    'type': 'csv_ws',
+                    'name': 'my-csv',
+                    'delimiter': '|',
+                    'lookup_url': 'http://localhost:5000/ws',
                     'searched_columns': ['firstname', 'lastname'],
                     'format_columns': {'name': '{firstname} {lastname}'},
                 },

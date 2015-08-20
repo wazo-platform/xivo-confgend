@@ -25,7 +25,7 @@ class DirdFrontend(object):
     confd_api_version = '1.1'
     confd_default_timeout = 4
     phonebook_default_timeout = 4
-    supported_types = ['csv', 'csv_ws', 'phonebook', 'xivo']
+    supported_types = ['csv', 'csv_ws', 'ldap', 'phonebook', 'xivo']
 
     def sources_yml(self):
         sources = dict(self._format_source(source)
@@ -49,6 +49,8 @@ class DirdFrontend(object):
             config.update(self._format_csv_source(source))
         elif type_ == 'csv_ws':
             config.update(self._format_csv_ws_source(source))
+        elif type_ == 'ldap':
+            config.update(self._format_ldap_source(source))
 
         return name, config
 
@@ -60,6 +62,14 @@ class DirdFrontend(object):
     def _format_csv_ws_source(self, source):
         return {'delimiter': source['delimiter'],
                 'lookup_url': source['uri']}
+
+    def _format_ldap_source(self, source):
+        return {
+            'ldap_uri': source['ldap_uri'],
+            'ldap_username': source['ldap_username'],
+            'ldap_password': source['ldap_password'],
+            'ldap_base_dn': source['ldap_base_dn'],
+        }
 
     def _format_phonebook_source(self, source):
         return {'phonebook_url': source['uri'],

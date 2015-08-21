@@ -21,7 +21,10 @@ import yaml
 from hamcrest import assert_that, equal_to
 from mock import patch
 
-from ..dird import DirdFrontend, _AssociationGenerator, _DisplayGenerator
+from ..dird import (DirdFrontend,
+                    _AssociationGenerator,
+                    _DisplayGenerator,
+                    _LookupServiceGenerator)
 
 sources = [
     {'type': 'xivo',
@@ -228,6 +231,22 @@ class TestDirdFrontendViewsGenerators(unittest.TestCase):
 
         expected = {'default': 'mydisplay',
                     'switchboard': 'sb-display'}
+
+        assert_that(result, equal_to(expected))
+
+
+class TestLookupServiceGenerator(unittest.TestCase):
+
+    def test_generate(self):
+        profile_configuration = {'switchboard': {'sources': ['my-xivo', 'ldapone']},
+                                 'internal': {'sources': ['ldapone', 'ldaptwo']}}
+
+        generator = _LookupServiceGenerator(profile_configuration)
+
+        result = generator.generate()
+
+        expected = {'switchboard': {'sources': ['my-xivo', 'ldapone', 'personal']},
+                    'internal': {'sources': ['ldapone', 'ldaptwo', 'personal']}}
 
         assert_that(result, equal_to(expected))
 

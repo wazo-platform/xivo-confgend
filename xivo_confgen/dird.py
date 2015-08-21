@@ -52,8 +52,14 @@ class _FavoritesServiceGenerator(object):
 
 class _LookupServiceGenerator(object):
 
+    _default_sources = ['personal']
+
+    def __init__(self, profile_configuration):
+        self._profile_config = profile_configuration
+
     def generate(self):
-        return
+        return {profile: {'sources': conf['sources'] + self._default_sources}
+                for profile, conf in self._profile_config.iteritems()}
 
 
 class DirdFrontend(object):

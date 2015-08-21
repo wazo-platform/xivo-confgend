@@ -44,12 +44,6 @@ class _DisplayGenerator(object):
         return dict(zip(self._fields, line_config))
 
 
-class _FavoritesServiceGenerator(object):
-
-    def generate(self):
-        return
-
-
 class _LookupServiceGenerator(object):
 
     _default_sources = ['personal']
@@ -62,6 +56,10 @@ class _LookupServiceGenerator(object):
                 for profile, conf in self._profile_config.iteritems()}
 
 
+class _FavoritesServiceGenerator(_LookupServiceGenerator):
+    pass
+
+
 class DirdFrontend(object):
 
     confd_api_version = '1.1'
@@ -70,10 +68,11 @@ class DirdFrontend(object):
     supported_types = ['csv', 'csv_ws', 'ldap', 'phonebook', 'xivo']
 
     def services_yml(self):
-        lookups = _LookupServiceGenerator().generate()
-        favorites = _FavoritesServiceGenerator().generate()
+        profile_config = cti_displays_dao.get_profile_configuration()
+        lookups = _LookupServiceGenerator(profile_config).generate()
+        favorites = _FavoritesServiceGenerator(profile_config).generate()
 
-        return yaml.dump({'services': {'lookup': lookups,
+        return yaml.safe_dump({'services': {'lookup': lookups,
                                        'favorites': favorites}})
 
     def sources_yml(self):

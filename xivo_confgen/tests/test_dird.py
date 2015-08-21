@@ -19,7 +19,7 @@ import unittest
 import yaml
 
 from hamcrest import assert_that, equal_to
-from mock import patch
+from mock import Mock, patch
 
 from ..dird import (DirdFrontend,
                     _AssociationGenerator,
@@ -253,6 +253,7 @@ class TestLookupServiceGenerator(unittest.TestCase):
 
 class TestDirdFrontendServices(unittest.TestCase):
 
+    @patch('xivo_confgen.dird.cti_displays_dao', Mock())
     @patch('xivo_confgen.dird._LookupServiceGenerator')
     @patch('xivo_confgen.dird._FavoritesServiceGenerator')
     def test_services_yml(self, _FavoritesServiceGenerator, _LookupServiceGenerator):

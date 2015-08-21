@@ -44,12 +44,31 @@ class _DisplayGenerator(object):
         return dict(zip(self._fields, line_config))
 
 
+class _FavoritesServiceGenerator(object):
+
+    def generate(self):
+        return
+
+
+class _LookupServiceGenerator(object):
+
+    def generate(self):
+        return
+
+
 class DirdFrontend(object):
 
     confd_api_version = '1.1'
     confd_default_timeout = 4
     phonebook_default_timeout = 4
     supported_types = ['csv', 'csv_ws', 'ldap', 'phonebook', 'xivo']
+
+    def services_yml(self):
+        lookups = _LookupServiceGenerator().generate()
+        favorites = _FavoritesServiceGenerator().generate()
+
+        return yaml.dump({'services': {'lookup': lookups,
+                                       'favorites': favorites}})
 
     def sources_yml(self):
         sources = dict(self._format_source(source)

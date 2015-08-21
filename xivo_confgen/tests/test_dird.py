@@ -230,3 +230,21 @@ class TestDirdFrontendViewsGenerators(unittest.TestCase):
                     'switchboard': 'sb-display'}
 
         assert_that(result, equal_to(expected))
+
+
+class TestDirdFrontendServices(unittest.TestCase):
+
+    @patch('xivo_confgen.dird._LookupServiceGenerator')
+    @patch('xivo_confgen.dird._FavoritesServiceGenerator')
+    def test_services_yml(self, _FavoritesServiceGenerator, _LookupServiceGenerator):
+        _LookupServiceGenerator.return_value.generate.return_value = 'lookups'
+        _FavoritesServiceGenerator.return_value.generate.return_value = 'favorites'
+
+        frontend = DirdFrontend()
+
+        result = frontend.services_yml()
+
+        expected = {'services': {'lookup': 'lookups',
+                                 'favorites': 'favorites'}}
+
+        assert_that(yaml.load(result), equal_to(expected))

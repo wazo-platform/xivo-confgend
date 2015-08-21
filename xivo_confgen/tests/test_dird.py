@@ -168,6 +168,24 @@ class TestDirdFrontendSources(unittest.TestCase):
         assert_that(yaml.load(result), equal_to(expected))
 
 
+class TestDirdFrontEndViews(unittest.TestCase):
+
+    @patch('xivo_confgen.dird._AssociationGenerator')
+    @patch('xivo_confgen.dird._DisplayGenerator')
+    def test_views_yml(self, _DisplayGenerator, _AssociationGenerator):
+        _AssociationGenerator.return_value.generate.return_value = 'associations'
+        _DisplayGenerator.return_value.generate.return_value = 'displays'
+
+        frontend = DirdFrontend()
+
+        result = frontend.views_yml()
+
+        expected = {'views': {'displays': 'displays',
+                              'profile_to_display': 'associations'}}
+
+        assert_that(yaml.load(result), equal_to(expected))
+
+
 @patch('xivo_confgen.dird.cti_displays_dao')
 class TestDirdFrontendViewsGenerators(unittest.TestCase):
 

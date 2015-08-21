@@ -57,6 +57,15 @@ class DirdFrontend(object):
                        if source['type'] in self.supported_types)
         return yaml.safe_dump({'sources': sources})
 
+    def views_yml(self):
+        displays = _DisplayGenerator().generate()
+        associations = _AssociationGenerator().generate()
+
+        views_section = {'views': {'displays': displays,
+                                   'profile_to_display': associations}}
+
+        return yaml.safe_dump(views_section)
+
     def _format_source(self, source):
         name = source['name']
         type_ = source['type']

@@ -20,6 +20,13 @@ import yaml
 from xivo_dao import cti_displays_dao, directory_dao
 
 
+class _AssociationGenerator(object):
+
+    def generate(self):
+        raw = cti_displays_dao.get_profile_configuration()
+        return {profile: config['display']
+                for profile, config in raw.iteritems()}
+
 class _DisplayGenerator(object):
 
     _fields = ['title', 'type', 'default', 'field']

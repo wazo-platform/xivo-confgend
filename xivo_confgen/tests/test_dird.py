@@ -21,7 +21,7 @@ import yaml
 from hamcrest import assert_that, equal_to
 from mock import patch
 
-from ..dird import DirdFrontend, _DisplayGenerator
+from ..dird import DirdFrontend, _AssociationGenerator, _DisplayGenerator
 
 sources = [
     {'type': 'xivo',
@@ -168,9 +168,9 @@ class TestDirdFrontendSources(unittest.TestCase):
         assert_that(yaml.load(result), equal_to(expected))
 
 
-class TestDirdFrontendViews(unittest.TestCase):
+@patch('xivo_confgen.dird.cti_displays_dao')
+class TestDirdFrontendViewsGenerators(unittest.TestCase):
 
-    @patch('xivo_confgen.dird.cti_displays_dao')
     def test_display_generator(self, mock_cti_displays_dao):
         mock_cti_displays_dao.get_config.return_value = {
             'mydisplay': {
@@ -196,5 +196,19 @@ class TestDirdFrontendViews(unittest.TestCase):
             'second': [{'title': 'Nom', 'field': 'name', 'type': 'name', 'default': ''},
                        {'title': 'Numéro', 'field': 'exten', 'type': 'number', 'default': ''}],
         }
+
+        assert_that(result, equal_to(expected))
+
+    def test_profile_association_generator(self, mock_cti_displays_dao):
+        mock_cti_displays_dao.get_profile_configuration.return_value = {
+            'default': {'display': 'mydisplay'},
+            'switchboard': {'display': 'sb-display'},
+        }
+        association_generator = _AssociationGenerator()
+
+        result = association_generator.generate()
+
+        expected = {'default': 'mydisplay',
+                    'switchboard': 'sb-display'}
 
         assert_that(result, equal_to(expected))

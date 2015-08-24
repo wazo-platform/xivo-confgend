@@ -25,13 +25,13 @@ class DirdFrontend(object):
     confd_api_version = '1.1'
     confd_default_timeout = 4
     phonebook_default_timeout = 4
-    supported_types = ['csv', 'phonebook', 'xivo']
+    supported_types = ['csv', 'csv_ws', 'phonebook', 'xivo']
 
     def sources_yml(self):
         sources = dict(self._format_source(source)
                        for source in directory_dao.get_all_sources()
                        if source['type'] in self.supported_types)
-        return yaml.dump({'sources': sources})
+        return yaml.safe_dump({'sources': sources})
 
     def _format_source(self, source):
         name = source['name']
@@ -47,6 +47,8 @@ class DirdFrontend(object):
             config.update(self._format_phonebook_source(source))
         elif type_ == 'csv':
             config.update(self._format_csv_source(source))
+        elif type_ == 'csv_ws':
+            config.update(self._format_csv_ws_source(source))
 
         return name, config
 
@@ -54,6 +56,10 @@ class DirdFrontend(object):
         _, _, filename = source['uri'].partition('file://')
         return {'file': filename,
                 'separator': source['delimiter']}
+
+    def _format_csv_ws_source(self, source):
+        return {'delimiter': source['delimiter'],
+                'lookup_url': source['uri']}
 
     def _format_phonebook_source(self, source):
         return {'phonebook_url': source['uri'],

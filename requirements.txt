@@ -1,4 +1,4 @@
-pyaml
+pyyaml==3.10
 psycopg2
 sqlalchemy==0.9.4
 git+https://github.com/xivo-pbx/xivo-dao.git

@@ -56,6 +56,18 @@ sources = [
      'uri': 'http://localhost:5000/ws',
      'searched_columns': ['firstname', 'lastname'],
      'format_columns': {'name': '{firstname} {lastname}'}},
+    {'type': 'ldap',
+     'name': 'ldapdirectory',
+     'ldap_uri': 'ldaps://myldap.example.com:636',
+     'ldap_base_dn': 'dc=example,dc=com',
+     'ldap_username': 'cn=admin,dc=example,dc=com',
+     'ldap_password': '53c8e7',
+     'searched_columns': ['cn'],
+     'format_columns': {
+         'firstname': '{givenName}',
+         'lastname': '{sn}',
+         'number': '{telephoneNumber}',
+     }},
 ]
 
 
@@ -136,6 +148,19 @@ class TestDirdFrontend(unittest.TestCase):
                     'lookup_url': 'http://localhost:5000/ws',
                     'searched_columns': ['firstname', 'lastname'],
                     'format_columns': {'name': '{firstname} {lastname}'},
+                },
+                'ldapdirectory': {
+                    'type': 'ldap',
+                    'name': 'ldapdirectory',
+                    'ldap_uri': 'ldaps://myldap.example.com:636',
+                    'ldap_base_dn': 'dc=example,dc=com',
+                    'ldap_username': 'cn=admin,dc=example,dc=com',
+                    'ldap_password': '53c8e7',
+                    'searched_columns': ['cn'],
+                    'format_columns': {
+                        'firstname': '{givenName}',
+                        'lastname': '{sn}',
+                        'number': '{telephoneNumber}'},
                 },
             }
         }

@@ -22,7 +22,7 @@ from xivo_confgen.generators.queues import QueuesConf
 from xivo_confgen.generators.res_parking import ResParkingConf
 from xivo_confgen.generators.sip import SipConf
 from xivo_confgen.generators.sccp import SccpConf
-from xivo_confgen.generators.voicemail import VoicemailConf
+from xivo_confgen.generators.voicemail import VoicemailConf, VoicemailGenerator
 from xivo_confgen.hints.generator import HintGenerator
 from xivo_dao import asterisk_conf_dao
 
@@ -46,7 +46,8 @@ class AsteriskFrontend(object):
         return self._generate_conf_from_generator(config_generator)
 
     def voicemail_conf(self):
-        config_generator = VoicemailConf()
+        voicemail_generator = VoicemailGenerator.build()
+        config_generator = VoicemailConf(voicemail_generator)
         return self._generate_conf_from_generator(config_generator)
 
     def extensions_conf(self):

@@ -15,24 +15,99 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from collections import OrderedDict
-from xivo_confgen.generators.util import format_ast_section, \
-    format_ast_option, format_ast_object_option, format_none_as_empty
+import itertools
+
+from xivo_confgen.generators.util import format_ast_option
+from cStringIO import StringIO
 from xivo_dao import asterisk_conf_dao
+from xivo_dao.resources.voicemail import dao as voicemail_dao
+
+
+class VoicemailGenerator(object):
+
+    @classmethod
+    def build(cls):
+        return cls(voicemail_dao.find_enabled_voicemails)
+
+    def __init__(self, get_voicemails):
+        self.get_voicemails = get_voicemails
+
+    def generate(self):
+        output = StringIO()
+        for context, voicemails in self.group_voicemails():
+            output.write(self.format_context(context))
+            output.write("\n")
+            output.write(self.format_voicemails(voicemails))
+            output.write("\n\n")
+
+        return output.getvalue()
+
+    def group_voicemails(self):
+        return itertools.groupby(self.get_voicemails(), lambda v: v.context)
+
+    def format_context(self, context):
+        return "[{}]".format(context)
+
+    def format_voicemails(self, voicemails):
+        return "\n".join(self.format_voicemail(v) for v in voicemails)
+
+    def format_voicemail(self, voicemail):
+        parts = (voicemail.password or '',
+                 voicemail.name or '',
+                 voicemail.email or '',
+                 voicemail.pager or '',
+                 self.format_options(voicemail))
+
+        line = ",".join(parts)
+
+        return "{} => {}".format(voicemail.number, line)
+
+    def format_options(self, voicemail):
+        options = []
+
+        if voicemail.language is not None:
+            options.append(("language", voicemail.language))
+        if voicemail.timezone is not None:
+            options.append(("tz", voicemail.timezone))
+        if voicemail.attach_audio is not None:
+            options.append(("attach", self.format_bool(voicemail.attach_audio)))
+        if voicemail.delete_messages is not None:
+            options.append(("deletevoicemail", self.format_bool(voicemail.delete_messages)))
+        if voicemail.max_messages is not None:
+            options.append(("maxmsg", str(voicemail.max_messages))),
+
+        options += voicemail.options
+
+        options = ("{}={}".format(key, self.escape_string(value))
+                   for key, value in options)
+
+        return "|".join(options)
+
+    def format_bool(self, value):
+        if value is True:
+            return "yes"
+        return "no"
+
+    def escape_string(self, value):
+        return (value
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t")
+                .replace("|", ""))
 
 
 class VoicemailConf(object):
 
-    def __init__(self):
+    def __init__(self, voicemail_generator):
+        self.voicemail_generator = voicemail_generator
         self._voicemail_settings = asterisk_conf_dao.find_voicemail_general_settings()
-        self._voicemails = asterisk_conf_dao.find_voicemail_activated()
 
     def generate(self, output):
         self._gen_general_section(output)
         print >> output
         self._gen_zonemessages_section(output)
         print >> output
-        self._gen_context_sections(output)
+        print >> output, self.voicemail_generator.generate()
 
     def _gen_general_section(self, output):
         print >> output, u'[general]'
@@ -53,36 +128,3 @@ class VoicemailConf(object):
         for item in self._voicemail_settings:
             if item['category'] == u'zonemessages':
                 print >> output, format_ast_option(item['var_name'], item['var_val'])
-
-    def _gen_context_sections(self, output):
-        mailbox_by_context = OrderedDict()
-        for mailbox in self._voicemails:
-            mailbox_by_context.setdefault(mailbox['context'], [])
-            mailbox_by_context[mailbox['context']].append(mailbox)
-
-        for context, mailboxes in mailbox_by_context.iteritems():
-            self._gen_context_section(output, context, mailboxes)
-            print >> output
-
-    def _gen_context_section(self, output, context, mailboxes):
-        print >> output, format_ast_section(context)
-        for mailbox in mailboxes:
-            opt_name = mailbox['mailbox']
-            opt_value = self._format_mailbox(mailbox)
-            print >> output, format_ast_object_option(opt_name, opt_value)
-
-    def _format_mailbox(self, mailbox):
-        mailbox_options = self._format_mailbox_options(mailbox)
-        return u'%s,%s,%s,%s,%s' % (mailbox['password'],
-                                    mailbox['fullname'],
-                                    format_none_as_empty(mailbox['email']),
-                                    format_none_as_empty(mailbox['pager']),
-                                    mailbox_options)
-
-    _MAILBOX_NOT_OPTIONS = [u'uniqueid', u'context', u'mailbox', u'password',
-                            u'fullname', u'email', u'pager', u'commented']
-
-    def _format_mailbox_options(self, mailbox):
-        return u'|'.join(u'%s=%s' % (name, value)
-                         for name, value in mailbox.iteritems()
-                         if value is not None and name not in self._MAILBOX_NOT_OPTIONS)

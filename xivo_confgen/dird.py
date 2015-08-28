@@ -17,7 +17,31 @@
 
 import yaml
 
-from xivo_dao import directory_dao
+from xivo_dao import cti_displays_dao, directory_dao
+
+
+class _AssociationGenerator(object):
+
+    def generate(self):
+        raw = cti_displays_dao.get_profile_configuration()
+        return {profile: config['display']
+                for profile, config in raw.iteritems()}
+
+class _DisplayGenerator(object):
+
+    _fields = ['title', 'type', 'default', 'field']
+
+    def generate(self):
+        raw = cti_displays_dao.get_config()
+        return  {name: self._format_columns(column)
+                 for name, column in raw.iteritems()}
+
+    def _format_columns(self, column_configs):
+        keys = sorted(column_configs.iterkeys())
+        return [self._format_line(column_configs[key]) for key in keys]
+
+    def _format_line(self, line_config):
+        return dict(zip(self._fields, line_config))
 
 
 class DirdFrontend(object):
@@ -32,6 +56,15 @@ class DirdFrontend(object):
                        for source in directory_dao.get_all_sources()
                        if source['type'] in self.supported_types)
         return yaml.safe_dump({'sources': sources})
+
+    def views_yml(self):
+        displays = _DisplayGenerator().generate()
+        associations = _AssociationGenerator().generate()
+
+        views_section = {'views': {'displays': displays,
+                                   'profile_to_display': associations}}
+
+        return yaml.safe_dump(views_section)
 
     def _format_source(self, source):
         name = source['name']

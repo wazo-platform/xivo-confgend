@@ -21,7 +21,7 @@ import yaml
 from hamcrest import assert_that, equal_to
 from mock import patch
 
-from ..dird import DirdFrontend
+from ..dird import DirdFrontend, _AssociationGenerator, _DisplayGenerator
 
 sources = [
     {'type': 'xivo',
@@ -71,7 +71,7 @@ sources = [
 ]
 
 
-class TestDirdFrontend(unittest.TestCase):
+class TestDirdFrontendSources(unittest.TestCase):
 
     @patch('xivo_confgen.dird.directory_dao')
     def test_sources_yml(self, mock_directory_dao):
@@ -166,3 +166,67 @@ class TestDirdFrontend(unittest.TestCase):
         }
 
         assert_that(yaml.load(result), equal_to(expected))
+
+
+class TestDirdFrontEndViews(unittest.TestCase):
+
+    @patch('xivo_confgen.dird._AssociationGenerator')
+    @patch('xivo_confgen.dird._DisplayGenerator')
+    def test_views_yml(self, _DisplayGenerator, _AssociationGenerator):
+        _AssociationGenerator.return_value.generate.return_value = 'associations'
+        _DisplayGenerator.return_value.generate.return_value = 'displays'
+
+        frontend = DirdFrontend()
+
+        result = frontend.views_yml()
+
+        expected = {'views': {'displays': 'displays',
+                              'profile_to_display': 'associations'}}
+
+        assert_that(yaml.load(result), equal_to(expected))
+
+
+@patch('xivo_confgen.dird.cti_displays_dao')
+class TestDirdFrontendViewsGenerators(unittest.TestCase):
+
+    def test_display_generator(self, mock_cti_displays_dao):
+        mock_cti_displays_dao.get_config.return_value = {
+            'mydisplay': {
+                '10': ['Firstname', 'name', '', 'firstname'],
+                '20': ['Lastname', '', '', 'lastname'],
+                '30': ['Number', 'number', '', 'number'],
+                '40': ['Favorite', 'favorite', '', 'favorite'],
+            },
+            'second': {
+                '10': ['Nom', 'name', '', 'name'],
+                '20': ['Numéro', 'number', '', 'exten'],
+            }}
+
+        display_generator = _DisplayGenerator()
+
+        result = display_generator.generate()
+
+        expected = {
+            'mydisplay': [{'title': 'Firstname', 'field': 'firstname', 'type': 'name', 'default': ''},
+                          {'title': 'Lastname', 'field': 'lastname', 'type': '', 'default': ''},
+                          {'title': 'Number', 'field': 'number', 'type': 'number', 'default': ''},
+                          {'title': 'Favorite', 'field': 'favorite', 'type': 'favorite', 'default': ''}],
+            'second': [{'title': 'Nom', 'field': 'name', 'type': 'name', 'default': ''},
+                       {'title': 'Numéro', 'field': 'exten', 'type': 'number', 'default': ''}],
+        }
+
+        assert_that(result, equal_to(expected))
+
+    def test_profile_association_generator(self, mock_cti_displays_dao):
+        mock_cti_displays_dao.get_profile_configuration.return_value = {
+            'default': {'display': 'mydisplay'},
+            'switchboard': {'display': 'sb-display'},
+        }
+        association_generator = _AssociationGenerator()
+
+        result = association_generator.generate()
+
+        expected = {'default': 'mydisplay',
+                    'switchboard': 'sb-display'}
+
+        assert_that(result, equal_to(expected))

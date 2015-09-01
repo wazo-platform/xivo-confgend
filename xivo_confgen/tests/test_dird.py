@@ -19,9 +19,12 @@ import unittest
 import yaml
 
 from hamcrest import assert_that, equal_to
-from mock import patch
+from mock import Mock, patch
 
-from ..dird import DirdFrontend, _AssociationGenerator, _DisplayGenerator
+from ..dird import (DirdFrontend,
+                    _AssociationGenerator,
+                    _DisplayGenerator,
+                    _LookupServiceGenerator)
 
 sources = [
     {'type': 'xivo',
@@ -230,3 +233,38 @@ class TestDirdFrontendViewsGenerators(unittest.TestCase):
                     'switchboard': 'sb-display'}
 
         assert_that(result, equal_to(expected))
+
+
+class TestLookupServiceGenerator(unittest.TestCase):
+
+    def test_generate(self):
+        profile_configuration = {'switchboard': {'sources': ['my-xivo', 'ldapone']},
+                                 'internal': {'sources': ['ldapone', 'ldaptwo']}}
+
+        generator = _LookupServiceGenerator(profile_configuration)
+
+        result = generator.generate()
+
+        expected = {'switchboard': {'sources': ['my-xivo', 'ldapone', 'personal']},
+                    'internal': {'sources': ['ldapone', 'ldaptwo', 'personal']}}
+
+        assert_that(result, equal_to(expected))
+
+
+class TestDirdFrontendServices(unittest.TestCase):
+
+    @patch('xivo_confgen.dird.cti_displays_dao', Mock())
+    @patch('xivo_confgen.dird._LookupServiceGenerator')
+    @patch('xivo_confgen.dird._FavoritesServiceGenerator')
+    def test_services_yml(self, _FavoritesServiceGenerator, _LookupServiceGenerator):
+        _LookupServiceGenerator.return_value.generate.return_value = 'lookups'
+        _FavoritesServiceGenerator.return_value.generate.return_value = 'favorites'
+
+        frontend = DirdFrontend()
+
+        result = frontend.services_yml()
+
+        expected = {'services': {'lookup': 'lookups',
+                                 'favorites': 'favorites'}}
+
+        assert_that(yaml.load(result), equal_to(expected))

@@ -42,6 +42,8 @@ class _DisplayGenerator(object):
         return [self._format_line(column_configs[key]) for key in keys]
 
     def _format_line(self, line_config):
+        default_index = self._fields.index('default')
+        line_config[default_index] = line_config[default_index] or None
         return dict(zip(self._fields, line_config))
 
 

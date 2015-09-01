@@ -201,7 +201,7 @@ class TestDirdFrontendViewsGenerators(unittest.TestCase):
                 '40': ['Favorite', 'favorite', '', 'favorite'],
             },
             'second': {
-                '10': ['Nom', 'name', '', 'name'],
+                '10': ['Nom', 'name', 'Unknown', 'name'],
                 '20': ['Numéro', 'number', '', 'exten'],
             }}
 
@@ -210,12 +210,12 @@ class TestDirdFrontendViewsGenerators(unittest.TestCase):
         result = display_generator.generate()
 
         expected = {
-            'mydisplay': [{'title': 'Firstname', 'field': 'firstname', 'type': 'name', 'default': ''},
-                          {'title': 'Lastname', 'field': 'lastname', 'type': '', 'default': ''},
-                          {'title': 'Number', 'field': 'number', 'type': 'number', 'default': ''},
-                          {'title': 'Favorite', 'field': 'favorite', 'type': 'favorite', 'default': ''}],
-            'second': [{'title': 'Nom', 'field': 'name', 'type': 'name', 'default': ''},
-                       {'title': 'Numéro', 'field': 'exten', 'type': 'number', 'default': ''}],
+            'mydisplay': [{'title': 'Firstname', 'field': 'firstname', 'type': 'name', 'default': None},
+                          {'title': 'Lastname', 'field': 'lastname', 'type': '', 'default': None},
+                          {'title': 'Number', 'field': 'number', 'type': 'number', 'default': None},
+                          {'title': 'Favorite', 'field': 'favorite', 'type': 'favorite', 'default': None}],
+            'second': [{'title': 'Nom', 'field': 'name', 'type': 'name', 'default': 'Unknown'},
+                       {'title': 'Numéro', 'field': 'exten', 'type': 'number', 'default': None}],
         }
 
         assert_that(result, equal_to(expected))

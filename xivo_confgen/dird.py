@@ -27,14 +27,15 @@ class _AssociationGenerator(object):
         return {profile: config['display']
                 for profile, config in raw.iteritems()}
 
+
 class _DisplayGenerator(object):
 
     _fields = ['title', 'type', 'default', 'field']
 
     def generate(self):
         raw = cti_displays_dao.get_config()
-        return  {name: self._format_columns(column)
-                 for name, column in raw.iteritems()}
+        return {name: self._format_columns(column)
+                for name, column in raw.iteritems()}
 
     def _format_columns(self, column_configs):
         keys = sorted(column_configs.iterkeys())

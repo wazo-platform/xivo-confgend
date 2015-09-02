@@ -18,7 +18,6 @@
 import itertools
 
 from xivo_confgen.generators.util import format_ast_option
-from cStringIO import StringIO
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.voicemail import dao as voicemail_dao
 
@@ -33,67 +32,67 @@ class VoicemailGenerator(object):
         self.get_voicemails = get_voicemails
 
     def generate(self):
-        output = StringIO()
+        output = u""
         for context, voicemails in self.group_voicemails():
-            output.write(self.format_context(context))
-            output.write("\n")
-            output.write(self.format_voicemails(voicemails))
-            output.write("\n\n")
+            output += self.format_context(context)
+            output += u"\n"
+            output += self.format_voicemails(voicemails)
+            output += u"\n\n"
 
-        return output.getvalue()
+        return output
 
     def group_voicemails(self):
         return itertools.groupby(self.get_voicemails(), lambda v: v.context)
 
     def format_context(self, context):
-        return "[{}]".format(context)
+        return u"[{}]".format(context)
 
     def format_voicemails(self, voicemails):
-        return "\n".join(self.format_voicemail(v) for v in voicemails)
+        return u"\n".join(self.format_voicemail(v) for v in voicemails)
 
     def format_voicemail(self, voicemail):
-        parts = (voicemail.password or '',
-                 voicemail.name or '',
-                 voicemail.email or '',
-                 voicemail.pager or '',
+        parts = (voicemail.password or u'',
+                 voicemail.name or u'',
+                 voicemail.email or u'',
+                 voicemail.pager or u'',
                  self.format_options(voicemail))
 
-        line = ",".join(parts)
+        line = u",".join(parts)
 
-        return "{} => {}".format(voicemail.number, line)
+        return u"{} => {}".format(voicemail.number, line)
 
     def format_options(self, voicemail):
         options = []
 
         if voicemail.language is not None:
-            options.append(("language", voicemail.language))
+            options.append((u"language", voicemail.language))
         if voicemail.timezone is not None:
-            options.append(("tz", voicemail.timezone))
+            options.append((u"tz", voicemail.timezone))
         if voicemail.attach_audio is not None:
-            options.append(("attach", self.format_bool(voicemail.attach_audio)))
+            options.append((u"attach", self.format_bool(voicemail.attach_audio)))
         if voicemail.delete_messages is not None:
-            options.append(("deletevoicemail", self.format_bool(voicemail.delete_messages)))
+            options.append((u"deletevoicemail", self.format_bool(voicemail.delete_messages)))
         if voicemail.max_messages is not None:
-            options.append(("maxmsg", str(voicemail.max_messages))),
+            options.append((u"maxmsg", str(voicemail.max_messages))),
 
         options += voicemail.options
 
-        options = ("{}={}".format(key, self.escape_string(value))
+        options = (u"{}={}".format(key, self.escape_string(value))
                    for key, value in options)
 
-        return "|".join(options)
+        return u"|".join(options)
 
     def format_bool(self, value):
         if value is True:
-            return "yes"
-        return "no"
+            return u"yes"
+        return u"no"
 
     def escape_string(self, value):
         return (value
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t")
-                .replace("|", ""))
+                .replace(u"\n", u"\\n")
+                .replace(u"\r", u"\\r")
+                .replace(u"\t", u"\\t")
+                .replace(u"|", u""))
 
 
 class VoicemailConf(object):

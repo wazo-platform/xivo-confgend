@@ -129,6 +129,7 @@ class DirdFrontend(object):
             'ldap_username': source['ldap_username'],
             'ldap_password': source['ldap_password'],
             'ldap_base_dn': source['ldap_base_dn'],
+            'ldap_custom_filter': source['ldap_custom_filter'],
         }
 
     def _format_phonebook_source(self, source):

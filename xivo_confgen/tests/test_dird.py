@@ -65,6 +65,7 @@ sources = [
      'ldap_base_dn': 'dc=example,dc=com',
      'ldap_username': 'cn=admin,dc=example,dc=com',
      'ldap_password': '53c8e7',
+     'ldap_custom_filter': '(st=USA)',
      'searched_columns': ['cn'],
      'format_columns': {
          'firstname': '{givenName}',
@@ -159,6 +160,7 @@ class TestDirdFrontendSources(unittest.TestCase):
                     'ldap_base_dn': 'dc=example,dc=com',
                     'ldap_username': 'cn=admin,dc=example,dc=com',
                     'ldap_password': '53c8e7',
+                    'ldap_custom_filter': '(st=USA)',
                     'searched_columns': ['cn'],
                     'format_columns': {
                         'firstname': '{givenName}',

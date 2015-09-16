@@ -21,6 +21,7 @@ from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo import XivoFrontend
 from xivo_confgen.dird import DirdFrontend
+from xivo_confgen.dird_phoned import DirdPhonedFrontend
 from twisted.internet.protocol import Protocol, ServerFactory
 
 
@@ -56,6 +57,8 @@ class Confgen(Protocol):
                 content = getattr(self.factory.xivo_frontend, callback)()
             elif frontend == 'dird':
                 content = getattr(self.factory.dird_frontend, callback)()
+            elif frontend == 'dird-phoned':
+                content = getattr(self.factory.dird_phoned_frontend, callback)()
 
         except Exception as e:
             import traceback
@@ -84,6 +87,7 @@ class ConfgendFactory(ServerFactory):
         self.asterisk_frontend = self._new_asterisk_frontend(config)
         self.xivo_frontend = self._new_xivo_frontend(config)
         self.dird_frontend = self._new_dird_frontend(config)
+        self.dird_phoned_frontend = self._new_dird_phoned_frontend(config)
         self.cache = cache.FileCache(cachedir)
 
     def _new_asterisk_frontend(self, config):
@@ -98,3 +102,7 @@ class ConfgendFactory(ServerFactory):
     def _new_dird_frontend(self, config):
         dird_frontend = DirdFrontend()
         return dird_frontend
+
+    def _new_dird_phoned_frontend(self, config):
+        dird_phoned_frontend = DirdPhonedFrontend()
+        return dird_phoned_frontend

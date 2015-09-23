@@ -23,6 +23,7 @@ from mock import Mock, patch
 
 from ..dird import (DirdFrontend,
                     _AssociationGenerator,
+                    _PhoneAssociationGenerator,
                     _DisplayGenerator,
                     _LookupServiceGenerator)
 
@@ -176,9 +177,11 @@ class TestDirdFrontendSources(unittest.TestCase):
 class TestDirdFrontEndViews(unittest.TestCase):
 
     @patch('xivo_confgen.dird._AssociationGenerator')
+    @patch('xivo_confgen.dird._PhoneAssociationGenerator')
     @patch('xivo_confgen.dird._DisplayGenerator')
-    def test_views_yml(self, _DisplayGenerator, _AssociationGenerator):
+    def test_views_yml(self, _DisplayGenerator, _PhoneAssociationGenerator, _AssociationGenerator):
         _AssociationGenerator.return_value.generate.return_value = 'associations'
+        _PhoneAssociationGenerator.return_value.generate.return_value = 'phone_associations'
         _DisplayGenerator.return_value.generate.return_value = 'displays'
 
         frontend = DirdFrontend()
@@ -186,14 +189,15 @@ class TestDirdFrontEndViews(unittest.TestCase):
         result = frontend.views_yml()
 
         expected = {'views': {'displays': 'displays',
-                              'profile_to_display': 'associations'}}
+                              'profile_to_display': 'associations',
+                              'profile_to_display_phone': 'phone_associations'}}
 
         assert_that(yaml.load(result), equal_to(expected))
 
 
-@patch('xivo_confgen.dird.cti_displays_dao')
 class TestDirdFrontendViewsGenerators(unittest.TestCase):
 
+    @patch('xivo_confgen.dird.cti_displays_dao')
     def test_display_generator(self, mock_cti_displays_dao):
         mock_cti_displays_dao.get_config.return_value = {
             'mydisplay': {
@@ -222,6 +226,7 @@ class TestDirdFrontendViewsGenerators(unittest.TestCase):
 
         assert_that(result, equal_to(expected))
 
+    @patch('xivo_confgen.dird.cti_displays_dao')
     def test_profile_association_generator(self, mock_cti_displays_dao):
         mock_cti_displays_dao.get_profile_configuration.return_value = {
             'default': {'display': 'mydisplay'},
@@ -233,6 +238,21 @@ class TestDirdFrontendViewsGenerators(unittest.TestCase):
 
         expected = {'default': 'mydisplay',
                     'switchboard': 'sb-display'}
+
+        assert_that(result, equal_to(expected))
+
+    @patch('xivo_confgen.dird.cti_context_dao')
+    def test_phone_profile_association_generator(self, mock_cti_context_dao):
+        mock_cti_context_dao.get_context_names.return_value = [
+            'foo',
+            'bar',
+       ]
+        phone_association_generator = _PhoneAssociationGenerator()
+
+        result = phone_association_generator.generate()
+
+        expected = {'foo': _PhoneAssociationGenerator._DEFAULT_PHONE_DISPLAY,
+                    'bar': _PhoneAssociationGenerator._DEFAULT_PHONE_DISPLAY}
 
         assert_that(result, equal_to(expected))
 

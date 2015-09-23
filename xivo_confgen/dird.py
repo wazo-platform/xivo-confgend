@@ -17,7 +17,7 @@
 
 import yaml
 
-from xivo_dao import cti_displays_dao, directory_dao
+from xivo_dao import cti_context_dao, cti_displays_dao, directory_dao
 
 
 class _AssociationGenerator(object):
@@ -26,6 +26,15 @@ class _AssociationGenerator(object):
         raw = cti_displays_dao.get_profile_configuration()
         return {profile: config['display']
                 for profile, config in raw.iteritems()}
+
+
+class _PhoneAssociationGenerator(object):
+
+    _DEFAULT_PHONE_DISPLAY = 'default'
+
+    def generate(self):
+        profiles = cti_context_dao.get_context_names()
+        return {profile: self._DEFAULT_PHONE_DISPLAY for profile in profiles}
 
 
 class _DisplayGenerator(object):
@@ -87,9 +96,11 @@ class DirdFrontend(object):
     def views_yml(self):
         displays = _DisplayGenerator().generate()
         associations = _AssociationGenerator().generate()
+        phone_associations = _PhoneAssociationGenerator().generate()
 
         views_section = {'views': {'displays': displays,
-                                   'profile_to_display': associations}}
+                                   'profile_to_display': associations,
+                                   'profile_to_display_phone': phone_associations}}
 
         return yaml.safe_dump(views_section)
 

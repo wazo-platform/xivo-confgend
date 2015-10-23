@@ -22,6 +22,7 @@ from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo import XivoFrontend
 from xivo_confgen.dird import DirdFrontend
 from xivo_confgen.dird_phoned import DirdPhonedFrontend
+from xivo_dao.helpers.db_utils import session_scope
 from twisted.internet.protocol import Protocol, ServerFactory
 
 
@@ -56,7 +57,8 @@ class Confgen(Protocol):
 
         content = None
         try:
-            content = getattr(frontend, callback)()
+            with session_scope():
+                content = getattr(frontend, callback)()
         except Exception as e:
             import traceback
             print e

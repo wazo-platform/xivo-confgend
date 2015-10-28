@@ -22,6 +22,7 @@ from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo import XivoFrontend
 from xivo_confgen.dird import DirdFrontend
 from xivo_confgen.dird_phoned import DirdPhonedFrontend
+from xivo_dao.helpers.db_utils import session_scope
 from twisted.internet.protocol import Protocol, ServerFactory
 
 
@@ -43,23 +44,21 @@ class Confgen(Protocol):
 
         # 'asterisk/sip.conf' => ('asterisk', 'sip_conf')
         try:
-            (frontend, callback) = data.split('/')
+            (frontend_name, callback) = data.split('/')
             callback = callback.replace('.', '_')
         except Exception:
             print "cannot split"
             return
 
+        frontend = self.factory.frontends.get(frontend_name)
+        if frontend is None:
+            print "no such frontend %r" % frontend_name
+            return
+
         content = None
         try:
-            if frontend == 'asterisk':
-                content = getattr(self.factory.asterisk_frontend, callback)()
-            elif frontend == 'xivo':
-                content = getattr(self.factory.xivo_frontend, callback)()
-            elif frontend == 'dird':
-                content = getattr(self.factory.dird_frontend, callback)()
-            elif frontend == 'dird-phoned':
-                content = getattr(self.factory.dird_phoned_frontend, callback)()
-
+            with session_scope():
+                content = getattr(frontend, callback)()
         except Exception as e:
             import traceback
             print e
@@ -84,10 +83,12 @@ class ConfgendFactory(ServerFactory):
     protocol = Confgen
 
     def __init__(self, cachedir, config):
-        self.asterisk_frontend = self._new_asterisk_frontend(config)
-        self.xivo_frontend = self._new_xivo_frontend(config)
-        self.dird_frontend = self._new_dird_frontend(config)
-        self.dird_phoned_frontend = self._new_dird_phoned_frontend(config)
+        self.frontends = {
+            'asterisk': self._new_asterisk_frontend(config),
+            'dird': self._new_dird_frontend(config),
+            'dird-phoned': self._new_dird_phoned_frontend(config),
+            'xivo': self._new_xivo_frontend(config),
+        }
         self.cache = cache.FileCache(cachedir)
 
     def _new_asterisk_frontend(self, config):

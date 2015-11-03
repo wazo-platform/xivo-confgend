@@ -85,7 +85,7 @@ class DirdFrontend(object):
         favorites = _FavoritesServiceGenerator(profile_config).generate()
 
         return yaml.safe_dump({'services': {'lookup': lookups,
-                                       'favorites': favorites}})
+                                            'favorites': favorites}})
 
     def sources_yml(self):
         sources = dict(self._format_source(source)
@@ -110,6 +110,7 @@ class DirdFrontend(object):
         config = {'type': type_,
                   'name': name,
                   'searched_columns': source['searched_columns'],
+                  'first_matched_columns': source['first_matched_columns'],
                   'format_columns': source['format_columns']}
 
         if type_ == 'xivo':

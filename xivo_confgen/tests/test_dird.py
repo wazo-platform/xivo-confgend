@@ -32,12 +32,14 @@ sources = [
      'name': 'Internal',
      'uri': 'http://localhost:9487',
      'searched_columns': ['firstname', 'lastname'],
+     'first_matched_columns': ['exten'],
      'format_columns': {'number': '{exten}',
                         'mobile': '{mobile_phone_number}'}},
     {'type': 'xivo',
      'name': 'mtl',
      'uri': 'http://montreal.lan.example.com:9487',
      'searched_columns': ['lastname'],
+     'first_matched_columns': ['exten'],
      'format_columns': {'number': '{exten}',
                         'mobile': '{mobile_phone_number}',
                         'name': '{firstname} {lastname}'}},
@@ -45,6 +47,7 @@ sources = [
      'name': 'xivodir',
      'uri': 'http://localhost/service/ipbx/json.php/private/pbx_services/phonebook',
      'searched_columns': ['firstname', 'lastname', 'company'],
+     'first_matched_columns': ['number'],
      'format_columns': {'firstname': '{phonebook.firstname}',
                         'lastname': '{phonebook.lastname}',
                         'number': '{phonebooknumber.office.number}'}},
@@ -53,12 +56,14 @@ sources = [
      'uri': 'file:///usr/tmp/test.csv',
      'delimiter': '|',
      'searched_columns': ['firstname', 'lastname'],
+     'first_matched_columns': [],
      'format_columns': {'name': '{firstname} {lastname}'}},
     {'type': 'csv_ws',
      'name': 'my-csv',
      'delimiter': '|',
      'uri': 'http://localhost:5000/ws',
      'searched_columns': ['firstname', 'lastname'],
+     'first_matched_columns': [],
      'format_columns': {'name': '{firstname} {lastname}'}},
     {'type': 'ldap',
      'name': 'ldapdirectory',
@@ -68,6 +73,7 @@ sources = [
      'ldap_password': '53c8e7',
      'ldap_custom_filter': '(st=USA)',
      'searched_columns': ['cn'],
+     'first_matched_columns': ['telephoneNumber'],
      'format_columns': {
          'firstname': '{givenName}',
          'lastname': '{sn}',
@@ -96,6 +102,7 @@ class TestDirdFrontendSources(unittest.TestCase):
                         'firstname',
                         'lastname',
                     ],
+                    'first_matched_columns': ['exten'],
                     'format_columns': {
                         'number': '{exten}',
                         'mobile': '{mobile_phone_number}',
@@ -115,6 +122,7 @@ class TestDirdFrontendSources(unittest.TestCase):
                     'searched_columns': [
                         'lastname',
                     ],
+                    'first_matched_columns': ['exten'],
                     'format_columns': {
                         'number': '{exten}',
                         'mobile': '{mobile_phone_number}',
@@ -133,6 +141,7 @@ class TestDirdFrontendSources(unittest.TestCase):
                     'name': 'xivodir',
                     'phonebook_url': 'http://localhost/service/ipbx/json.php/private/pbx_services/phonebook',
                     'searched_columns': ['firstname', 'lastname', 'company'],
+                    'first_matched_columns': ['number'],
                     'format_columns': {'firstname': '{phonebook.firstname}',
                                        'lastname': '{phonebook.lastname}',
                                        'number': '{phonebooknumber.office.number}'},
@@ -144,6 +153,7 @@ class TestDirdFrontendSources(unittest.TestCase):
                     'separator': '|',
                     'file': '/usr/tmp/test.csv',
                     'searched_columns': ['firstname', 'lastname'],
+                    'first_matched_columns': [],
                     'format_columns': {'name': '{firstname} {lastname}'},
                 },
                 'my-csv': {
@@ -152,6 +162,7 @@ class TestDirdFrontendSources(unittest.TestCase):
                     'delimiter': '|',
                     'lookup_url': 'http://localhost:5000/ws',
                     'searched_columns': ['firstname', 'lastname'],
+                    'first_matched_columns': [],
                     'format_columns': {'name': '{firstname} {lastname}'},
                 },
                 'ldapdirectory': {
@@ -163,6 +174,7 @@ class TestDirdFrontendSources(unittest.TestCase):
                     'ldap_password': '53c8e7',
                     'ldap_custom_filter': '(st=USA)',
                     'searched_columns': ['cn'],
+                    'first_matched_columns': ['telephoneNumber'],
                     'format_columns': {
                         'firstname': '{givenName}',
                         'lastname': '{sn}',
@@ -246,7 +258,7 @@ class TestDirdFrontendViewsGenerators(unittest.TestCase):
         mock_cti_context_dao.get_context_names.return_value = [
             'foo',
             'bar',
-       ]
+        ]
         phone_association_generator = _PhoneAssociationGenerator()
 
         result = phone_association_generator.generate()

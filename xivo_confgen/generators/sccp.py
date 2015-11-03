@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2011-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -163,9 +163,9 @@ class _SccpLineConf(object):
             if 'allow' in item:
                 print >> output, format_ast_option('allow', item['allow'])
             if 'callgroup' in item:
-                print >> output, format_ast_option('callgroup', ','.join(str(i) for i in item['callgroup']))
+                print >> output, format_ast_option('namedcallgroup', ','.join(str(i) for i in item['callgroup']))
             if 'pickupgroup' in item:
-                print >> output, format_ast_option('pickupgroup', ','.join(str(i) for i in item['pickupgroup']))
+                print >> output, format_ast_option('namedpickupgroup', ','.join(str(i) for i in item['pickupgroup']))
 
             print >> output
 

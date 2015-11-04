@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2011-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ class TestSccpConf(unittest.TestCase):
         ''')
 
     def test_one_element_speeddials_section(self):
-        speedials = [{'exten':'1001',
+        speedials = [{'exten': '1001',
                       'fknum': 1,
                       'label': 'user001',
                       'supervision': 0,
@@ -144,7 +144,7 @@ class TestSccpDeviceConf(unittest.TestCase):
                        'line': u'103',
                        'voicemail': u'103'}]
 
-        sccpspeeddials = [{'exten':'1001',
+        sccpspeeddials = [{'exten': '1001',
                            'fknum': 1,
                            'label': 'user001',
                            'supervision': 0,
@@ -170,13 +170,13 @@ class TestSccpDeviceConf(unittest.TestCase):
                        'voicemail': u'103'}]
 
         sccpspeeddials = [
-            {'exten':'1002',
+            {'exten': '1002',
              'fknum': 2,
              'label': 'user002',
              'supervision': 0,
              'user_id': 1229,
              'device': 'SEPACA016FDF235'},
-            {'exten':'1001',
+            {'exten': '1001',
              'fknum': 1,
              'label': 'user001',
              'supervision': 0,
@@ -382,6 +382,6 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             context = a_context
-            callgroup = 1,2,3,4
-            pickupgroup = 3,4
+            namedcallgroup = 1,2,3,4
+            namedpickupgroup = 3,4
         ''')

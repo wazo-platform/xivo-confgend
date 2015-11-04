@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2011-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -133,9 +133,9 @@ class SipConf(object):
                 # pickupgroup: trappable calls  (xivo members)
                 # callgroup  : can pickup calls (xivo pickups)
                 if 'member' in p:
-                    print >> output, "pickupgroup = " + ','.join(frozenset(p['member']))
+                    print >> output, "namedpickupgroup = " + ','.join(frozenset(p['member']))
                 if 'pickup' in p:
-                    print >> output, "callgroup = " + ','.join(frozenset(p['pickup']))
+                    print >> output, "namedcallgroup = " + ','.join(frozenset(p['pickup']))
 
             for ccss_option, value in ccss_options.iteritems():
                 print >> output, gen_value_line(ccss_option, value)

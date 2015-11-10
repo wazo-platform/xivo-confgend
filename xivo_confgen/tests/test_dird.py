@@ -25,7 +25,8 @@ from ..dird import (DirdFrontend,
                     _AssociationGenerator,
                     _PhoneAssociationGenerator,
                     _DisplayGenerator,
-                    _LookupServiceGenerator)
+                    _LookupServiceGenerator,
+                    _ReverseServiceGenerator)
 
 sources = [
     {'type': 'xivo',
@@ -285,20 +286,39 @@ class TestLookupServiceGenerator(unittest.TestCase):
         assert_that(result, equal_to(expected))
 
 
+class TestServiceServiceGenerator(unittest.TestCase):
+
+    def test_generate(self):
+        reverse_configuration = ['internal', 'xivodir']
+
+        generator = _ReverseServiceGenerator(reverse_configuration)
+
+        result = generator.generate()
+
+        expected = {'default': {'sources': ['internal', 'xivodir', 'personal'],
+                                'timeout': 1}}
+
+        assert_that(result, equal_to(expected))
+
+
 class TestDirdFrontendServices(unittest.TestCase):
 
     @patch('xivo_confgen.dird.cti_displays_dao', Mock())
+    @patch('xivo_confgen.dird.cti_reverse_dao', Mock())
+    @patch('xivo_confgen.dird._ReverseServiceGenerator')
     @patch('xivo_confgen.dird._LookupServiceGenerator')
     @patch('xivo_confgen.dird._FavoritesServiceGenerator')
-    def test_services_yml(self, _FavoritesServiceGenerator, _LookupServiceGenerator):
+    def test_services_yml(self, _FavoritesServiceGenerator, _LookupServiceGenerator, _ReverseServiceGenerator):
         _LookupServiceGenerator.return_value.generate.return_value = 'lookups'
         _FavoritesServiceGenerator.return_value.generate.return_value = 'favorites'
+        _ReverseServiceGenerator.return_value.generate.return_value = 'reverses'
 
         frontend = DirdFrontend()
 
         result = frontend.services_yml()
 
         expected = {'services': {'lookup': 'lookups',
-                                 'favorites': 'favorites'}}
+                                 'favorites': 'favorites',
+                                 'reverse': 'reverses'}}
 
         assert_that(yaml.load(result), equal_to(expected))

@@ -17,7 +17,10 @@
 
 import yaml
 
-from xivo_dao import cti_context_dao, cti_displays_dao, directory_dao
+from xivo_dao import cti_context_dao
+from xivo_dao import cti_displays_dao
+from xivo_dao import cti_reverse_dao
+from xivo_dao import directory_dao
 
 
 class _AssociationGenerator(object):
@@ -72,6 +75,20 @@ class _FavoritesServiceGenerator(_LookupServiceGenerator):
     pass
 
 
+class _ReverseServiceGenerator(object):
+
+    _default_sources = ['personal']
+    _default_profile = 'default'
+    _default_timeout = 1
+
+    def __init__(self, reverse_configuration):
+        self._reverse_config = reverse_configuration
+
+    def generate(self):
+        return {self._default_profile: {'sources': self._reverse_config + self._default_sources,
+                                        'timeout': self._default_timeout}}
+
+
 class DirdFrontend(object):
 
     confd_api_version = '1.1'
@@ -84,8 +101,12 @@ class DirdFrontend(object):
         lookups = _LookupServiceGenerator(profile_config).generate()
         favorites = _FavoritesServiceGenerator(profile_config).generate()
 
+        reverse_config = cti_reverse_dao.get_config()
+        reverses = _ReverseServiceGenerator(reverse_config).generate()
+
         return yaml.safe_dump({'services': {'lookup': lookups,
-                                            'favorites': favorites}})
+                                            'favorites': favorites,
+                                            'reverse': reverses}})
 
     def sources_yml(self):
         sources = dict(self._format_source(source)

@@ -18,7 +18,7 @@
 import unittest
 import yaml
 
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, has_key, is_not
 from mock import Mock, patch
 
 from ..dird import (DirdFrontend,
@@ -198,6 +198,18 @@ class TestDirdFrontendSources(unittest.TestCase):
         }
 
         assert_that(yaml.load(result), equal_to(expected))
+
+    def test_format_confd_allow_unspecified_port(self):
+        source = {
+            'uri': 'http://169.254.1.1',
+            'xivo_username': None,
+            'xivo_password': None,
+            'xivo_verify_certificate': False,
+        }
+
+        config = self.frontend._format_confd_config(source)
+
+        assert_that(config, is_not(has_key('port')))
 
     def test_format_confd_verify_yes(self):
         source = {

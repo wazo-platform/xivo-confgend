@@ -181,11 +181,12 @@ class DirdFrontend(object):
         config = {
             'https': scheme == 'https',
             'host': host,
-            'port': int(port),
             'timeout': self.confd_default_timeout,
             'version': self.confd_api_version,
             'verify_certificate': verify_certificate
         }
+        if port:
+            config['port'] = int(port)
         if source['xivo_username'] and source['xivo_password']:
             config['username'] = source['xivo_username']
             config['password'] = source['xivo_password']

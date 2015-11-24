@@ -32,13 +32,21 @@ sources = [
     {'type': 'xivo',
      'name': 'Internal',
      'uri': 'http://localhost:9487',
+     'xivo_username': None,
+     'xivo_password': None,
+     'xivo_verify_certificate': False,
+     'xivo_custom_ca_path': None,
      'searched_columns': ['firstname', 'lastname'],
      'first_matched_columns': ['exten'],
      'format_columns': {'number': '{exten}',
                         'mobile': '{mobile_phone_number}'}},
     {'type': 'xivo',
      'name': 'mtl',
-     'uri': 'http://montreal.lan.example.com:9487',
+     'uri': 'https://montreal.lan.example.com:9487',
+     'xivo_username': 'foo',
+     'xivo_password': 'passwd',
+     'xivo_verify_certificate': True,
+     'xivo_custom_ca_path': '/tmp/ca.crt',
      'searched_columns': ['lastname'],
      'first_matched_columns': ['exten'],
      'format_columns': {'number': '{exten}',
@@ -85,13 +93,14 @@ sources = [
 
 class TestDirdFrontendSources(unittest.TestCase):
 
+    def setUp(self):
+        self.frontend = DirdFrontend()
+
     @patch('xivo_confgen.dird.directory_dao')
     def test_sources_yml(self, mock_directory_dao):
         mock_directory_dao.get_all_sources.return_value = sources
 
-        frontend = DirdFrontend()
-
-        result = frontend.sources_yml()
+        result = self.frontend.sources_yml()
 
         expected = {
             'sources': {
@@ -114,6 +123,7 @@ class TestDirdFrontendSources(unittest.TestCase):
                         'port': 9487,
                         'version': '1.1',
                         'timeout': 4,
+                        'verify_certificate': False,
                     }
                 },
                 'mtl': {
@@ -130,11 +140,14 @@ class TestDirdFrontendSources(unittest.TestCase):
                         'name': '{firstname} {lastname}',
                     },
                     'confd_config': {
-                        'https': False,
+                        'https': True,
                         'host': 'montreal.lan.example.com',
                         'port': 9487,
                         'version': '1.1',
                         'timeout': 4,
+                        'username': 'foo',
+                        'password': 'passwd',
+                        'verify_certificate': '/tmp/ca.crt',
                     },
                 },
                 'xivodir': {
@@ -185,6 +198,29 @@ class TestDirdFrontendSources(unittest.TestCase):
         }
 
         assert_that(yaml.load(result), equal_to(expected))
+
+    def test_format_confd_verify_yes(self):
+        source = {
+            'xivo_verify_certificate': True,
+            'xivo_custom_ca_path': None,
+        }
+
+        assert_that(self.frontend._format_confd_verify_certificate(source))
+
+    def test_format_confd_verify_no(self):
+        source = {
+            'xivo_verify_certificate': False,
+        }
+
+        assert_that(self.frontend._format_confd_verify_certificate(source), equal_to(False))
+
+    def test_format_confd_verify_custom(self):
+        source = {
+            'xivo_verify_certificate': True,
+            'xivo_custom_ca_path': '/tmp/s.crt',
+        }
+
+        assert_that(self.frontend._format_confd_verify_certificate(source), equal_to('/tmp/s.crt'))
 
 
 class TestDirdFrontEndViews(unittest.TestCase):

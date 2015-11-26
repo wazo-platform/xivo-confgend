@@ -217,7 +217,7 @@ class TestDirdFrontendSources(unittest.TestCase):
             'xivo_custom_ca_path': None,
         }
 
-        assert_that(self.frontend._format_confd_verify_certificate(source))
+        assert_that(self.frontend._format_confd_verify_certificate(source), equal_to(True))
 
     def test_format_confd_verify_no(self):
         source = {

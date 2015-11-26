@@ -171,14 +171,33 @@ class DirdFrontend(object):
 
     def _format_xivo_source(self, source):
         return {'unique_column': 'id',
-                'confd_config': self._format_confd_config(source['uri'])}
+                'confd_config': self._format_confd_config(source)}
 
-    def _format_confd_config(self, url):
-        scheme, _, end = url.partition('://')
+    def _format_confd_config(self, source):
+        scheme, _, end = source['uri'].partition('://')
         host, _, port = end.partition(':')
+        verify_certificate = self._format_confd_verify_certificate(source)
 
-        return {'https': scheme == 'https',
-                'host': host,
-                'port': int(port),
-                'timeout': self.confd_default_timeout,
-                'version': self.confd_api_version}
+        config = {
+            'https': scheme == 'https',
+            'host': host,
+            'timeout': self.confd_default_timeout,
+            'version': self.confd_api_version,
+            'verify_certificate': verify_certificate
+        }
+        if port:
+            config['port'] = int(port)
+        if source['xivo_username'] and source['xivo_password']:
+            config['username'] = source['xivo_username']
+            config['password'] = source['xivo_password']
+
+        return config
+
+    def _format_confd_verify_certificate(self, source):
+        if source['xivo_verify_certificate']:
+            if source['xivo_custom_ca_path']:
+                return source['xivo_custom_ca_path']
+            else:
+                return True
+        else:
+            return False

@@ -126,6 +126,7 @@ class SipConf(object):
 
             print >> output, gen_value_line('setvar', 'PICKUPMARK=%s%%%s' % (user['number'], user['context']))
             print >> output, gen_value_line('setvar', 'TRANSFER_CONTEXT=%s' % user['context'])
+            print >> output, gen_value_line('setvar', 'XIVO_USERUUID=%s' % user['uuid'])
 
             if user['name'] in pickups:
                 p = pickups[user['name']]

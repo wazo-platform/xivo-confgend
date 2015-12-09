@@ -1,5 +1,5 @@
-pyyaml==3.10
-psycopg2
-sqlalchemy==0.9.4
+pyyaml==3.11
+psycopg2==2.5.4
+sqlalchemy==0.9.8
 git+https://github.com/xivo-pbx/xivo-dao.git
 git+https://github.com/xivo-pbx/xivo-lib-python.git

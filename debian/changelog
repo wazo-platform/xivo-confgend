@@ -1,4 +1,4 @@
-xivo-confgend (1:15.03~20150210.164916.a49ee01-1) xivo-dev; urgency=low
+xivo-confgend (1:15.03~20150210.164916.a49ee01) xivo-dev; urgency=low
 
   * rename xivo-confgen to xivo-confgend
 

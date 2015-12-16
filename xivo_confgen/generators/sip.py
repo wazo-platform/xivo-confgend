@@ -97,7 +97,7 @@ class SipConf(object):
             'id', 'name', 'protocol',
             'category', 'commented', 'initialized',
             'disallow', 'regseconds', 'lastms',
-            'name', 'fullcontact', 'ipaddr', 'number'
+            'name', 'fullcontact', 'ipaddr', 'number', 'uuid'
         )
 
         pickups = {}

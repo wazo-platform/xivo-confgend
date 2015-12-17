@@ -20,6 +20,8 @@ import StringIO
 import unittest
 
 from mock import Mock, patch
+from uuid import uuid4
+
 from xivo_confgen.generators.tests.util import assert_generates_config,\
     assert_config_equal
 
@@ -251,12 +253,14 @@ class TestSccpLineConf(unittest.TestCase):
         ''')
 
     def test_one_element_lines_section(self):
+        uuid = str(uuid4())
         sccpline = [{
             'category': u'lines',
             'name': u'100',
             'cid_name': u'jimmy',
             'cid_num': u'100',
             'user_id': u'1',
+            'uuid': uuid,
             'language': u'fr_FR',
             'number': 100,
             'context': u'a_context',
@@ -270,19 +274,22 @@ class TestSccpLineConf(unittest.TestCase):
             cid_name = jimmy
             cid_num = 100
             setvar = XIVO_USERID=1
+            setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             language = fr_FR
             context = a_context
-        ''')
+        '''.format(uuid=uuid))
 
     def test_one_element_lines_section_no_language(self):
+        uuid = str(uuid4())
         sccpline = [{
             'category': u'lines',
             'name': u'100',
             'cid_name': u'jimmy',
             'cid_num': u'100',
             'user_id': u'1',
+            'uuid': uuid,
             'language': None,
             'number': 100,
             'context': u'a_context',
@@ -296,12 +303,14 @@ class TestSccpLineConf(unittest.TestCase):
             cid_name = jimmy
             cid_num = 100
             setvar = XIVO_USERID=1
+            setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             context = a_context
-        ''')
+        '''.format(uuid=uuid))
 
     def test_allow_no_disallow(self):
+        uuid = str(uuid4())
         sccpline = [{
             'category': u'lines',
             'name': u'100',
@@ -312,6 +321,7 @@ class TestSccpLineConf(unittest.TestCase):
             'number': 100,
             'context': u'a_context',
             'allow': u'g729,ulaw',
+            'uuid': uuid,
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)
@@ -322,19 +332,22 @@ class TestSccpLineConf(unittest.TestCase):
             cid_name = jimmy
             cid_num = 100
             setvar = XIVO_USERID=1
+            setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             context = a_context
             allow = g729,ulaw
-        ''')
+        '''.format(uuid=uuid))
 
     def test_disallow_all_allow_order(self):
+        uuid = str(uuid4())
         sccpline = [{
             'category': u'lines',
             'name': u'100',
             'cid_name': u'jimmy',
             'cid_num': u'100',
             'user_id': u'1',
+            'uuid': uuid,
             'language': None,
             'number': 100,
             'context': u'a_context',
@@ -350,20 +363,23 @@ class TestSccpLineConf(unittest.TestCase):
             cid_name = jimmy
             cid_num = 100
             setvar = XIVO_USERID=1
+            setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             context = a_context
             disallow = all
             allow = g729,ulaw
-        ''')
+        '''.format(uuid=uuid))
 
     def test_call_and_pickup_groups(self):
+        uuid = str(uuid4())
         sccpline = [
             {'category': u'lines',
              'name': u'100',
              'cid_name': u'jimmy',
              'cid_num': u'100',
              'user_id': u'1',
+             'uuid': uuid,
              'language': None,
              'number': 100,
              'context': u'a_context',
@@ -379,9 +395,10 @@ class TestSccpLineConf(unittest.TestCase):
             cid_name = jimmy
             cid_num = 100
             setvar = XIVO_USERID=1
+            setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             context = a_context
             namedcallgroup = 1,2,3,4
             namedpickupgroup = 3,4
-        ''')
+        '''.format(uuid=uuid))

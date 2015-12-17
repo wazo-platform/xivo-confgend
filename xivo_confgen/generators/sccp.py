@@ -153,6 +153,7 @@ class _SccpLineConf(object):
             print >> output, format_ast_option('cid_name', item['cid_name'])
             print >> output, format_ast_option('cid_num', item['cid_num'])
             print >> output, format_ast_option('setvar', 'XIVO_USERID=%s' % item['user_id'])
+            print >> output, format_ast_option('setvar', 'XIVO_USERUUID=%s' % item['uuid'])
             print >> output, format_ast_option('setvar', 'PICKUPMARK=%(number)s%%%(context)s' % item)
             print >> output, format_ast_option('setvar', 'TRANSFER_CONTEXT=%s' % item['context'])
             if item['language']:

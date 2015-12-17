@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
+
 from StringIO import StringIO
+from uuid import uuid4
 
 from xivo_confgen.generators import sip
 from xivo_confgen.generators.tests.util import assert_config_equal
@@ -126,9 +128,11 @@ class TestSipConf(unittest.TestCase):
         ccss_options = {
             'cc_foobar': 'foo',
         }
+        uuid = str(uuid4())
         user = [{'name': 'jean-yves',
                  'number': 101,
-                 'context': 'default'}]
+                 'context': 'default',
+                 'uuid': uuid}]
 
         self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
 
@@ -137,8 +141,9 @@ class TestSipConf(unittest.TestCase):
             context = default
             setvar = PICKUPMARK=101%default
             setvar = TRANSFER_CONTEXT=default
+            setvar = XIVO_USERUUID={uuid}
             cc_foobar = foo
-        ''')
+        '''.format(uuid=uuid))
 
     def test__gen_user_with_accent(self):
         pickup = []
@@ -146,6 +151,7 @@ class TestSipConf(unittest.TestCase):
         user = [{'name': 'papi',
                  'callerid': '"pépè" <45789>',
                  'number': 101,
+                 'uuid': str(uuid4()),
                  'context': 'default'}]
 
         self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
@@ -158,6 +164,7 @@ class TestSipConf(unittest.TestCase):
         user = [{'name': 'novalue',
                  'foobar': '',
                  'number': 101,
+                 'uuid': str(uuid4()),
                  'context': 'default'}]
         output = StringIO()
 
@@ -168,6 +175,7 @@ class TestSipConf(unittest.TestCase):
         user = [{'name': 'novalue',
                  'foobar': None,
                  'number': 101,
+                 'uuid': str(uuid4()),
                  'context': 'default'}]
         output = StringIO()
 
@@ -181,7 +189,8 @@ class TestSipConf(unittest.TestCase):
         user = [{'name': 'papi',
                  'allow': 'g723,gsm',
                  'number': 101,
-                 'context': 'default'}]
+                 'context': 'default',
+                 'uuid': str(uuid4())}]
 
         self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
 
@@ -196,6 +205,7 @@ class TestSipConf(unittest.TestCase):
         user = [{'name': 'voicemail',
                  'subscribemwi': 0,
                  'number': 101,
+                 'uuid': str(uuid4()),
                  'context': 'default'}]
         output = StringIO()
 
@@ -206,6 +216,7 @@ class TestSipConf(unittest.TestCase):
         user = [{'name': 'voicemail',
                  'subscribemwi': 1,
                  'number': 101,
+                 'uuid': str(uuid4()),
                  'context': 'default'}]
         output = StringIO()
 
@@ -216,7 +227,9 @@ class TestSipConf(unittest.TestCase):
     def test__gen_user_unused_keys(self):
         pickup = []
         ccss_options = {}
+        uuid = str(uuid4())
         user = [{'id': 1,
+                 'uuid': uuid,
                  'name': 'unused',
                  'protocol': 'sip',
                  'category': 5,
@@ -237,7 +250,8 @@ class TestSipConf(unittest.TestCase):
             context = default
             setvar = PICKUPMARK=101%default
             setvar = TRANSFER_CONTEXT=default
-        ''')
+            setvar = XIVO_USERUUID={uuid}
+        '''.format(uuid=uuid))
 
     def test__ccss_options_enabled(self):
         data_ccss = [{'commented': 0}]

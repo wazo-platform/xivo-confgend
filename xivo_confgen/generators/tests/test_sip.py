@@ -145,6 +145,22 @@ class TestSipConf(unittest.TestCase):
             cc_foobar = foo
         '''.format(uuid=uuid))
 
+    def test_gen_user_sip_with_no_xivo_user(self):
+        pickup = []
+        ccss_options = {}
+        user = [{'name': 'idbehold',
+                 'number': 101,
+                 'context': 'default'}]
+
+        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
+
+        assert_config_equal(self.output.getvalue(), '''
+            [idbehold]
+            context = default
+            setvar = PICKUPMARK=101%default
+            setvar = TRANSFER_CONTEXT=default
+        ''')
+
     def test__gen_user_with_accent(self):
         pickup = []
         ccss_options = {}

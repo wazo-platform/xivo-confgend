@@ -97,7 +97,8 @@ class SipConf(object):
             'id', 'name', 'protocol',
             'category', 'commented', 'initialized',
             'disallow', 'regseconds', 'lastms',
-            'name', 'fullcontact', 'ipaddr', 'number', 'uuid'
+            'name', 'fullcontact', 'ipaddr', 'number', 'uuid',
+            'firstname', 'lastname'
         )
 
         pickups = {}
@@ -129,6 +130,10 @@ class SipConf(object):
             uuid = user.get('uuid')
             if uuid:
                 print >> output, gen_value_line('setvar', 'XIVO_USERUUID={}'.format(uuid))
+
+            callerid = user.get('callerid')
+            if callerid:
+                print >> output, gen_value_line('description', '%s' % callerid)
 
             if user['name'] in pickups:
                 p = pickups[user['name']]

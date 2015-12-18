@@ -173,6 +173,7 @@ class TestSipConf(unittest.TestCase):
         self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
 
         self.assertIn(u'callerid = "pépè" <45789>', self.output.getvalue())
+        self.assertIn(u'description = "pépè" <45789>', self.output.getvalue())
 
     def test__gen_user_empty_value(self):
         pickup = []

@@ -131,13 +131,9 @@ class SipConf(object):
             if uuid:
                 print >> output, gen_value_line('setvar', 'XIVO_USERUUID={}'.format(uuid))
 
-            if user['firstname']:
-                description = u"{}".format(user['firstname'])
-
-                if user['lastname']:
-                    description = u"{} {}".format(description, user['lastname'])
-
-                print >> output, gen_value_line('description', '%s' % description) 
+            callerid = user.get('callerid')
+            if callerid:
+                print >> output, gen_value_line('description', '%s' % callerid)
 
             if user['name'] in pickups:
                 p = pickups[user['name']]

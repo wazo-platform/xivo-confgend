@@ -21,7 +21,7 @@ import yaml
 from hamcrest import assert_that, equal_to, has_key, is_not
 from mock import Mock, patch
 
-from ..dird import (DirdFrontend,
+from ..dird import (_NoContextSeparationDirdFrontend,
                     _AssociationGenerator,
                     _PhoneAssociationGenerator,
                     _DisplayGenerator,
@@ -91,10 +91,10 @@ sources = [
 ]
 
 
-class TestDirdFrontendSources(unittest.TestCase):
+class TestNoContextSeparationDirdFrontendSources(unittest.TestCase):
 
     def setUp(self):
-        self.frontend = DirdFrontend()
+        self.frontend = _NoContextSeparationDirdFrontend()
 
     @patch('xivo_confgen.dird.directory_dao')
     def test_sources_yml(self, mock_directory_dao):
@@ -245,7 +245,7 @@ class TestDirdFrontEndViews(unittest.TestCase):
         _PhoneAssociationGenerator.return_value.generate.return_value = 'phone_associations'
         _DisplayGenerator.return_value.generate.return_value = 'displays'
 
-        frontend = DirdFrontend()
+        frontend = _NoContextSeparationDirdFrontend()
 
         result = frontend.views_yml()
 
@@ -256,7 +256,7 @@ class TestDirdFrontEndViews(unittest.TestCase):
         assert_that(yaml.load(result), equal_to(expected))
 
 
-class TestDirdFrontendViewsGenerators(unittest.TestCase):
+class TestNoContextSeparationDirdFrontendViewsGenerators(unittest.TestCase):
 
     @patch('xivo_confgen.dird.cti_displays_dao')
     def test_display_generator(self, mock_cti_displays_dao):
@@ -351,7 +351,7 @@ class TestServiceServiceGenerator(unittest.TestCase):
         assert_that(result, equal_to(expected))
 
 
-class TestDirdFrontendServices(unittest.TestCase):
+class TestNoContextSeparationDirdFrontendServices(unittest.TestCase):
 
     @patch('xivo_confgen.dird.cti_displays_dao', Mock())
     @patch('xivo_confgen.dird.cti_reverse_dao', Mock())
@@ -363,7 +363,7 @@ class TestDirdFrontendServices(unittest.TestCase):
         _FavoritesServiceGenerator.return_value.generate.return_value = 'favorites'
         _ReverseServiceGenerator.return_value.generate.return_value = 'reverses'
 
-        frontend = DirdFrontend()
+        frontend = _NoContextSeparationDirdFrontend()
 
         result = frontend.services_yml()
 

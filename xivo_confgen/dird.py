@@ -93,6 +93,16 @@ class _ReverseServiceGenerator(object):
 
 class DirdFrontend(object):
 
+    def __init__(self):
+        self._no_context_separation_backend = _NoContextSeparationDirdFrontend()
+
+    def __getattr__(self, name):
+        selected_implementation = self._no_context_separation_backend
+        return getattr(selected_implementation, name)
+
+
+class _NoContextSeparationDirdFrontend(object):
+
     confd_api_version = '1.1'
     confd_default_timeout = 4
     phonebook_default_timeout = 4

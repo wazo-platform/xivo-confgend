@@ -21,12 +21,14 @@ import yaml
 from hamcrest import assert_that, equal_to, has_key, is_not
 from mock import Mock, patch
 
-from ..dird import (_NoContextSeparationDirdFrontend,
+from ..dird import (DirdFrontend,
+                    _NoContextSeparationDirdFrontend,
                     _AssociationGenerator,
                     _PhoneAssociationGenerator,
                     _DisplayGenerator,
                     _LookupServiceGenerator,
-                    _ReverseServiceGenerator)
+                    _ReverseServiceGenerator,
+                    _SourceGenerator)
 
 sources = [
     {'type': 'xivo',
@@ -91,113 +93,126 @@ sources = [
 ]
 
 
-class TestNoContextSeparationDirdFrontendSources(unittest.TestCase):
+class TestDirdFrontend(unittest.TestCase):
 
-    def setUp(self):
-        self.frontend = _NoContextSeparationDirdFrontend()
+    @patch('xivo_confgen.dird.cti_main_dao.get_config', Mock(return_value={'main': {'context_separation': 0}}))
+    def test_that_the_dird_frontend_forwards_no_context_separation(self):
+        frontend = DirdFrontend()
 
-    @patch('xivo_confgen.dird.directory_dao')
-    def test_sources_yml(self, mock_directory_dao):
-        mock_directory_dao.get_all_sources.return_value = sources
+        function = frontend.sources_yml
 
-        result = self.frontend.sources_yml()
+        assert_that(function, equal_to(frontend._no_context_separation_backend.sources_yml))
+
+    @patch('xivo_confgen.dird.cti_main_dao.get_config', Mock(return_value={'main': {'context_separation': 1}}))
+    def test_that_the_dird_frontend_forwards_with_context_separation(self):
+        frontend = DirdFrontend()
+
+        function = frontend.sources_yml
+
+        assert_that(function, equal_to(frontend._context_separated_backend.sources_yml))
+
+
+class TestSourceGenerator(unittest.TestCase):
+
+    def test_sources_yml(self):
+        generator = _SourceGenerator(sources)
+
+        result = generator.generate()
 
         expected = {
-            'sources': {
-                'Internal': {
-                    'type': 'xivo',
-                    'name': 'Internal',
-                    'unique_column': 'id',
-                    'searched_columns': [
-                        'firstname',
-                        'lastname',
-                    ],
-                    'first_matched_columns': ['exten'],
-                    'format_columns': {
-                        'number': '{exten}',
-                        'mobile': '{mobile_phone_number}',
-                    },
-                    'confd_config': {
-                        'https': False,
-                        'host': 'localhost',
-                        'port': 9487,
-                        'version': '1.1',
-                        'timeout': 4,
-                        'verify_certificate': False,
-                    }
+            'Internal': {
+                'type': 'xivo',
+                'name': 'Internal',
+                'unique_column': 'id',
+                'searched_columns': [
+                    'firstname',
+                    'lastname',
+                ],
+                'first_matched_columns': ['exten'],
+                'format_columns': {
+                    'number': '{exten}',
+                    'mobile': '{mobile_phone_number}',
                 },
-                'mtl': {
-                    'type': 'xivo',
-                    'name': 'mtl',
-                    'unique_column': 'id',
-                    'searched_columns': [
-                        'lastname',
-                    ],
-                    'first_matched_columns': ['exten'],
-                    'format_columns': {
-                        'number': '{exten}',
-                        'mobile': '{mobile_phone_number}',
-                        'name': '{firstname} {lastname}',
-                    },
-                    'confd_config': {
-                        'https': True,
-                        'host': 'montreal.lan.example.com',
-                        'port': 9487,
-                        'version': '1.1',
-                        'timeout': 4,
-                        'username': 'foo',
-                        'password': 'passwd',
-                        'verify_certificate': '/tmp/ca.crt',
-                    },
+                'confd_config': {
+                    'https': False,
+                    'host': 'localhost',
+                    'port': 9487,
+                    'version': '1.1',
+                    'timeout': 4,
+                    'verify_certificate': False,
+                }
+            },
+            'mtl': {
+                'type': 'xivo',
+                'name': 'mtl',
+                'unique_column': 'id',
+                'searched_columns': [
+                    'lastname',
+                ],
+                'first_matched_columns': ['exten'],
+                'format_columns': {
+                    'number': '{exten}',
+                    'mobile': '{mobile_phone_number}',
+                    'name': '{firstname} {lastname}',
                 },
-                'xivodir': {
-                    'type': 'phonebook',
-                    'name': 'xivodir',
-                    'phonebook_url': 'http://localhost/service/ipbx/json.php/private/pbx_services/phonebook',
-                    'searched_columns': ['firstname', 'lastname', 'company'],
-                    'first_matched_columns': ['number'],
-                    'format_columns': {'firstname': '{phonebook.firstname}',
-                                       'lastname': '{phonebook.lastname}',
-                                       'number': '{phonebooknumber.office.number}'},
-                    'phonebook_timeout': 4,
+                'confd_config': {
+                    'https': True,
+                    'host': 'montreal.lan.example.com',
+                    'port': 9487,
+                    'version': '1.1',
+                    'timeout': 4,
+                    'username': 'foo',
+                    'password': 'passwd',
+                    'verify_certificate': '/tmp/ca.crt',
                 },
-                'mycsv': {
-                    'type': 'csv',
-                    'name': 'mycsv',
-                    'separator': '|',
-                    'file': '/usr/tmp/test.csv',
-                    'searched_columns': ['firstname', 'lastname'],
-                    'first_matched_columns': [],
-                    'format_columns': {'name': '{firstname} {lastname}'},
-                },
-                'my-csv': {
-                    'type': 'csv_ws',
-                    'name': 'my-csv',
-                    'delimiter': '|',
-                    'lookup_url': 'http://localhost:5000/ws',
-                    'searched_columns': ['firstname', 'lastname'],
-                    'first_matched_columns': [],
-                    'format_columns': {'name': '{firstname} {lastname}'},
-                },
-                'ldapdirectory': {
-                    'type': 'ldap',
-                    'name': 'ldapdirectory',
-                    'ldap_uri': 'ldaps://myldap.example.com:636',
-                    'ldap_base_dn': 'dc=example,dc=com',
-                    'ldap_username': 'cn=admin,dc=example,dc=com',
-                    'ldap_password': '53c8e7',
-                    'ldap_custom_filter': '(st=USA)',
-                    'searched_columns': ['cn'],
-                    'first_matched_columns': ['telephoneNumber'],
-                    'format_columns': {
-                        'firstname': '{givenName}',
-                        'lastname': '{sn}',
-                        'number': '{telephoneNumber}'},
-                },
-            }
+            },
+            'xivodir': {
+                'type': 'phonebook',
+                'name': 'xivodir',
+                'phonebook_url': 'http://localhost/service/ipbx/json.php/private/pbx_services/phonebook',
+                'searched_columns': ['firstname', 'lastname', 'company'],
+                'first_matched_columns': ['number'],
+                'format_columns': {'firstname': '{phonebook.firstname}',
+                                   'lastname': '{phonebook.lastname}',
+                                   'number': '{phonebooknumber.office.number}'},
+                'phonebook_timeout': 4,
+            },
+            'mycsv': {
+                'type': 'csv',
+                'name': 'mycsv',
+                'separator': '|',
+                'file': '/usr/tmp/test.csv',
+                'searched_columns': ['firstname', 'lastname'],
+                'first_matched_columns': [],
+                'format_columns': {'name': '{firstname} {lastname}'},
+            },
+            'my-csv': {
+                'type': 'csv_ws',
+                'name': 'my-csv',
+                'delimiter': '|',
+                'lookup_url': 'http://localhost:5000/ws',
+                'searched_columns': ['firstname', 'lastname'],
+                'first_matched_columns': [],
+                'format_columns': {'name': '{firstname} {lastname}'},
+            },
+            'ldapdirectory': {
+                'type': 'ldap',
+                'name': 'ldapdirectory',
+                'ldap_uri': 'ldaps://myldap.example.com:636',
+                'ldap_base_dn': 'dc=example,dc=com',
+                'ldap_username': 'cn=admin,dc=example,dc=com',
+                'ldap_password': '53c8e7',
+                'ldap_custom_filter': '(st=USA)',
+                'searched_columns': ['cn'],
+                'first_matched_columns': ['telephoneNumber'],
+                'format_columns': {
+                    'firstname': '{givenName}',
+                    'lastname': '{sn}',
+                    'number': '{telephoneNumber}'},
+            },
         }
 
-        assert_that(yaml.load(result), equal_to(expected))
+        assert_that(result, equal_to(expected))
 
     def test_format_confd_allow_unspecified_port(self):
         source = {
@@ -207,7 +222,8 @@ class TestNoContextSeparationDirdFrontendSources(unittest.TestCase):
             'xivo_verify_certificate': False,
         }
 
-        config = self.frontend._format_confd_config(source)
+        generator = _SourceGenerator(source)
+        config = generator._format_confd_config(source)
 
         assert_that(config, is_not(has_key('port')))
 
@@ -217,14 +233,14 @@ class TestNoContextSeparationDirdFrontendSources(unittest.TestCase):
             'xivo_custom_ca_path': None,
         }
 
-        assert_that(self.frontend._format_confd_verify_certificate(source), equal_to(True))
+        assert_that(_SourceGenerator(source)._format_confd_verify_certificate(source), equal_to(True))
 
     def test_format_confd_verify_no(self):
         source = {
             'xivo_verify_certificate': False,
         }
 
-        assert_that(self.frontend._format_confd_verify_certificate(source), equal_to(False))
+        assert_that(_SourceGenerator(source)._format_confd_verify_certificate(source), equal_to(False))
 
     def test_format_confd_verify_custom(self):
         source = {
@@ -232,7 +248,7 @@ class TestNoContextSeparationDirdFrontendSources(unittest.TestCase):
             'xivo_custom_ca_path': '/tmp/s.crt',
         }
 
-        assert_that(self.frontend._format_confd_verify_certificate(source), equal_to('/tmp/s.crt'))
+        assert_that(_SourceGenerator(source)._format_confd_verify_certificate(source), equal_to('/tmp/s.crt'))
 
 
 class TestDirdFrontEndViews(unittest.TestCase):

@@ -19,6 +19,7 @@ import yaml
 
 from xivo_dao import cti_context_dao
 from xivo_dao import cti_displays_dao
+from xivo_dao import cti_main_dao
 from xivo_dao import cti_reverse_dao
 from xivo_dao import directory_dao
 
@@ -73,69 +74,20 @@ class _LookupServiceGenerator(object):
                 for profile, conf in self._profile_config.iteritems()}
 
 
-class _FavoritesServiceGenerator(_LookupServiceGenerator):
-    pass
-
-
-class _ReverseServiceGenerator(object):
-
-    _default_sources = ['personal']
-    _default_profile = 'default'
-    _default_timeout = 1
-
-    def __init__(self, reverse_configuration):
-        self._reverse_config = reverse_configuration
-
-    def generate(self):
-        return {self._default_profile: {'sources': self._reverse_config + self._default_sources,
-                                        'timeout': self._default_timeout}}
-
-
-class DirdFrontend(object):
-
-    def __init__(self):
-        self._no_context_separation_backend = _NoContextSeparationDirdFrontend()
-
-    def __getattr__(self, name):
-        selected_implementation = self._no_context_separation_backend
-        return getattr(selected_implementation, name)
-
-
-class _NoContextSeparationDirdFrontend(object):
+class _SourceGenerator(object):
 
     confd_api_version = '1.1'
     confd_default_timeout = 4
     phonebook_default_timeout = 4
     supported_types = ['csv', 'csv_ws', 'ldap', 'phonebook', 'xivo']
 
-    def services_yml(self):
-        profile_config = cti_displays_dao.get_profile_configuration()
-        lookups = _LookupServiceGenerator(profile_config).generate()
-        favorites = _FavoritesServiceGenerator(profile_config).generate()
+    def __init__(self, raw_sources):
+        self._raw_sources = raw_sources
 
-        reverse_config = cti_reverse_dao.get_config()
-        reverses = _ReverseServiceGenerator(reverse_config).generate()
-
-        return yaml.safe_dump({'services': {'lookup': lookups,
-                                            'favorites': favorites,
-                                            'reverse': reverses}})
-
-    def sources_yml(self):
-        sources = dict(self._format_source(source)
-                       for source in directory_dao.get_all_sources()
-                       if source['type'] in self.supported_types)
-        return yaml.safe_dump({'sources': sources})
-
-    def views_yml(self):
-        displays = _DisplayGenerator().generate()
-        associations = _AssociationGenerator().generate()
-        phone_associations = _PhoneAssociationGenerator().generate()
-
-        views_section = {'views': {'displays': displays,
-                                   'profile_to_display': associations,
-                                   'profile_to_display_phone': phone_associations}}
-
-        return yaml.safe_dump(views_section)
+    def generate(self):
+        return dict(self._format_source(source)
+                    for source in self._raw_sources
+                    if source['type'] in self.supported_types)
 
     def _format_source(self, source):
         name = source['name']
@@ -213,3 +165,77 @@ class _NoContextSeparationDirdFrontend(object):
                 return True
         else:
             return False
+
+
+class _FavoritesServiceGenerator(_LookupServiceGenerator):
+    pass
+
+
+class _ReverseServiceGenerator(object):
+
+    _default_sources = ['personal']
+    _default_profile = 'default'
+    _default_timeout = 1
+
+    def __init__(self, reverse_configuration):
+        self._reverse_config = reverse_configuration
+
+    def generate(self):
+        return {self._default_profile: {'sources': self._reverse_config + self._default_sources,
+                                        'timeout': self._default_timeout}}
+
+
+class DirdFrontend(object):
+
+    def __init__(self):
+        self._no_context_separation_backend = _NoContextSeparationDirdFrontend()
+        self._context_separated_backend = _ContextSeparatedDirdFrontend()
+
+    def __getattr__(self, name):
+        if bool(cti_main_dao.get_config()['main']['context_separation']):
+            selected_implementation = self._context_separated_backend
+        else:
+            selected_implementation = self._no_context_separation_backend
+
+        return getattr(selected_implementation, name)
+
+
+class _BaseDirdFrontend(object):
+
+    def services_yml(self):
+        profile_config = cti_displays_dao.get_profile_configuration()
+        lookups = _LookupServiceGenerator(profile_config).generate()
+        favorites = _FavoritesServiceGenerator(profile_config).generate()
+
+        reverse_config = cti_reverse_dao.get_config()
+        reverses = _ReverseServiceGenerator(reverse_config).generate()
+
+        return yaml.safe_dump({'services': {'lookup': lookups,
+                                            'favorites': favorites,
+                                            'reverse': reverses}})
+
+    def sources_yml(self):
+        raw_sources = directory_dao.get_all_sources()
+        sources = _SourceGenerator(raw_sources).generate()
+        return yaml.safe_dump({'sources': sources})
+
+    def views_yml(self):
+        displays = _DisplayGenerator().generate()
+        associations = _AssociationGenerator().generate()
+        phone_associations = _PhoneAssociationGenerator().generate()
+
+        views_section = {'views': {'displays': displays,
+                                   'profile_to_display': associations,
+                                   'profile_to_display_phone': phone_associations}}
+
+        return yaml.safe_dump(views_section)
+
+
+class _ContextSeparatedDirdFrontend(_BaseDirdFrontend):
+
+    pass
+
+
+class _NoContextSeparationDirdFrontend(_BaseDirdFrontend):
+
+    pass

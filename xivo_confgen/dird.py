@@ -62,12 +62,14 @@ class _DisplayGenerator(object):
 class _LookupServiceGenerator(object):
 
     _default_sources = ['personal']
+    _default_timeout = 2.9
 
     def __init__(self, profile_configuration):
         self._profile_config = profile_configuration
 
     def generate(self):
-        return {profile: {'sources': conf['sources'] + self._default_sources}
+        return {profile: {'sources': conf['sources'] + self._default_sources,
+                          'timeout': self._default_timeout}
                 for profile, conf in self._profile_config.iteritems()}
 
 

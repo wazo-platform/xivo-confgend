@@ -1,0 +1,14 @@
+[Unit]
+Description=xivo-confgend server
+ConditionPathExists=!/tmp/xivo-disabled
+After=network.target postgresql.service
+
+[Service]
+Type=forking
+ExecStartPre=/usr/bin/touch /var/log/xivo-confgend.log
+ExecStartPre=/bin/chown nobody /var/log/xivo-confgend.log
+ExecStart=/usr/bin/twistd --pidfile=/var/run/xivo-confgend.pid --rundir=/var/run --python=/usr/bin/xivo-confgend --logfile=/var/log/xivo-confgend.log --no_save
+PIDFile=/var/run/xivo-confgend.pid
+
+[Install]
+WantedBy=multi-user.target

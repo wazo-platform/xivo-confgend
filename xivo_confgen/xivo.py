@@ -24,4 +24,4 @@ class XivoFrontend(object):
 
     def uuid_yml(self):
         content = {'uuid': infos_dao.get().uuid}
-        return yaml.dump(content)
+        return yaml.safe_dump(content)

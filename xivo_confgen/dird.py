@@ -28,6 +28,11 @@ class _ContextSeparatedMixin(object):
 
     _context_separated_types = ['xivo']
 
+    def source_name(self, profile, name, type_):
+        if type_ in self._context_separated_types:
+            return '{}_{}'.format(name, profile)
+        return name
+
 
 class _AssociationGenerator(object):
 
@@ -92,10 +97,7 @@ class _ContextSeparatedLookupServiceGenerator(_ContextSeparatedMixin):
 
     def _generate_sources(self, profile, profile_config):
         for source, type_ in zip(profile_config['sources'], profile_config['types']):
-            if type_ in self._context_separated_types:
-                yield '{}_{}'.format(source, profile)
-            else:
-                yield source
+            yield self.source_name(profile, source, type_)
 
         for source in self._default_sources:
             yield source
@@ -209,7 +211,7 @@ class _ContextSeparatedSourceGenerator(_NoContextSeparationSourceGenerator, _Con
                 results[name] = config
                 continue
             for profile in self._profiles:
-                new_name = '{}_{}'.format(name, profile)
+                new_name = self.source_name(profile, name, config['type'])
                 results[new_name] = dict(config)
                 results[new_name]['name'] = new_name
                 results[new_name]['extra_search_params'] = {'context': profile}
@@ -240,10 +242,7 @@ class _ContextSeparatedReverseServiceGenerator(_ContextSeparatedMixin):
 
     def _generate_sources(self, profile, config):
         for source, type_ in zip(config['sources'], config['types']):
-            if type_ in self._context_separated_types:
-                yield '{}_{}'.format(source, profile)
-            else:
-                yield source
+            yield self.source_name(profile, source, type_)
 
         for source in self._default_sources:
             yield source

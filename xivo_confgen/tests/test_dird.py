@@ -19,15 +19,18 @@ import unittest
 import yaml
 
 from hamcrest import assert_that, equal_to, has_key, is_not
-from mock import Mock, patch
+from mock import DEFAULT, Mock, patch
 
 from ..dird import (DirdFrontend,
+                    _ContextSeparatedDirdFrontend,
                     _NoContextSeparationDirdFrontend,
                     _AssociationGenerator,
                     _PhoneAssociationGenerator,
                     _DisplayGenerator,
-                    _LookupServiceGenerator,
-                    _ReverseServiceGenerator,
+                    _NoContextSeparationLookupServiceGenerator,
+                    _ContextSeparatedLookupServiceGenerator,
+                    _ContextSeparatedReverseServiceGenerator,
+                    _NoContextSeparationReverseServiceGenerator,
                     _SourceGenerator)
 
 sources = [
@@ -334,13 +337,13 @@ class TestNoContextSeparationDirdFrontendViewsGenerators(unittest.TestCase):
         assert_that(result, equal_to(expected))
 
 
-class TestLookupServiceGenerator(unittest.TestCase):
+class TestNoContextSeparationLookupServiceGenerator(unittest.TestCase):
 
     def test_generate(self):
         profile_configuration = {'switchboard': {'sources': ['my-xivo', 'ldapone']},
                                  'internal': {'sources': ['ldapone', 'ldaptwo']}}
 
-        generator = _LookupServiceGenerator(profile_configuration)
+        generator = _NoContextSeparationLookupServiceGenerator(profile_configuration)
 
         result = generator.generate()
 
@@ -352,12 +355,34 @@ class TestLookupServiceGenerator(unittest.TestCase):
         assert_that(result, equal_to(expected))
 
 
-class TestServiceServiceGenerator(unittest.TestCase):
+class TestContextSeparatedLookupServiceGenerator(unittest.TestCase):
 
     def test_generate(self):
-        reverse_configuration = ['internal', 'xivodir']
+        profile_configuration = {'switchboard': {'sources': ['my-xivo', 'ldapone'],
+                                                 'types': ['xivo', 'ldap']},
+                                 'internal': {'sources': ['ldapone', 'ldaptwo'],
+                                              'types': ['ldap', 'ldap']},
+                                 'default': {'sources': ['ldapone', 'my-xivo'],
+                                             'types': ['ldap', 'xivo']}}
 
-        generator = _ReverseServiceGenerator(reverse_configuration)
+        generator = _ContextSeparatedLookupServiceGenerator(profile_configuration)
+
+        result = generator.generate()
+
+        expected = {'switchboard': {'sources': ['my-xivo_switchboard', 'ldapone', 'personal']},
+                    'internal': {'sources': ['ldapone', 'ldaptwo', 'personal']},
+                    'default': {'sources': ['ldapone', 'my-xivo_default', 'personal']}}
+
+        assert_that(result, equal_to(expected))
+
+
+class TestNoContextSeparatReverseServiceGenerator(unittest.TestCase):
+
+    def test_generate(self):
+        reverse_configuration = {'sources': ['internal', 'xivodir'],
+                                 'types': ['phonebook', 'xivo']}
+
+        generator = _NoContextSeparationReverseServiceGenerator(reverse_configuration)
 
         result = generator.generate()
 
@@ -367,21 +392,37 @@ class TestServiceServiceGenerator(unittest.TestCase):
         assert_that(result, equal_to(expected))
 
 
+class TestContextSeparatedReverseServiceGenerator(unittest.TestCase):
+
+    def test_generate(self):
+        reverse_configuration = {'sources': ['internal', 'xivodir'],
+                                 'types': ['phonebook', 'xivo']}
+
+        generator = _ContextSeparatedReverseServiceGenerator(reverse_configuration)
+
+        result = generator.generate()
+
+        expected = {'default': {'sources': ['internal', 'xivodir_default', 'personal'],
+                                'timeout': 1}}
+
+        assert_that(result, equal_to(expected))
+
+
 class TestNoContextSeparationDirdFrontendServices(unittest.TestCase):
 
     @patch('xivo_confgen.dird.cti_displays_dao', Mock())
     @patch('xivo_confgen.dird.cti_reverse_dao', Mock())
-    @patch('xivo_confgen.dird._ReverseServiceGenerator')
-    @patch('xivo_confgen.dird._LookupServiceGenerator')
-    @patch('xivo_confgen.dird._FavoritesServiceGenerator')
-    def test_services_yml(self, _FavoritesServiceGenerator, _LookupServiceGenerator, _ReverseServiceGenerator):
-        _LookupServiceGenerator.return_value.generate.return_value = 'lookups'
-        _FavoritesServiceGenerator.return_value.generate.return_value = 'favorites'
-        _ReverseServiceGenerator.return_value.generate.return_value = 'reverses'
-
+    def test_services_yml(self):
         frontend = _NoContextSeparationDirdFrontend()
+        with patch.multiple(frontend,
+                            _LookupServiceGenerator=DEFAULT,
+                            _FavoritesServiceGenerator=DEFAULT,
+                            _ReverseServiceGenerator=DEFAULT) as Factories:
+            Factories['_LookupServiceGenerator'].return_value.generate.return_value = 'lookups'
+            Factories['_FavoritesServiceGenerator'].return_value.generate.return_value = 'favorites'
+            Factories['_ReverseServiceGenerator'].return_value.generate.return_value = 'reverses'
 
-        result = frontend.services_yml()
+            result = frontend.services_yml()
 
         expected = {'services': {'lookup': 'lookups',
                                  'favorites': 'favorites',

@@ -60,7 +60,7 @@ class _DisplayGenerator(object):
         return dict(zip(self._fields, line_config))
 
 
-class _LookupServiceGenerator(object):
+class _NoContextSeparationLookupServiceGenerator(object):
 
     _default_sources = ['personal']
     _default_timeout = 2.9
@@ -72,6 +72,29 @@ class _LookupServiceGenerator(object):
         return {profile: {'sources': conf['sources'] + self._default_sources,
                           'timeout': self._default_timeout}
                 for profile, conf in self._profile_config.iteritems()}
+
+
+class _ContextSeparatedLookupServiceGenerator(object):
+
+    _default_sources = ['personal']
+    _context_separated_types = ['xivo']
+
+    def __init__(self, profile_configuration):
+        self._profile_config = profile_configuration
+
+    def generate(self):
+        return {profile: {'sources': list(self._generate_sources(profile, conf))}
+                for profile, conf in self._profile_config.iteritems()}
+
+    def _generate_sources(self, profile, profile_config):
+        for source, type_ in zip(profile_config['sources'], profile_config['types']):
+            if type_ in self._context_separated_types:
+                yield '{}_{}'.format(source, profile)
+            else:
+                yield source
+
+        for source in self._default_sources:
+            yield source
 
 
 class _SourceGenerator(object):
@@ -167,11 +190,41 @@ class _SourceGenerator(object):
             return False
 
 
-class _FavoritesServiceGenerator(_LookupServiceGenerator):
+class _NoContextSeparationFavoritesServiceGenerator(_NoContextSeparationLookupServiceGenerator):
     pass
 
 
-class _ReverseServiceGenerator(object):
+class _ContextSeparatedFavoritesServiceGenerator(_ContextSeparatedLookupServiceGenerator):
+    pass
+
+
+class _ContextSeparatedReverseServiceGenerator(object):
+
+    _default_sources = ['personal']
+    _default_profile = 'default'
+    _default_timeout = 1
+    _context_separated_types = ['xivo']
+
+    def __init__(self, reverse_configuration):
+        self._reverse_config = reverse_configuration
+
+    def generate(self):
+        sources = list(self._generate_sources(self._default_profile, self._reverse_config))
+        return {self._default_profile: {'sources': sources,
+                                        'timeout': self._default_timeout}}
+
+    def _generate_sources(self, profile, config):
+        for source, type_ in zip(config['sources'], config['types']):
+            if type_ in self._context_separated_types:
+                yield '{}_{}'.format(source, profile)
+            else:
+                yield source
+
+        for source in self._default_sources:
+            yield source
+
+
+class _NoContextSeparationReverseServiceGenerator(object):
 
     _default_sources = ['personal']
     _default_profile = 'default'
@@ -181,7 +234,7 @@ class _ReverseServiceGenerator(object):
         self._reverse_config = reverse_configuration
 
     def generate(self):
-        return {self._default_profile: {'sources': self._reverse_config + self._default_sources,
+        return {self._default_profile: {'sources': self._reverse_config['sources'] + self._default_sources,
                                         'timeout': self._default_timeout}}
 
 
@@ -204,11 +257,11 @@ class _BaseDirdFrontend(object):
 
     def services_yml(self):
         profile_config = cti_displays_dao.get_profile_configuration()
-        lookups = _LookupServiceGenerator(profile_config).generate()
-        favorites = _FavoritesServiceGenerator(profile_config).generate()
+        lookups = self._LookupServiceGenerator(profile_config).generate()
+        favorites = self._FavoritesServiceGenerator(profile_config).generate()
 
         reverse_config = cti_reverse_dao.get_config()
-        reverses = _ReverseServiceGenerator(reverse_config).generate()
+        reverses = self._ReverseServiceGenerator(reverse_config).generate()
 
         return yaml.safe_dump({'services': {'lookup': lookups,
                                             'favorites': favorites,
@@ -233,9 +286,13 @@ class _BaseDirdFrontend(object):
 
 class _ContextSeparatedDirdFrontend(_BaseDirdFrontend):
 
-    pass
+    _LookupServiceGenerator = _ContextSeparatedLookupServiceGenerator
+    _FavoritesServiceGenerator = _ContextSeparatedFavoritesServiceGenerator
+    _ReverseServiceGenerator = _ContextSeparatedReverseServiceGenerator
 
 
 class _NoContextSeparationDirdFrontend(_BaseDirdFrontend):
 
-    pass
+    _LookupServiceGenerator = _NoContextSeparationLookupServiceGenerator
+    _FavoritesServiceGenerator = _NoContextSeparationFavoritesServiceGenerator
+    _ReverseServiceGenerator = _NoContextSeparationReverseServiceGenerator

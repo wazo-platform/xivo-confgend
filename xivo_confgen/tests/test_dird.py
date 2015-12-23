@@ -31,7 +31,7 @@ from ..dird import (DirdFrontend,
                     _ContextSeparatedLookupServiceGenerator,
                     _ContextSeparatedReverseServiceGenerator,
                     _NoContextSeparationReverseServiceGenerator,
-                    _SourceGenerator)
+                    _NoContextSeparationSourceGenerator)
 
 sources = [
     {'type': 'xivo',
@@ -115,10 +115,10 @@ class TestDirdFrontend(unittest.TestCase):
         assert_that(function, equal_to(frontend._context_separated_backend.sources_yml))
 
 
-class TestSourceGenerator(unittest.TestCase):
+class TestNoContextSeparationSourceGenerator(unittest.TestCase):
 
     def test_sources_yml(self):
-        generator = _SourceGenerator(sources)
+        generator = _NoContextSeparationSourceGenerator(sources)
 
         result = generator.generate()
 
@@ -225,7 +225,7 @@ class TestSourceGenerator(unittest.TestCase):
             'xivo_verify_certificate': False,
         }
 
-        generator = _SourceGenerator(source)
+        generator = _NoContextSeparationSourceGenerator(source)
         config = generator._format_confd_config(source)
 
         assert_that(config, is_not(has_key('port')))
@@ -236,14 +236,14 @@ class TestSourceGenerator(unittest.TestCase):
             'xivo_custom_ca_path': None,
         }
 
-        assert_that(_SourceGenerator(source)._format_confd_verify_certificate(source), equal_to(True))
+        assert_that(_NoContextSeparationSourceGenerator(source)._format_confd_verify_certificate(source), equal_to(True))
 
     def test_format_confd_verify_no(self):
         source = {
             'xivo_verify_certificate': False,
         }
 
-        assert_that(_SourceGenerator(source)._format_confd_verify_certificate(source), equal_to(False))
+        assert_that(_NoContextSeparationSourceGenerator(source)._format_confd_verify_certificate(source), equal_to(False))
 
     def test_format_confd_verify_custom(self):
         source = {
@@ -251,7 +251,7 @@ class TestSourceGenerator(unittest.TestCase):
             'xivo_custom_ca_path': '/tmp/s.crt',
         }
 
-        assert_that(_SourceGenerator(source)._format_confd_verify_certificate(source), equal_to('/tmp/s.crt'))
+        assert_that(_NoContextSeparationSourceGenerator(source)._format_confd_verify_certificate(source), equal_to('/tmp/s.crt'))
 
 
 class TestDirdFrontEndViews(unittest.TestCase):

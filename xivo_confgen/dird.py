@@ -24,6 +24,11 @@ from xivo_dao import cti_reverse_dao
 from xivo_dao import directory_dao
 
 
+class _ContextSeparatedMixin(object):
+
+    _context_separated_types = ['xivo']
+
+
 class _AssociationGenerator(object):
 
     def generate(self):
@@ -74,10 +79,9 @@ class _NoContextSeparationLookupServiceGenerator(object):
                 for profile, conf in self._profile_config.iteritems()}
 
 
-class _ContextSeparatedLookupServiceGenerator(object):
+class _ContextSeparatedLookupServiceGenerator(_ContextSeparatedMixin):
 
     _default_sources = ['personal']
-    _context_separated_types = ['xivo']
 
     def __init__(self, profile_configuration):
         self._profile_config = profile_configuration
@@ -97,7 +101,7 @@ class _ContextSeparatedLookupServiceGenerator(object):
             yield source
 
 
-class _SourceGenerator(object):
+class _NoContextSeparationSourceGenerator(object):
 
     confd_api_version = '1.1'
     confd_default_timeout = 4
@@ -190,6 +194,28 @@ class _SourceGenerator(object):
             return False
 
 
+class _ContextSeparatedSourceGenerator(_NoContextSeparationSourceGenerator, _ContextSeparatedMixin):
+
+    def __init__(self, *args, **kwargs):
+        super(_ContextSeparatedSourceGenerator, self).__init__(*args, **kwargs)
+        self._profiles = cti_context_dao.get_context_names()
+
+    def generate(self):
+        raw_result = super(_ContextSeparatedSourceGenerator, self).generate()
+
+        results = {}
+        for name, config in raw_result.iteritems():
+            if config['type'] not in self._context_separated_types:
+                results[name] = config
+                continue
+            for profile in self._profiles:
+                new_name = '{}_{}'.format(name, profile)
+                results[new_name] = dict(config)
+                results[new_name]['name'] = new_name
+                results[new_name]['extra_search_params'] = {'context': profile}
+        return results
+
+
 class _NoContextSeparationFavoritesServiceGenerator(_NoContextSeparationLookupServiceGenerator):
     pass
 
@@ -198,12 +224,11 @@ class _ContextSeparatedFavoritesServiceGenerator(_ContextSeparatedLookupServiceG
     pass
 
 
-class _ContextSeparatedReverseServiceGenerator(object):
+class _ContextSeparatedReverseServiceGenerator(_ContextSeparatedMixin):
 
     _default_sources = ['personal']
     _default_profile = 'default'
     _default_timeout = 1
-    _context_separated_types = ['xivo']
 
     def __init__(self, reverse_configuration):
         self._reverse_config = reverse_configuration
@@ -257,10 +282,10 @@ class _BaseDirdFrontend(object):
 
     def services_yml(self):
         profile_config = cti_displays_dao.get_profile_configuration()
+        reverse_config = cti_reverse_dao.get_config()
+
         lookups = self._LookupServiceGenerator(profile_config).generate()
         favorites = self._FavoritesServiceGenerator(profile_config).generate()
-
-        reverse_config = cti_reverse_dao.get_config()
         reverses = self._ReverseServiceGenerator(reverse_config).generate()
 
         return yaml.safe_dump({'services': {'lookup': lookups,
@@ -269,7 +294,9 @@ class _BaseDirdFrontend(object):
 
     def sources_yml(self):
         raw_sources = directory_dao.get_all_sources()
-        sources = _SourceGenerator(raw_sources).generate()
+
+        sources = self._SourceGenerator(raw_sources).generate()
+
         return yaml.safe_dump({'sources': sources})
 
     def views_yml(self):
@@ -289,6 +316,7 @@ class _ContextSeparatedDirdFrontend(_BaseDirdFrontend):
     _LookupServiceGenerator = _ContextSeparatedLookupServiceGenerator
     _FavoritesServiceGenerator = _ContextSeparatedFavoritesServiceGenerator
     _ReverseServiceGenerator = _ContextSeparatedReverseServiceGenerator
+    _SourceGenerator = _ContextSeparatedSourceGenerator
 
 
 class _NoContextSeparationDirdFrontend(_BaseDirdFrontend):
@@ -296,3 +324,4 @@ class _NoContextSeparationDirdFrontend(_BaseDirdFrontend):
     _LookupServiceGenerator = _NoContextSeparationLookupServiceGenerator
     _FavoritesServiceGenerator = _NoContextSeparationFavoritesServiceGenerator
     _ReverseServiceGenerator = _NoContextSeparationReverseServiceGenerator
+    _SourceGenerator = _NoContextSeparationSourceGenerator

@@ -328,8 +328,10 @@ class TestLookupServiceGenerator(unittest.TestCase):
 
         result = generator.generate()
 
-        expected = {'switchboard': {'sources': ['my-xivo', 'ldapone', 'personal']},
-                    'internal': {'sources': ['ldapone', 'ldaptwo', 'personal']}}
+        expected = {'switchboard': {'sources': ['my-xivo', 'ldapone', 'personal'],
+                                    'timeout': _LookupServiceGenerator._default_timeout},
+                    'internal': {'sources': ['ldapone', 'ldaptwo', 'personal'],
+                                 'timeout': _LookupServiceGenerator._default_timeout}}
 
         assert_that(result, equal_to(expected))
 

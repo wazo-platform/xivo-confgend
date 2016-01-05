@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Avencall
+# Copyright (C) 2015-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ from ..dird import (DirdFrontend,
                     _ContextSeparatedReverseServiceGenerator,
                     _NoContextSeparationReverseServiceGenerator,
                     _NoContextSeparationSourceGenerator)
+
+LOOKUP_TIMEOUT = _NoContextSeparationLookupServiceGenerator._default_timeout
 
 sources = [
     {'type': 'xivo',
@@ -348,9 +350,9 @@ class TestNoContextSeparationLookupServiceGenerator(unittest.TestCase):
         result = generator.generate()
 
         expected = {'switchboard': {'sources': ['my-xivo', 'ldapone', 'personal'],
-                                    'timeout': _LookupServiceGenerator._default_timeout},
+                                    'timeout': LOOKUP_TIMEOUT},
                     'internal': {'sources': ['ldapone', 'ldaptwo', 'personal'],
-                                 'timeout': _LookupServiceGenerator._default_timeout}}
+                                 'timeout': LOOKUP_TIMEOUT}}
 
         assert_that(result, equal_to(expected))
 
@@ -369,9 +371,12 @@ class TestContextSeparatedLookupServiceGenerator(unittest.TestCase):
 
         result = generator.generate()
 
-        expected = {'switchboard': {'sources': ['my-xivo_switchboard', 'ldapone', 'personal']},
-                    'internal': {'sources': ['ldapone', 'ldaptwo', 'personal']},
-                    'default': {'sources': ['ldapone', 'my-xivo_default', 'personal']}}
+        expected = {'switchboard': {'sources': ['my-xivo_switchboard', 'ldapone', 'personal'],
+                                    'timeout': LOOKUP_TIMEOUT},
+                    'internal': {'sources': ['ldapone', 'ldaptwo', 'personal'],
+                                 'timeout': LOOKUP_TIMEOUT},
+                    'default': {'sources': ['ldapone', 'my-xivo_default', 'personal'],
+                                'timeout': LOOKUP_TIMEOUT}}
 
         assert_that(result, equal_to(expected))
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Avencall
+# Copyright (C) 2015-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ class _DisplayGenerator(object):
         return dict(zip(self._fields, line_config))
 
 
-class _NoContextSeparationLookupServiceGenerator(object):
+class _LookupServiceMixin(object):
 
     _default_sources = ['personal']
     _default_timeout = 2.9
@@ -78,21 +78,20 @@ class _NoContextSeparationLookupServiceGenerator(object):
     def __init__(self, profile_configuration):
         self._profile_config = profile_configuration
 
+
+class _NoContextSeparationLookupServiceGenerator(_LookupServiceMixin):
+
     def generate(self):
         return {profile: {'sources': conf['sources'] + self._default_sources,
                           'timeout': self._default_timeout}
                 for profile, conf in self._profile_config.iteritems()}
 
 
-class _ContextSeparatedLookupServiceGenerator(_ContextSeparatedMixin):
-
-    _default_sources = ['personal']
-
-    def __init__(self, profile_configuration):
-        self._profile_config = profile_configuration
+class _ContextSeparatedLookupServiceGenerator(_ContextSeparatedMixin, _LookupServiceMixin):
 
     def generate(self):
-        return {profile: {'sources': list(self._generate_sources(profile, conf))}
+        return {profile: {'sources': list(self._generate_sources(profile, conf)),
+                          'timeout': self._default_timeout}
                 for profile, conf in self._profile_config.iteritems()}
 
     def _generate_sources(self, profile, profile_config):

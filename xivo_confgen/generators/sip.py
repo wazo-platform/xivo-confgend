@@ -28,10 +28,15 @@ CCNR_AVAILABLE_TIMER = 900
 
 class SipConf(object):
 
-    def __init__(self, trunk_generator):
+    def __init__(self, trunk_generator, user_generator):
         self.trunk_generator = trunk_generator
+        self.user_generator = user_generator
 
     def generate(self, output):
+        with session_scope():
+            self._generate(output)
+
+    def _generate(self, output):
         data_general = asterisk_conf_dao.find_sip_general_settings()
         self._gen_general(data_general, output)
         print >> output
@@ -40,15 +45,14 @@ class SipConf(object):
         self._gen_authentication(data_auth, output)
         print >> output
 
-        with session_scope():
-            self._gen_trunk(output)
-            print >> output
+        self._gen_trunk(output)
+        print >> output
 
-        data_pickup = asterisk_conf_dao.find_sip_pickup_settings()
-        data_user = asterisk_conf_dao.find_sip_user_settings()
         data_ccss = asterisk_conf_dao.find_extenfeatures_settings(['cctoggle'])
         ccss_options = self._ccss_options(data_ccss)
-        self._gen_user(data_pickup, data_user, ccss_options, output)
+        self._gen_user(ccss_options, output)
+
+        print >> output
 
     def _gen_general(self, data_general, output):
         print >> output, '[general]'
@@ -82,61 +86,9 @@ class SipConf(object):
         for line in self.trunk_generator.generate():
             print >> output, line
 
-    def _gen_user(self, data_pickup, data_user, ccss_options, output):
-        sip_unused_values = (
-            'id', 'name', 'protocol',
-            'category', 'commented', 'initialized',
-            'disallow', 'regseconds', 'lastms',
-            'name', 'fullcontact', 'ipaddr', 'number', 'uuid',
-            'firstname', 'lastname'
-        )
-
-        pickups = {}
-        for p in data_pickup:
-            user = pickups.setdefault(p[0], {})
-            user.setdefault(p[1], []).append(str(p[2]))
-
-        for user in data_user:
-            print >> output, "\n[%s]" % user['name']
-
-            for key, value in user.iteritems():
-                if key in sip_unused_values or value in (None, ''):
-                    continue
-
-                if key not in ('allow', 'subscribemwi'):
-                    print >> output, gen_value_line(key, value)
-
-                if key == 'allow':
-                    print >> output, gen_value_line('disallow', 'all')
-                    for codec in value.split(','):
-                        print >> output, gen_value_line("allow", codec)
-
-                if key == 'subscribemwi':
-                    value = 'no' if value == 0 else 'yes'
-                    print >> output, gen_value_line('subscribemwi', value)
-
-            print >> output, gen_value_line('setvar', 'PICKUPMARK=%s%%%s' % (user['number'], user['context']))
-            print >> output, gen_value_line('setvar', 'TRANSFER_CONTEXT=%s' % user['context'])
-            uuid = user.get('uuid')
-            if uuid:
-                print >> output, gen_value_line('setvar', 'XIVO_USERUUID={}'.format(uuid))
-
-            callerid = user.get('callerid')
-            if callerid:
-                print >> output, gen_value_line('description', '%s' % callerid)
-
-            if user['name'] in pickups:
-                p = pickups[user['name']]
-                # WARNING:
-                # pickupgroup: trappable calls  (xivo members)
-                # callgroup  : can pickup calls (xivo pickups)
-                if 'member' in p:
-                    print >> output, "namedpickupgroup = " + ','.join(frozenset(p['member']))
-                if 'pickup' in p:
-                    print >> output, "namedcallgroup = " + ','.join(frozenset(p['pickup']))
-
-            for ccss_option, value in ccss_options.iteritems():
-                print >> output, gen_value_line(ccss_option, value)
+    def _gen_user(self, ccss_options, output):
+        for line in self.user_generator.generate(ccss_options):
+            print >> output, line
 
     def _ccss_options(self, data_ccss):
         if data_ccss:

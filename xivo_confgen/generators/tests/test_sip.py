@@ -19,19 +19,20 @@ import unittest
 from mock import Mock
 
 from StringIO import StringIO
-from uuid import uuid4
 
 from xivo_confgen.generators import sip
 from xivo_confgen.generators.tests.util import assert_config_equal
 from xivo_confgen.generators.tests.util import assert_section_equal
 from xivo_confgen.generators.sip_trunk import SipTrunkGenerator
+from xivo_confgen.generators.sip_user import SipUserGenerator
 
 
 class TestSipConf(unittest.TestCase):
 
     def setUp(self):
         self.trunk_generator = Mock(SipTrunkGenerator)
-        self.sip_conf = sip.SipConf(self.trunk_generator)
+        self.user_generator = Mock(SipUserGenerator)
+        self.sip_conf = sip.SipConf(self.trunk_generator, self.user_generator)
         self.output = StringIO()
 
     def test_get_line(self):
@@ -78,19 +79,19 @@ class TestSipConf(unittest.TestCase):
 
     def test_gen_trunk(self):
         self.trunk_generator.generate.return_value = [
-            '[trunksip]',
-            'amaflags = default',
-            'regseconds = 0',
-            'call-limit = 10',
-            'host = dynamic',
-            'type = peer',
-            'subscribemwi = no',
+            u'[trûnksip]',
+            u'amaflags = default',
+            u'regseconds = 0',
+            u'call-limit = 10',
+            u'host = dynamic',
+            u'type = peer',
+            u'subscribemwi = no',
         ]
 
         self.sip_conf._gen_trunk(self.output)
 
-        assert_section_equal(self.output.getvalue(), '''
-            [trunksip]
+        assert_section_equal(self.output.getvalue(), u'''
+            [trûnksip]
             amaflags = default
             regseconds = 0
             call-limit = 10
@@ -106,152 +107,22 @@ class TestSipConf(unittest.TestCase):
 
         self.assertEqual(u'', self.output.getvalue())
 
-    def test__gen_user(self):
-        pickup = []
-        ccss_options = {
-            'cc_foobar': 'foo',
-        }
-        uuid = str(uuid4())
-        user = [{'name': 'jean-yves',
-                 'number': 101,
-                 'context': 'default',
-                 'uuid': uuid}]
+    def test_gen_user(self):
+        self.user_generator.generate.return_value = [
+            u'[usèr]',
+            u'secret = secret',
+            u'host = dynamic',
+            u'type = friend',
+        ]
 
-        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
+        self.sip_conf._gen_user({}, self.output)
 
-        assert_config_equal(self.output.getvalue(), '''
-            [jean-yves]
-            context = default
-            setvar = PICKUPMARK=101%default
-            setvar = TRANSFER_CONTEXT=default
-            setvar = XIVO_USERUUID={uuid}
-            cc_foobar = foo
-        '''.format(uuid=uuid))
-
-    def test_gen_user_sip_with_no_xivo_user(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'idbehold',
-                 'number': 101,
-                 'context': 'default'}]
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
-
-        assert_config_equal(self.output.getvalue(), '''
-            [idbehold]
-            context = default
-            setvar = PICKUPMARK=101%default
-            setvar = TRANSFER_CONTEXT=default
+        assert_section_equal(self.output.getvalue(), u'''
+            [usèr]
+            secret = secret
+            host = dynamic
+            type = friend
         ''')
-
-    def test__gen_user_with_accent(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'papi',
-                 'callerid': '"pépè" <45789>',
-                 'number': 101,
-                 'uuid': str(uuid4()),
-                 'context': 'default'}]
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
-
-        self.assertIn(u'callerid = "pépè" <45789>', self.output.getvalue())
-        self.assertIn(u'description = "pépè" <45789>', self.output.getvalue())
-
-    def test__gen_user_empty_value(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'novalue',
-                 'foobar': '',
-                 'number': 101,
-                 'uuid': str(uuid4()),
-                 'context': 'default'}]
-        output = StringIO()
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-
-        self.assertNotIn(u'foobar', output.getvalue())
-
-        user = [{'name': 'novalue',
-                 'foobar': None,
-                 'number': 101,
-                 'uuid': str(uuid4()),
-                 'context': 'default'}]
-        output = StringIO()
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-
-        self.assertNotIn(u'foobar', output.getvalue())
-
-    def test__gen_user_codec(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'papi',
-                 'allow': 'g723,gsm',
-                 'number': 101,
-                 'context': 'default',
-                 'uuid': str(uuid4())}]
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
-
-        result = self.output.getvalue()
-        self.assertIn('disallow = all', result)
-        self.assertIn('allow = g723', result)
-        self.assertIn('allow = gsm', result)
-
-    def test__gen_user_subscribemwi(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'voicemail',
-                 'subscribemwi': 0,
-                 'number': 101,
-                 'uuid': str(uuid4()),
-                 'context': 'default'}]
-        output = StringIO()
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-
-        self.assertIn('subscribemwi = no', output.getvalue())
-
-        user = [{'name': 'voicemail',
-                 'subscribemwi': 1,
-                 'number': 101,
-                 'uuid': str(uuid4()),
-                 'context': 'default'}]
-        output = StringIO()
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-
-        self.assertIn('subscribemwi = yes', output.getvalue())
-
-    def test__gen_user_unused_keys(self):
-        pickup = []
-        ccss_options = {}
-        uuid = str(uuid4())
-        user = [{'id': 1,
-                 'uuid': uuid,
-                 'name': 'unused',
-                 'protocol': 'sip',
-                 'category': 5,
-                 'commented': 0,
-                 'initialized': 1,
-                 'disallow': 'all',
-                 'regseconds': 1,
-                 'lastms': 5,
-                 'fullcontact': 'pepe',
-                 'ipaddr': None,
-                 'number': 101,
-                 'context': 'default'}]
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
-
-        assert_config_equal(self.output.getvalue(), '''
-            [unused]
-            context = default
-            setvar = PICKUPMARK=101%default
-            setvar = TRANSFER_CONTEXT=default
-            setvar = XIVO_USERUUID={uuid}
-        '''.format(uuid=uuid))
 
     def test__ccss_options_enabled(self):
         data_ccss = [{'commented': 0}]

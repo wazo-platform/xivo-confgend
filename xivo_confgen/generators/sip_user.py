@@ -21,16 +21,16 @@ from __future__ import unicode_literals
 
 class SipUserGenerator(object):
 
-    EXCLUDE = ('name',
-               'protocol',
-               'category',
-               'initialized',
-               'disallow',
-               'regseconds',
-               'lastms',
-               'name',
-               'fullcontact',
-               'ipaddr')
+    EXCLUDE_OPTIONS = ('name',
+                       'protocol',
+                       'category',
+                       'initialized',
+                       'disallow',
+                       'regseconds',
+                       'lastms',
+                       'name',
+                       'fullcontact',
+                       'ipaddr')
 
     def __init__(self, dao):
         self.dao = dao
@@ -48,7 +48,7 @@ class SipUserGenerator(object):
         for line in self.format_options(ccss_options.iteritems()):
             yield line
 
-        options = row.UserSIP.all_options(self.EXCLUDE)
+        options = row.UserSIP.all_options(self.EXCLUDE_OPTIONS)
         for line in self.format_allow_options(options):
             yield line
         for line in self.format_options(options):
@@ -73,7 +73,7 @@ class SipUserGenerator(object):
             yield 'description = {}'.format(row.UserSIP.callerid)
 
     def format_allow_options(self, options):
-        allow_found = any(1 for name, value in options if name == "allow")
+        allow_found = 'allow' in (option_name for option_name, _ in options)
         if allow_found:
             yield 'disallow = all'
 

@@ -21,12 +21,12 @@ from __future__ import unicode_literals
 
 class SipTrunkGenerator(object):
 
-    EXCLUDE = ('id',
-               'name',
-               'commented',
-               'protocol',
-               'category',
-               'disallow')
+    EXCLUDE_OPTIONS = ('id',
+                       'name',
+                       'commented',
+                       'protocol',
+                       'category',
+                       'disallow')
 
     def __init__(self, dao):
         self.dao = dao
@@ -38,8 +38,8 @@ class SipTrunkGenerator(object):
                 yield line
 
     def format_trunk(self, trunk):
-        options = trunk.all_options(exclude=self.EXCLUDE)
-        allow_present = any(1 for o in options if o[0] == "allow")
+        options = trunk.all_options(exclude=self.EXCLUDE_OPTIONS)
+        allow_present = 'allow' in (option_name for option_name, _ in options)
 
         yield '[{}]'.format(trunk.name)
 

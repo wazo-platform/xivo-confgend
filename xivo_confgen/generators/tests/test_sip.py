@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2015 Avencall
+# Copyright (C) 2011-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,19 +16,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
+from mock import Mock
 
 from StringIO import StringIO
-from uuid import uuid4
 
 from xivo_confgen.generators import sip
 from xivo_confgen.generators.tests.util import assert_config_equal
 from xivo_confgen.generators.tests.util import assert_section_equal
+from xivo_confgen.generators.sip_trunk import SipTrunkGenerator
+from xivo_confgen.generators.sip_user import SipUserGenerator
 
 
 class TestSipConf(unittest.TestCase):
 
     def setUp(self):
-        self.sip_conf = sip.SipConf()
+        self.trunk_generator = Mock(SipTrunkGenerator)
+        self.user_generator = Mock(SipUserGenerator)
+        self.sip_conf = sip.SipConf(self.trunk_generator, self.user_generator)
         self.output = StringIO()
 
     def test_get_line(self):
@@ -73,6 +77,29 @@ class TestSipConf(unittest.TestCase):
             auth = test#test@test.com
         ''')
 
+    def test_gen_trunk(self):
+        self.trunk_generator.generate.return_value = [
+            u'[trûnksip]',
+            u'amaflags = default',
+            u'regseconds = 0',
+            u'call-limit = 10',
+            u'host = dynamic',
+            u'type = peer',
+            u'subscribemwi = no',
+        ]
+
+        self.sip_conf._gen_trunk(self.output)
+
+        assert_section_equal(self.output.getvalue(), u'''
+            [trûnksip]
+            amaflags = default
+            regseconds = 0
+            call-limit = 10
+            host = dynamic
+            type = peer
+            subscribemwi = no
+        ''')
+
     def test_gen_authentication_empty(self):
         sipauthentication = []
 
@@ -80,195 +107,22 @@ class TestSipConf(unittest.TestCase):
 
         self.assertEqual(u'', self.output.getvalue())
 
-    def test_gen_trunk(self):
-        trunksip = [{'id': 10, 'name': u'cedric_51', 'type': u'peer', 'username': u'cedric_51',
-                     'secret': u'cedric_51', 'md5secret': u'', 'context': u'default', 'language': None,
-                     'accountcode': None, 'amaflags': u'default', 'allowtransfer': None, 'fromuser': None,
-                     'fromdomain': None, 'mailbox': None, 'subscribemwi': 0, 'buggymwi': None, 'call-limit': 0,
-                     'callerid': None, 'fullname': None, 'cid_number': None, 'maxcallbitrate': None,
-                     'insecure': None, 'nat': None, 'promiscredir': None, 'usereqphone': None,
-                     'videosupport': None, 'trustrpid': None, 'sendrpid': None, 'allowsubscribe': None,
-                     'allowoverlap': None, 'dtmfmode': None, 'rfc2833compensate': None, 'qualify': None,
-                     'g726nonstandard': None, 'disallow': None, 'allow': None, 'autoframing': None,
-                     'mohinterpret': None, 'mohsuggest': None, 'useclientcode': None, 'progressinband': None,
-                     't38pt_udptl': None, 't38pt_usertpsource': None, 'rtptimeout': None, 'rtpholdtimeout': None,
-                     'rtpkeepalive': None, 'deny': None, 'permit': None, 'defaultip': None, 'setvar': u'',
-                     'host': u'dynamic', 'port': 5060, 'regexten': None, 'subscribecontext': None,
-                     'fullcontact': None, 'vmexten': None, 'callingpres': None, 'ipaddr': u'', 'regseconds': 0,
-                     'regserver': None, 'lastms': u'', 'parkinglot': None, 'protocol': u'sip', 'category': u'trunk',
-                     'outboundproxy': None, 'transport': u'udp', 'remotesecret': None, 'directmedia': u'yes',
-                     'callcounter': None, 'busylevel': None, 'ignoresdpversion': None, 'session-timers': None,
-                     'session-expires': None, 'session-minse': None, 'session-refresher': None,
-                     'callbackextension': None, 'registertrying': None, 'timert1': None, 'timerb': None,
-                     'qualifyfreq': None, 'contactpermit': None, 'contactdeny': None, 'unsolicited_mailbox': None,
-                     'use_q850_reason': None, 'encryption': None, 'snom_aoc_enabled': None, 'maxforwards': None,
-                     'disallowed_methods': None, 'textsupport': None, 'callgroup': None, 'pickupgroup': None,
-                     'commented': 0}]
+    def test_gen_user(self):
+        self.user_generator.generate.return_value = [
+            u'[usèr]',
+            u'secret = secret',
+            u'host = dynamic',
+            u'type = friend',
+        ]
 
-        self.sip_conf._gen_trunk(trunksip, self.output)
+        self.sip_conf._gen_user({}, self.output)
 
-        assert_section_equal(self.output.getvalue(), '''
-            [cedric_51]
-            amaflags = default
-            regseconds = 0
-            call-limit = 0
-            port = 5060
-            transport = udp
-            directmedia = yes
+        assert_section_equal(self.output.getvalue(), u'''
+            [usèr]
+            secret = secret
             host = dynamic
-            context = default
-            secret = cedric_51
-            type = peer
-            username = cedric_51
-            subscribemwi = 0
+            type = friend
         ''')
-
-    def test__gen_user(self):
-        pickup = []
-        ccss_options = {
-            'cc_foobar': 'foo',
-        }
-        uuid = str(uuid4())
-        user = [{'name': 'jean-yves',
-                 'number': 101,
-                 'context': 'default',
-                 'uuid': uuid}]
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
-
-        assert_config_equal(self.output.getvalue(), '''
-            [jean-yves]
-            context = default
-            setvar = PICKUPMARK=101%default
-            setvar = TRANSFER_CONTEXT=default
-            setvar = XIVO_USERUUID={uuid}
-            cc_foobar = foo
-        '''.format(uuid=uuid))
-
-    def test_gen_user_sip_with_no_xivo_user(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'idbehold',
-                 'number': 101,
-                 'context': 'default'}]
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
-
-        assert_config_equal(self.output.getvalue(), '''
-            [idbehold]
-            context = default
-            setvar = PICKUPMARK=101%default
-            setvar = TRANSFER_CONTEXT=default
-        ''')
-
-    def test__gen_user_with_accent(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'papi',
-                 'callerid': '"pépè" <45789>',
-                 'number': 101,
-                 'uuid': str(uuid4()),
-                 'context': 'default'}]
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
-
-        self.assertIn(u'callerid = "pépè" <45789>', self.output.getvalue())
-        self.assertIn(u'description = "pépè" <45789>', self.output.getvalue())
-
-    def test__gen_user_empty_value(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'novalue',
-                 'foobar': '',
-                 'number': 101,
-                 'uuid': str(uuid4()),
-                 'context': 'default'}]
-        output = StringIO()
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-
-        self.assertNotIn(u'foobar', output.getvalue())
-
-        user = [{'name': 'novalue',
-                 'foobar': None,
-                 'number': 101,
-                 'uuid': str(uuid4()),
-                 'context': 'default'}]
-        output = StringIO()
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-
-        self.assertNotIn(u'foobar', output.getvalue())
-
-    def test__gen_user_codec(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'papi',
-                 'allow': 'g723,gsm',
-                 'number': 101,
-                 'context': 'default',
-                 'uuid': str(uuid4())}]
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
-
-        result = self.output.getvalue()
-        self.assertIn('disallow = all', result)
-        self.assertIn('allow = g723', result)
-        self.assertIn('allow = gsm', result)
-
-    def test__gen_user_subscribemwi(self):
-        pickup = []
-        ccss_options = {}
-        user = [{'name': 'voicemail',
-                 'subscribemwi': 0,
-                 'number': 101,
-                 'uuid': str(uuid4()),
-                 'context': 'default'}]
-        output = StringIO()
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-
-        self.assertIn('subscribemwi = no', output.getvalue())
-
-        user = [{'name': 'voicemail',
-                 'subscribemwi': 1,
-                 'number': 101,
-                 'uuid': str(uuid4()),
-                 'context': 'default'}]
-        output = StringIO()
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, output)
-
-        self.assertIn('subscribemwi = yes', output.getvalue())
-
-    def test__gen_user_unused_keys(self):
-        pickup = []
-        ccss_options = {}
-        uuid = str(uuid4())
-        user = [{'id': 1,
-                 'uuid': uuid,
-                 'name': 'unused',
-                 'protocol': 'sip',
-                 'category': 5,
-                 'commented': 0,
-                 'initialized': 1,
-                 'disallow': 'all',
-                 'regseconds': 1,
-                 'lastms': 5,
-                 'fullcontact': 'pepe',
-                 'ipaddr': None,
-                 'number': 101,
-                 'context': 'default'}]
-
-        self.sip_conf._gen_user(pickup, user, ccss_options, self.output)
-
-        assert_config_equal(self.output.getvalue(), '''
-            [unused]
-            context = default
-            setvar = PICKUPMARK=101%default
-            setvar = TRANSFER_CONTEXT=default
-            setvar = XIVO_USERUUID={uuid}
-        '''.format(uuid=uuid))
 
     def test__ccss_options_enabled(self):
         data_ccss = [{'commented': 0}]

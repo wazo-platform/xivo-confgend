@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2015 Avencall
+# Copyright (C) 2011-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from xivo_dao.helpers.db_utils import session_scope
 from xivo_dao import asterisk_conf_dao
 
 CC_POLICY_ENABLED = 'generic'
@@ -27,7 +28,15 @@ CCNR_AVAILABLE_TIMER = 900
 
 class SipConf(object):
 
+    def __init__(self, trunk_generator, user_generator):
+        self.trunk_generator = trunk_generator
+        self.user_generator = user_generator
+
     def generate(self, output):
+        with session_scope():
+            self._generate(output)
+
+    def _generate(self, output):
         data_general = asterisk_conf_dao.find_sip_general_settings()
         self._gen_general(data_general, output)
         print >> output
@@ -36,15 +45,14 @@ class SipConf(object):
         self._gen_authentication(data_auth, output)
         print >> output
 
-        data_trunk = asterisk_conf_dao.find_sip_trunk_settings()
-        self._gen_trunk(data_trunk, output)
+        self._gen_trunk(output)
         print >> output
 
-        data_pickup = asterisk_conf_dao.find_sip_pickup_settings()
-        data_user = asterisk_conf_dao.find_sip_user_settings()
         data_ccss = asterisk_conf_dao.find_extenfeatures_settings(['cctoggle'])
         ccss_options = self._ccss_options(data_ccss)
-        self._gen_user(data_pickup, data_user, ccss_options, output)
+        self._gen_user(ccss_options, output)
+
+        print >> output
 
     def _gen_general(self, data_general, output):
         print >> output, '[general]'
@@ -74,79 +82,13 @@ class SipConf(object):
                 mode = '#' if auth['secretmode'] == 'md5' else ':'
                 print >> output, "auth = %s%s%s@%s" % (auth['user'], mode, auth['secret'], auth['realm'])
 
-    def _gen_trunk(self, data_trunk, output):
-        for trunk in data_trunk:
-            print >> output, "\n[%s]" % trunk['name']
+    def _gen_trunk(self, output):
+        for line in self.trunk_generator.generate():
+            print >> output, line
 
-            for k, v in trunk.iteritems():
-                if k in ('id', 'name', 'protocol', 'category', 'commented', 'disallow') or v in (None, ''):
-                    continue
-
-                if isinstance(v, unicode):
-                    v = v.encode('utf8')
-
-                if k == 'allow':
-                    print >> output, "disallow = all"
-                    for c in v.split(','):
-                        print >> output, "allow = " + str(c)
-                else:
-                    print >> output, k, '=', v
-
-    def _gen_user(self, data_pickup, data_user, ccss_options, output):
-        sip_unused_values = (
-            'id', 'name', 'protocol',
-            'category', 'commented', 'initialized',
-            'disallow', 'regseconds', 'lastms',
-            'name', 'fullcontact', 'ipaddr', 'number', 'uuid',
-            'firstname', 'lastname'
-        )
-
-        pickups = {}
-        for p in data_pickup:
-            user = pickups.setdefault(p[0], {})
-            user.setdefault(p[1], []).append(str(p[2]))
-
-        for user in data_user:
-            print >> output, "\n[%s]" % user['name']
-
-            for key, value in user.iteritems():
-                if key in sip_unused_values or value in (None, ''):
-                    continue
-
-                if key not in ('allow', 'subscribemwi'):
-                    print >> output, gen_value_line(key, value)
-
-                if key == 'allow':
-                    print >> output, gen_value_line('disallow', 'all')
-                    for codec in value.split(','):
-                        print >> output, gen_value_line("allow", codec)
-
-                if key == 'subscribemwi':
-                    value = 'no' if value == 0 else 'yes'
-                    print >> output, gen_value_line('subscribemwi', value)
-
-            print >> output, gen_value_line('setvar', 'PICKUPMARK=%s%%%s' % (user['number'], user['context']))
-            print >> output, gen_value_line('setvar', 'TRANSFER_CONTEXT=%s' % user['context'])
-            uuid = user.get('uuid')
-            if uuid:
-                print >> output, gen_value_line('setvar', 'XIVO_USERUUID={}'.format(uuid))
-
-            callerid = user.get('callerid')
-            if callerid:
-                print >> output, gen_value_line('description', '%s' % callerid)
-
-            if user['name'] in pickups:
-                p = pickups[user['name']]
-                # WARNING:
-                # pickupgroup: trappable calls  (xivo members)
-                # callgroup  : can pickup calls (xivo pickups)
-                if 'member' in p:
-                    print >> output, "namedpickupgroup = " + ','.join(frozenset(p['member']))
-                if 'pickup' in p:
-                    print >> output, "namedcallgroup = " + ','.join(frozenset(p['pickup']))
-
-            for ccss_option, value in ccss_options.iteritems():
-                print >> output, gen_value_line(ccss_option, value)
+    def _gen_user(self, ccss_options, output):
+        for line in self.user_generator.generate(ccss_options):
+            print >> output, line
 
     def _ccss_options(self, data_ccss):
         if data_ccss:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2015 Avencall
+# Copyright (C) 2011-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,13 +17,14 @@
 
 import StringIO
 
-from hamcrest import assert_that
-from hamcrest import equal_to
 from hamcrest import all_of
-from hamcrest import starts_with
-from hamcrest import ends_with
-from hamcrest import equal_to_ignoring_whitespace
+from hamcrest import assert_that
 from hamcrest import contains_inanyorder
+from hamcrest import ends_with
+from hamcrest import equal_to
+from hamcrest import equal_to_ignoring_whitespace
+from hamcrest import has_items
+from hamcrest import starts_with
 
 
 def assert_generates_config(generator, expected):
@@ -34,25 +35,39 @@ def assert_generates_config(generator, expected):
 
 
 def assert_config_equal(config, expected):
-    actual_lines = clean_lines(config)
-    expected_lines = clean_lines(expected)
+    actual_lines = _clean_lines(config)
+    expected_lines = _clean_lines(expected)
 
     assert_that('\n'.join(actual_lines), equal_to('\n'.join(expected_lines)))
 
 
 def assert_section_equal(config, expected):
-    config = clean_lines(config)
-    expected = clean_lines(expected)
-    # check section name is the same in the first line
-    assert_that(config[0], all_of(starts_with('['), ends_with(']')))
-    assert_that(config[0], equal_to_ignoring_whitespace(expected[0]))
-
-    # check section content
-    expected_matchers = [equal_to_ignoring_whitespace(line) for line in expected[1:]]
-    assert_that(config[1:], contains_inanyorder(*expected_matchers))
+    config = _clean_lines(config)
+    expected = _clean_lines(expected)
+    assert_lines_equal(config, expected)
 
 
-def clean_lines(lines):
+def assert_lines_equal(config, expected):
+    assert_that(config[0], _equal_to_section_name(expected[0]))
+    assert_that(config[1:], contains_inanyorder(*_section_body_matchers(expected[1:])))
+
+
+def assert_lines_contain(config, expected):
+    assert_that(config[0], _equal_to_section_name(expected[0]))
+    assert_that(config[1:], has_items(*_section_body_matchers(expected[1:])))
+
+
+def _equal_to_section_name(expected):
+    return all_of(starts_with('['),
+                  ends_with(']'),
+                  equal_to_ignoring_whitespace(expected))
+
+
+def _section_body_matchers(expected):
+    return [equal_to_ignoring_whitespace(line) for line in expected]
+
+
+def _clean_lines(lines):
     result = []
     for line in lines.split('\n'):
         line = line.lstrip()

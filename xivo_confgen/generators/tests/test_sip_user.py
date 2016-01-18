@@ -20,12 +20,14 @@ from __future__ import unicode_literals
 from collections import namedtuple
 
 import unittest
-from mock import Mock
-from hamcrest import assert_that, equal_to, all_of, starts_with, ends_with, has_items, contains
 
+from mock import Mock
+from hamcrest import assert_that
+from hamcrest import contains
 from xivo_dao.alchemy.usersip import UserSIP as SIP
 
 from xivo_confgen.generators.sip_user import SipUserGenerator
+from xivo_confgen.generators.tests.util import assert_lines_contain
 
 Row = namedtuple('Row', ['UserSIP', 'protocol', 'context', 'number', 'mohsuggest', 'uuid', 'mailbox',
                          'namedpickupgroup', 'namedcallgroup'])
@@ -49,11 +51,6 @@ class TestSipUserGenerator(unittest.TestCase):
     def generate_output(self):
         lines = list(self.generator.generate(self.ccss_options))
         return lines
-
-    def assert_lines(self, lines, expected_lines):
-        assert_that(lines[0], all_of(starts_with('['), ends_with(']')))
-        assert_that(lines[0], equal_to(expected_lines[0]))
-        assert_that(lines[1:], has_items(*expected_lines[1:]))
 
     def prepare_response(self, sip, **params):
         params.setdefault('protocol', None)
@@ -87,7 +84,7 @@ class TestSipUserGenerator(unittest.TestCase):
                                       _options=[]))
 
         lines = self.generate_output()
-        self.assert_lines(
+        assert_lines_contain(
             lines,
             [
                 '[user1]',
@@ -187,7 +184,7 @@ class TestSipUserGenerator(unittest.TestCase):
                                   _options=[]))
 
         lines = self.generate_output()
-        self.assert_lines(
+        assert_lines_contain(
             lines,
             [
                 '[user1]',
@@ -287,7 +284,7 @@ class TestSipUserGenerator(unittest.TestCase):
                                   ]))
 
         lines = self.generate_output()
-        self.assert_lines(
+        assert_lines_contain(
             lines,
             [
                 '[user]',
@@ -312,7 +309,7 @@ class TestSipUserGenerator(unittest.TestCase):
                               namedcallgroup='3,4')
 
         lines = self.generate_output()
-        self.assert_lines(
+        assert_lines_contain(
             lines,
             [
                 '[user]',
@@ -328,7 +325,7 @@ class TestSipUserGenerator(unittest.TestCase):
     def test_given_ccss_options_when_generating_then_ccss_options_in_section(self):
         self.prepare_response(sip=SIP(name='user', _options=[]))
         lines = self.generate_output()
-        self.assert_lines(
+        assert_lines_contain(
             lines,
             [
                 '[user]',
@@ -348,7 +345,7 @@ class TestSipUserGenerator(unittest.TestCase):
                                       disallow='g729'))
 
         lines = self.generate_output()
-        self.assert_lines(
+        assert_lines_contain(
             lines,
             [
                 '[user]',

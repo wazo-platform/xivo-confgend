@@ -319,6 +319,7 @@ class TestSipUserGenerator(unittest.TestCase):
                 'setvar = XIVO_USERUUID=user-uuid',
                 'namedpickupgroup = 1,2',
                 'namedcallgroup = 3,4',
+                'mailbox = 1001@default',
             ]
         )
 

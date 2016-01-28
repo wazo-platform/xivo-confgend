@@ -69,6 +69,8 @@ class SipUserGenerator(object):
             yield 'namedcallgroup = {}'.format(row.namedcallgroup)
         if row.mohsuggest:
             yield 'mohsuggest = {}'.format(row.mohsuggest)
+        if row.mailbox:
+            yield 'mailbox = {}'.format(row.mailbox)
         if row.UserSIP.callerid:
             yield 'description = {}'.format(row.UserSIP.callerid)
 

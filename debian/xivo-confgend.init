@@ -20,22 +20,11 @@ daemon=/usr/bin/$name
 twistd=/usr/bin/twistd
 user=nobody
 group=nogroup
-XIVO_DEFAULT_FILE="/etc/default/xivo"
 
 . /lib/lsb/init-functions
 
 test -x $twistd || exit 0
 test -r $daemon || exit 0
-
-is_enabled() {
-    if [ -f $XIVO_DEFAULT_FILE ]; then
-        . $XIVO_DEFAULT_FILE
-        if [ "$startup" != "yes" ]; then
-           echo "${name} startup is disabled in $XIVO_DEFAULT_FILE"
-           exit 0
-        fi
-    fi
-}
 
 # return true if at least one pid is alive
 alive()
@@ -55,7 +44,6 @@ alive()
 
 case "$1" in
 	start)
-        is_enabled
         log_daemon_msg "Starting" "$name"
 
 		[ ! -d $rundir ] && mkdir $rundir

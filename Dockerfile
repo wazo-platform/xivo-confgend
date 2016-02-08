@@ -36,4 +36,4 @@ RUN rm -rf /root/confgend
 
 EXPOSE 8669
 
-CMD twistd -no -y /usr/local/bin/xivo-confgend
+CMD ["twistd", "-no", "-y", "/usr/local/bin/xivo-confgend"]

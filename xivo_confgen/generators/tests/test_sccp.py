@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2015 Avencall
+# Copyright (C) 2011-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -64,6 +64,24 @@ class TestSccpConf(unittest.TestCase):
             type = speeddial
             extension = 1001
             label = user001
+            blf = 0
+        ''')
+
+    def test_speeddial_no_label(self):
+        speedials = [{'exten': '1001',
+                      'fknum': 1,
+                      'label': None,
+                      'supervision': 0,
+                      'user_id': 1229,
+                      'device': 'SEPACA016FDF235'}]
+
+        sccp_conf = _SccpSpeedDialConf()
+        sccp_conf.generate(speedials, self._output)
+
+        assert_config_equal(self._output.getvalue(), '''
+            [1229-1]
+            type = speeddial
+            extension = 1001
             blf = 0
         ''')
 

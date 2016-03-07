@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2015 Avencall
+# Copyright (C) 2011-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -177,6 +177,7 @@ class _SccpSpeedDialConf(object):
             print >> output, format_ast_section('%d-%d' % (item['user_id'], item['fknum']))
             print >> output, format_ast_option('type', 'speeddial')
             print >> output, format_ast_option('extension', item['exten'])
-            print >> output, format_ast_option('label', item['label'])
+            if item['label']:
+                print >> output, format_ast_option('label', item['label'])
             print >> output, format_ast_option('blf', item['supervision'])
             print >> output

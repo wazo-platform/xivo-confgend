@@ -156,6 +156,7 @@ class _SccpLineConf(object):
             print >> output, format_ast_option('setvar', 'XIVO_USERUUID=%s' % item['uuid'])
             print >> output, format_ast_option('setvar', 'PICKUPMARK=%(number)s%%%(context)s' % item)
             print >> output, format_ast_option('setvar', 'TRANSFER_CONTEXT=%s' % item['context'])
+            print >> output, format_ast_option('setvar', 'CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1')
             if item['language']:
                 print >> output, format_ast_option('language', item['language'])
             print >> output, format_ast_option('context', item['context'])

@@ -42,6 +42,7 @@ class SipUserGenerator(object):
 
     def format_row(self, row, ccss_options):
         yield '[{}]'.format(row.UserSIP.name)
+        yield 'setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1'
 
         for line in self.format_user_options(row):
             yield line

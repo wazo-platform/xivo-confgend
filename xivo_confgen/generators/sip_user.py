@@ -66,7 +66,7 @@ class SipUserGenerator(object):
             yield 'setvar = XIVO_USERUUID={}'.format(row.uuid)
         if row.namedpickupgroup:
             yield 'namedpickupgroup = {}'.format(row.namedpickupgroup)
-        if row.namedpickupgroup:
+        if row.namedcallgroup:
             yield 'namedcallgroup = {}'.format(row.namedcallgroup)
         if row.mohsuggest:
             yield 'mohsuggest = {}'.format(row.mohsuggest)

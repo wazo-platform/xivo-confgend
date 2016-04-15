@@ -72,8 +72,7 @@ class SipConf(object):
 
             elif item['var_name'] == 'allow':
                 print >> output, 'disallow = all'
-                for c in item['var_val'].split(','):
-                    print >> output, 'allow = %s' % c
+                print >> output, 'allow =', item['var_val']
 
     def _gen_authentication(self, data_authentication, output):
         if len(data_authentication) > 0:

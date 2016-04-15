@@ -250,8 +250,7 @@ class TestSipUserGenerator(unittest.TestCase):
                 'deny = 127.0.0.1',
                 'timerb = 1',
                 'rtptimeout = 15',
-                'allow = g723',
-                'allow = gsm',
+                'allow = g723,gsm',
                 'setvar = setvar',
                 'accountcode = accountcode',
                 'md5secret = abcdefg',
@@ -351,7 +350,6 @@ class TestSipUserGenerator(unittest.TestCase):
             [
                 '[user]',
                 'disallow = all',
-                'allow = gsm',
-                'allow = alaw'
+                'allow = gsm,alaw',
             ]
         )

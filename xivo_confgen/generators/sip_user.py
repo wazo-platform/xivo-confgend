@@ -61,6 +61,8 @@ class SipUserGenerator(object):
             yield 'setvar = TRANSFER_CONTEXT={}'.format(row.context)
         if row.number and row.context:
             yield 'setvar = PICKUPMARK={}%{}'.format(row.number, row.context)
+        if row.user_id:
+            yield 'setvar = XIVO_USERID={}'.format(row.user_id)
         if row.uuid:
             yield 'setvar = XIVO_USERUUID={}'.format(row.uuid)
         if row.namedpickupgroup:

@@ -291,8 +291,7 @@ class TestSipTrunkGenerator(unittest.TestCase):
             timerb = 1
             rtptimeout = 15
             disallow = all
-            allow = g723
-            allow = gsm
+            allow = g723,gsm
             setvar = setvar
             accountcode = accountcode
             md5secret = abcdefg

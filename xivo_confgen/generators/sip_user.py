@@ -24,7 +24,6 @@ class SipUserGenerator(object):
     EXCLUDE_OPTIONS = ('name',
                        'protocol',
                        'category',
-                       'initialized',
                        'disallow',
                        'regseconds',
                        'lastms',

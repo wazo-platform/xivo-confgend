@@ -29,7 +29,7 @@ from xivo_dao.alchemy.usersip import UserSIP as SIP
 from xivo_confgen.generators.sip_user import SipUserGenerator
 from xivo_confgen.generators.tests.util import assert_lines_contain
 
-Row = namedtuple('Row', ['UserSIP', 'protocol', 'context', 'number', 'mohsuggest', 'uuid', 'mailbox',
+Row = namedtuple('Row', ['UserSIP', 'protocol', 'context', 'number', 'mohsuggest', 'user_id', 'uuid', 'mailbox',
                          'namedpickupgroup', 'namedcallgroup'])
 
 
@@ -53,6 +53,7 @@ class TestSipUserGenerator(unittest.TestCase):
         return lines
 
     def prepare_response(self, sip, **params):
+        params.setdefault('user_id', None)
         params.setdefault('protocol', None)
         params.setdefault('context', None)
         params.setdefault('number', None)
@@ -159,7 +160,6 @@ class TestSipUserGenerator(unittest.TestCase):
                                   rtptimeout=15,
                                   disallow='all',
                                   allow='g723,gsm',
-                                  setvar='setvar',
                                   accountcode='accountcode',
                                   md5secret='abcdefg',
                                   mohinterpret='mohinterpret',
@@ -249,7 +249,6 @@ class TestSipUserGenerator(unittest.TestCase):
                 'timerb = 1',
                 'rtptimeout = 15',
                 'allow = g723,gsm',
-                'setvar = setvar',
                 'accountcode = accountcode',
                 'md5secret = abcdefg',
                 'mohinterpret = mohinterpret',
@@ -300,6 +299,7 @@ class TestSipUserGenerator(unittest.TestCase):
                               context='default',
                               protocol='sip',
                               mohsuggest='musiconhold',
+                              user_id=42,
                               uuid='user-uuid',
                               mailbox='1001@default',
                               namedpickupgroup='1,2',
@@ -313,6 +313,7 @@ class TestSipUserGenerator(unittest.TestCase):
                 'mohsuggest = musiconhold',
                 'setvar = PICKUPMARK=1000%default',
                 'setvar = TRANSFER_CONTEXT=default',
+                'setvar = XIVO_USERID=42',
                 'setvar = XIVO_USERUUID=user-uuid',
                 'namedpickupgroup = 1,2',
                 'namedcallgroup = 3,4',

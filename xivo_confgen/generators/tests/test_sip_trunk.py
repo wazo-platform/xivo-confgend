@@ -207,7 +207,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
                     rtptimeout=15,
                     disallow='all',
                     allow='g723,gsm',
-                    setvar='setvar',
                     accountcode='accountcode',
                     md5secret='abcdefg',
                     mohinterpret='mohinterpret',
@@ -290,7 +289,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
             rtptimeout = 15
             disallow = all
             allow = g723,gsm
-            setvar = setvar
             accountcode = accountcode
             md5secret = abcdefg
             mohinterpret = mohinterpret

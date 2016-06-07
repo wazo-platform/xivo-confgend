@@ -280,7 +280,7 @@ class TestSccpLineConf(unittest.TestCase):
             'user_id': u'1',
             'uuid': uuid,
             'language': u'fr_FR',
-            'number': 100,
+            'number': u'100',
             'context': u'a_context',
         }]
 
@@ -310,7 +310,7 @@ class TestSccpLineConf(unittest.TestCase):
             'user_id': u'1',
             'uuid': uuid,
             'language': None,
-            'number': 100,
+            'number': u'100',
             'context': u'a_context',
         }]
 
@@ -338,7 +338,7 @@ class TestSccpLineConf(unittest.TestCase):
             'cid_num': u'100',
             'user_id': u'1',
             'language': None,
-            'number': 100,
+            'number': u'100',
             'context': u'a_context',
             'allow': u'g729,ulaw',
             'uuid': uuid,
@@ -370,7 +370,7 @@ class TestSccpLineConf(unittest.TestCase):
             'user_id': u'1',
             'uuid': uuid,
             'language': None,
-            'number': 100,
+            'number': u'100',
             'context': u'a_context',
             'allow': u'g729,ulaw',
             'disallow': u'all',
@@ -403,7 +403,7 @@ class TestSccpLineConf(unittest.TestCase):
              'user_id': u'1',
              'uuid': uuid,
              'language': None,
-             'number': 100,
+             'number': u'100',
              'context': u'a_context',
              'callgroup': [1, 2, 3, 4],
              'pickupgroup': [3, 4]},

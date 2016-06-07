@@ -55,7 +55,7 @@ class AsteriskFrontend(object):
 
     def sip_conf(self):
         trunk_generator = SipTrunkGenerator(sip_dao)
-        user_generator = SipUserGenerator(asterisk_conf_dao)
+        user_generator = SipUserGenerator(asterisk_conf_dao, nova_compatibility=self._nova_compatibility)
         config_generator = SipConf(trunk_generator, user_generator)
         return self._generate_conf_from_generator(config_generator)
 

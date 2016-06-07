@@ -31,8 +31,9 @@ class SipUserGenerator(object):
                        'fullcontact',
                        'ipaddr')
 
-    def __init__(self, dao):
+    def __init__(self, dao, nova_compatibility=False):
         self.dao = dao
+        self._nova_compatibility = nova_compatibility
 
     def generate(self, ccss_options):
         for row in self.dao.find_sip_user_settings():
@@ -75,6 +76,8 @@ class SipUserGenerator(object):
             yield 'mailbox = {}'.format(row.mailbox)
         if row.UserSIP.callerid:
             yield 'description = {}'.format(row.UserSIP.callerid)
+        if self._nova_compatibility and row.number:
+            yield 'accountcode = {}'.format(row.number)
 
     def format_allow_options(self, options):
         allow_found = 'allow' in (option_name for option_name, _ in options)

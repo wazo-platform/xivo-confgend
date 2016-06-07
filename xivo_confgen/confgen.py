@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2015 Avencall
+# Copyright (C) 2011-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -92,8 +92,7 @@ class ConfgendFactory(ServerFactory):
         self.cache = cache.FileCache(cachedir)
 
     def _new_asterisk_frontend(self, config):
-        asterisk_frontend = AsteriskFrontend()
-        asterisk_frontend.contextsconf = config.get('asterisk', 'contextsconf')
+        asterisk_frontend = AsteriskFrontend(config)
         return asterisk_frontend
 
     def _new_xivo_frontend(self, config):

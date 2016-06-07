@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2011-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,13 +18,25 @@
 import unittest
 import sys
 
+from ConfigParser import NoOptionError
+
+from mock import Mock
+
 from xivo_confgen.asterisk import AsteriskFrontend
 
 
 class Test(unittest.TestCase):
 
     def setUp(self):
-        self.asteriskFrontEnd = AsteriskFrontend()
+        self._config = Mock()
+        self.asteriskFrontEnd = AsteriskFrontend(self._config)
+
+    def test_nova_compat_not_defined(self):
+        self._config.getboolean.side_effect = NoOptionError('section', 'option')
+
+        asterisk_frontend = AsteriskFrontend(self._config)
+
+        self.assertFalse(asterisk_frontend._nova_compatibility)
 
     def test_encoding(self):
         charset = ("ascii", "US-ASCII",)

@@ -84,25 +84,9 @@ class ConfgendFactory(ServerFactory):
 
     def __init__(self, cachedir, config):
         self.frontends = {
-            'asterisk': self._new_asterisk_frontend(config),
-            'dird': self._new_dird_frontend(config),
-            'dird-phoned': self._new_dird_phoned_frontend(config),
-            'xivo': self._new_xivo_frontend(config),
+            'asterisk': AsteriskFrontend(config),
+            'dird': DirdFrontend(),
+            'dird-phoned': DirdPhonedFrontend(),
+            'xivo': XivoFrontend(),
         }
         self.cache = cache.FileCache(cachedir)
-
-    def _new_asterisk_frontend(self, config):
-        asterisk_frontend = AsteriskFrontend(config)
-        return asterisk_frontend
-
-    def _new_xivo_frontend(self, config):
-        xivo_frontend = XivoFrontend()
-        return xivo_frontend
-
-    def _new_dird_frontend(self, config):
-        dird_frontend = DirdFrontend()
-        return dird_frontend
-
-    def _new_dird_phoned_frontend(self, config):
-        dird_phoned_frontend = DirdPhonedFrontend()
-        return dird_phoned_frontend

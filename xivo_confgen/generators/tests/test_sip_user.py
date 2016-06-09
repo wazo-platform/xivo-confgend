@@ -352,3 +352,18 @@ class TestSipUserGenerator(unittest.TestCase):
                 'allow = gsm,alaw',
             ]
         )
+
+    def test_nova_compatibility_adds_accountcode(self):
+        self.generator = SipUserGenerator(self.dao, nova_compatibility=True)
+        self.prepare_response(sip=SIP(name='user', _options=[]),
+                              number='1000',
+                              context='default')
+
+        lines = self.generate_output()
+        assert_lines_contain(
+            lines,
+            [
+                '[user]',
+                'accountcode = 1000',
+            ]
+        )

@@ -24,7 +24,8 @@ from xivo_dao import asterisk_conf_dao
 
 class SccpConf(object):
 
-    def __init__(self):
+    def __init__(self, nova_compatibility=False):
+        self._nova_compatibility = nova_compatibility
         self._sccpgeneralsettings = asterisk_conf_dao.find_sccp_general_settings()
         self._sccpline = asterisk_conf_dao.find_sccp_line_settings()
         self._sccpdevice = asterisk_conf_dao.find_sccp_device_settings()
@@ -39,7 +40,7 @@ class SccpConf(object):
         sccp_device_conf = _SccpDeviceConf(self._sccpspeeddial)
         sccp_device_conf.generate(self._sccpdevice, splitted_settings.device_items, output)
 
-        sccp_line_conf = _SccpLineConf()
+        sccp_line_conf = _SccpLineConf(nova_compatibility=self._nova_compatibility)
         sccp_line_conf.generate(self._sccpline, splitted_settings.line_items, output)
 
         sccp_speeddial_conf = _SccpSpeedDialConf()
@@ -124,6 +125,9 @@ class _SccpLineConf(object):
 
     _TPL_NAME = 'xivo_line_tpl'
 
+    def __init__(self, nova_compatibility):
+        self._nova_compatibility = nova_compatibility
+
     def generate(self, sccplines, general_line_items, output):
         self._generate_template(general_line_items, output)
         self._generate_lines(sccplines, output)
@@ -168,6 +172,8 @@ class _SccpLineConf(object):
                 print >> output, format_ast_option('namedcallgroup', ','.join(str(i) for i in item['callgroup']))
             if 'pickupgroup' in item:
                 print >> output, format_ast_option('namedpickupgroup', ','.join(str(i) for i in item['pickupgroup']))
+            if self._nova_compatibility:
+                print >> output, format_ast_option('accountcode', item['number'])
 
             print >> output
 

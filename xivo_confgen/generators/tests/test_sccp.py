@@ -220,7 +220,7 @@ class TestSccpDeviceConf(unittest.TestCase):
 class TestSccpLineConf(unittest.TestCase):
 
     def setUp(self):
-        self._line_conf = _SccpLineConf()
+        self._line_conf = _SccpLineConf(nova_compatibility=False)
         self._output = StringIO.StringIO()
 
     def test_template_directmedia_option(self):
@@ -280,7 +280,7 @@ class TestSccpLineConf(unittest.TestCase):
             'user_id': u'1',
             'uuid': uuid,
             'language': u'fr_FR',
-            'number': 100,
+            'number': u'100',
             'context': u'a_context',
         }]
 
@@ -310,7 +310,7 @@ class TestSccpLineConf(unittest.TestCase):
             'user_id': u'1',
             'uuid': uuid,
             'language': None,
-            'number': 100,
+            'number': u'100',
             'context': u'a_context',
         }]
 
@@ -338,7 +338,7 @@ class TestSccpLineConf(unittest.TestCase):
             'cid_num': u'100',
             'user_id': u'1',
             'language': None,
-            'number': 100,
+            'number': u'100',
             'context': u'a_context',
             'allow': u'g729,ulaw',
             'uuid': uuid,
@@ -370,7 +370,7 @@ class TestSccpLineConf(unittest.TestCase):
             'user_id': u'1',
             'uuid': uuid,
             'language': None,
-            'number': 100,
+            'number': u'100',
             'context': u'a_context',
             'allow': u'g729,ulaw',
             'disallow': u'all',
@@ -403,7 +403,7 @@ class TestSccpLineConf(unittest.TestCase):
              'user_id': u'1',
              'uuid': uuid,
              'language': None,
-             'number': 100,
+             'number': u'100',
              'context': u'a_context',
              'callgroup': [1, 2, 3, 4],
              'pickupgroup': [3, 4]},
@@ -424,4 +424,36 @@ class TestSccpLineConf(unittest.TestCase):
             context = a_context
             namedcallgroup = 1,2,3,4
             namedpickupgroup = 3,4
+        '''.format(uuid=uuid))
+
+    def test_nova_compatibility(self):
+        self._line_conf = _SccpLineConf(nova_compatibility=True)
+        uuid = str(uuid4())
+        sccpline = [{
+            'category': u'lines',
+            'name': u'100',
+            'cid_name': u'jimmy',
+            'cid_num': u'100',
+            'user_id': u'1',
+            'uuid': uuid,
+            'language': u'fr_FR',
+            'number': u'1234',
+            'context': u'a_context',
+        }]
+
+        self._line_conf._generate_lines(sccpline, self._output)
+
+        assert_config_equal(self._output.getvalue(), '''
+            [100](xivo_line_tpl)
+            type = line
+            cid_name = jimmy
+            cid_num = 100
+            setvar = XIVO_USERID=1
+            setvar = XIVO_USERUUID={uuid}
+            setvar = PICKUPMARK=1234%a_context
+            setvar = TRANSFER_CONTEXT=a_context
+            setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
+            language = fr_FR
+            context = a_context
+            accountcode = 1234
         '''.format(uuid=uuid))

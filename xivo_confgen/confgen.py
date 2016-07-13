@@ -18,6 +18,8 @@
 import time
 import sys
 
+from stevedore import driver, exception
+
 from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo import XivoFrontend
@@ -44,6 +46,25 @@ class Confgen(Protocol):
             data = data[:-1]
 
         # 'asterisk/sip.conf' => ('asterisk', 'sip_conf')
+        content = self._content_from_plugin(data)
+        if content is None:
+            content = self._content_from_frontend(data)
+
+        if content is None:
+            # get cache content
+            print "cache hit on %s" % data
+            try:
+                content = self.factory.cache.get(data).decode('utf8')
+            except AttributeError:
+                print "No such configuration for %s" % data
+                return
+        else:
+            # write to cache
+            self.factory.cache.put(data, content.encode('utf8'))
+
+        self.transport.write(content.encode('utf8'))
+
+    def _content_from_frontend(self, data):
         try:
             (frontend_name, callback) = data.split('/')
             callback = callback.replace('.', '_')
@@ -56,28 +77,28 @@ class Confgen(Protocol):
             print "no such frontend %r" % frontend_name
             return
 
-        content = None
         try:
             with session_scope():
-                content = getattr(frontend, callback)()
+                return getattr(frontend, callback)()
         except Exception as e:
             import traceback
             print e
             traceback.print_exc(file=sys.stdout)
 
-        if content is None:
-            # get cache content
-            print "cache hit on %s" % data
-            try:
-                content = self.factory.cache.get(data).decode('utf8')
-            except AttributeError, e:
-                print "No such configuration for %s" % data
-                return
+    def _content_from_plugin(self, data):
+        suffix = data.replace('/', '.')
+        namespace = 'confgend.{}'.format(suffix)
+        driver_name = self._config.get('plugins', suffix)
+        try:
+            mgr = driver.DriverManager(
+                namespace=namespace,
+                name=driver_name,
+                invoke_on_load=True,
+                invoke_args=(self._config,))
+        except exception.NoMatches:
+            print 'No plugin found in {} with name {}'.format(namespace, driver_name)
         else:
-            # write to cache
-            self.factory.cache.put(data, content.encode('utf8'))
-
-        self.transport.write(content.encode('utf8'))
+            return mgr.driver.generate()
 
 
 class ConfgendFactory(ServerFactory):
@@ -85,6 +106,7 @@ class ConfgendFactory(ServerFactory):
     protocol = Confgen
 
     def __init__(self, cachedir, config):
+        self.protocol._config = config
         self.frontends = {
             'asterisk': AsteriskFrontend(config),
             'dird': DirdFrontend(),

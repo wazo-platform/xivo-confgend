@@ -27,6 +27,7 @@ _DEFAULT_CONFIG = {
     'listen_address': '127.0.0.1',
     'listen_port': 8669,
     'db_uri': 'postgresql://asterisk:proformatique@localhost/asterisk',
+    'plugins': {},
 }
 
 

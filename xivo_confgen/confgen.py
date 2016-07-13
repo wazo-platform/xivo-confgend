@@ -88,7 +88,11 @@ class Confgen(Protocol):
     def _content_from_plugin(self, data):
         suffix = data.replace('/', '.')
         namespace = 'confgend.{}'.format(suffix)
-        driver_name = self._config.get('plugins', suffix)
+        driver_name = self._config['plugins'].get(suffix)
+        if not driver_name:
+            print 'No plugin configuration found for namespace {}'.format(namespace)
+            return None
+
         try:
             mgr = driver.DriverManager(
                 namespace=namespace,

@@ -19,3 +19,7 @@ db_uri: postgresql://asterisk:proformatique@localhost/asterisk
 # Templates location
 templates:
   contextsconf: /etc/xivo-confgend/templates/contexts.conf
+
+# Plugins to use to generate the configuration files
+plugins:
+  asterisk.sip.conf: xivo

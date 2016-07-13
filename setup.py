@@ -10,9 +10,14 @@ setup(
     version='0.2',
     description='XIVO Configurations Generator',
     author='Avencall',
-    author_email='xivo-dev@lists.proformatique.com',
+    author_email='dev+pkg@proformatique.com',
     url='http://www.xivo.io/',
     license='GPLv3',
     packages=find_packages(),
     scripts=['bin/xivo-confgend'],
+    entry_points={
+        'confgend.asterisk.sip.conf': [
+            'xivo = xivo_confgen.plugins.sip_conf:SIPConfGenerator',
+        ],
+    },
 )

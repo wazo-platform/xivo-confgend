@@ -21,14 +21,10 @@ from xivo_confgen.generators.extensionsconf import ExtensionsConf
 from xivo_confgen.generators.features import FeaturesConf
 from xivo_confgen.generators.queues import QueuesConf
 from xivo_confgen.generators.res_parking import ResParkingConf
-from xivo_confgen.generators.sip import SipConf
-from xivo_confgen.generators.sip_trunk import SipTrunkGenerator
-from xivo_confgen.generators.sip_user import SipUserGenerator
 from xivo_confgen.generators.sccp import SccpConf
 from xivo_confgen.generators.voicemail import VoicemailConf, VoicemailGenerator
 from xivo_confgen.hints.generator import HintGenerator
 from xivo_dao import asterisk_conf_dao
-from xivo_dao.resources.endpoint_sip import dao as sip_dao
 
 
 class AsteriskFrontend(object):
@@ -47,12 +43,6 @@ class AsteriskFrontend(object):
 
     def sccp_conf(self):
         config_generator = SccpConf(nova_compatibility=self._nova_compatibility)
-        return self._generate_conf_from_generator(config_generator)
-
-    def sip_conf(self):
-        trunk_generator = SipTrunkGenerator(sip_dao)
-        user_generator = SipUserGenerator(asterisk_conf_dao, nova_compatibility=self._nova_compatibility)
-        config_generator = SipConf(trunk_generator, user_generator)
         return self._generate_conf_from_generator(config_generator)
 
     def voicemail_conf(self):

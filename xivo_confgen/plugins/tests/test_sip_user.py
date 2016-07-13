@@ -17,6 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from __future__ import unicode_literals
+
 from collections import namedtuple
 
 import unittest
@@ -26,11 +27,20 @@ from hamcrest import assert_that
 from hamcrest import contains
 from xivo_dao.alchemy.usersip import UserSIP as SIP
 
-from xivo_confgen.generators.sip_user import SipUserGenerator
 from xivo_confgen.generators.tests.util import assert_lines_contain
 
-Row = namedtuple('Row', ['UserSIP', 'protocol', 'context', 'number', 'mohsuggest', 'user_id', 'uuid', 'mailbox',
-                         'namedpickupgroup', 'namedcallgroup'])
+from ..sip_conf import _SipUserGenerator
+
+Row = namedtuple('Row', ['UserSIP',
+                         'protocol',
+                         'context',
+                         'number',
+                         'mohsuggest',
+                         'user_id',
+                         'uuid',
+                         'mailbox',
+                         'namedpickupgroup',
+                         'namedcallgroup'])
 
 
 class TestSipUserGenerator(unittest.TestCase):
@@ -38,7 +48,7 @@ class TestSipUserGenerator(unittest.TestCase):
     def setUp(self):
         self.dao = Mock()
         self.dao.find_sip_user_settings.return_value = []
-        self.generator = SipUserGenerator(self.dao)
+        self.generator = _SipUserGenerator(self.dao)
         self.ccss_options = {
             'cc_agent_policy': 'generic',
             'cc_monitor_policy': 'generic',
@@ -355,7 +365,7 @@ class TestSipUserGenerator(unittest.TestCase):
         )
 
     def test_nova_compatibility_adds_accountcode(self):
-        self.generator = SipUserGenerator(self.dao, nova_compatibility=True)
+        self.generator = _SipUserGenerator(self.dao, nova_compatibility=True)
         self.prepare_response(sip=SIP(name='user', _options=[]),
                               number='1000',
                               context='default')

@@ -265,6 +265,7 @@ class TestSipUserGenerator(unittest.TestCase):
                 'outboundproxy = 127.0.0.1',
                 'remotesecret = remotesecret',
                 'description = "cûstomcallerid" <1234>',
+                'setvar = XIVO_ORIGINAL_CALLER_ID="cûstomcallerid" <1234>',
             ]
         )
 

@@ -291,6 +291,7 @@ class TestSccpLineConf(unittest.TestCase):
             type = line
             cid_name = jimmy
             cid_num = 100
+            setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
@@ -321,6 +322,7 @@ class TestSccpLineConf(unittest.TestCase):
             type = line
             cid_name = jimmy
             cid_num = 100
+            setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
@@ -351,6 +353,7 @@ class TestSccpLineConf(unittest.TestCase):
             type = line
             cid_name = jimmy
             cid_num = 100
+            setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
@@ -383,6 +386,7 @@ class TestSccpLineConf(unittest.TestCase):
             type = line
             cid_name = jimmy
             cid_num = 100
+            setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
@@ -416,6 +420,7 @@ class TestSccpLineConf(unittest.TestCase):
             type = line
             cid_name = jimmy
             cid_num = 100
+            setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
@@ -448,6 +453,7 @@ class TestSccpLineConf(unittest.TestCase):
             type = line
             cid_name = jimmy
             cid_num = 100
+            setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=1234%a_context

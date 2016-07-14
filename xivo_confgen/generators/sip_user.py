@@ -58,6 +58,7 @@ class SipUserGenerator(object):
         yield ''
 
     def format_user_options(self, row):
+        yield 'setvar = XIVO_ORIGINAL_CALLER_ID={}'.format(row.UserSIP.callerid)
         if row.context:
             yield 'setvar = TRANSFER_CONTEXT={}'.format(row.context)
         if row.number and row.context:

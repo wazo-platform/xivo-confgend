@@ -1,66 +1,63 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
+# Copyright (C) 2016 Avencall
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import sys, ConfigParser
 import xivo_dao
 
-from twisted.python             import usage
 from twisted.internet           import reactor
-from twisted.internet.protocol  import Protocol, ServerFactory
 from twisted.application        import service, internet
+
+from xivo.chain_map import ChainMap
+from xivo.config_helper import read_config_file_hierarchy
 
 from xivo_confgen.confgen import ConfgendFactory
 
 
-class Options(usage.Options):
-    optParameters = [
-        ['listen'   , 'l', '*' , 'listen interface (* = all)', str],
-        ['port'     , 'p', 5035, 'confgend server port'      , int],
-        ['cache'    , 'a', '/var/lib/xivo-confgend', 'config cache', str],
-        ['conf'     , 'c', '/etc/xivo/xivo-confgend.conf', 'Configuration file', str],
-        ['db_uri'   , 'd', 'postgresql://asterisk:proformatique@localhost/asterisk', 'DB URI', str],
-    ]
+_DEFAULT_CONFIG = {
+    'config_file': '/etc/xivo-confgend/config.yml',
+    'extra_config_files': '/etc/xivo-confgend/conf.d',
+    'cache': '/var/lib/xivo-confgend',
+    'listen_address': '127.0.0.1',
+    'listen_port': 8669,
+    'db_uri': 'postgresql://asterisk:proformatique@localhost/asterisk',
+}
 
-options = Options()
-if __name__ == '__main__':
-    """
 
-        NOTE: commandline options overrides config file values
-    """
-    options.parseOptions()
+def _get_reinterpreted_raw_values(config):
+    if config.get('listen_address') == '*':
+        return {'listen_address': ''}
+    else:
+        return {}
 
-config = ConfigParser.RawConfigParser()
-config.read(options['conf'])
 
-for key, value in config.items('confgend'):
-    if key not in options.defaults:
-        raise Exception("Unknown '%s' key in %s configuration file" % (key, options['conf']))
+file_config = read_config_file_hierarchy(_DEFAULT_CONFIG)
+reinterpreted_config = _get_reinterpreted_raw_values(ChainMap(file_config, _DEFAULT_CONFIG))
+config = ChainMap(reinterpreted_config, file_config, _DEFAULT_CONFIG)
 
-    # coerce value
-    if key in options._dispatch:
-        # NOTE: cannot directly use CoerceParameter.dispatch() as it affect result to opts dict
-        try:
-            value = options._dispatch[key].coerce(value)
-        except ValueError, e:
-            raise Exception("*%s* key in *%s* configuration file is invalid type" % (key, options['conf']))
 
-    # replace if not set inline
-    if options[key] == options.defaults[key]:
-        options[key] = value
+xivo_dao.init_db(config['db_uri'])
 
-if options['listen'] == '*':
-    options['listen'] = ''
-
-xivo_dao.init_db(options['db_uri'])
-
-f = ConfgendFactory(options['cache'], config)
+f = ConfgendFactory(config['cache'], config)
 
 if __name__ == '__main__':
-    reactor.listenTCP(options['port'], f, interface=options['listen'])
+    reactor.listenTCP(config['listen_port'], f, interface=config['listen_address'])
     reactor.run()
+else:
+    application = service.Application('confgend')
+    service.IProcess(application).processName = "confgend"
 
-application = service.Application('confgend')
-service.IProcess(application).processName = "confgend"
-
-svc = internet.TCPServer(options['port'], f, interface=options['listen'])
-svc.setServiceParent(application)
+    svc = internet.TCPServer(config['listen_port'], f, interface=config['listen_address'])
+    svc.setServiceParent(application)

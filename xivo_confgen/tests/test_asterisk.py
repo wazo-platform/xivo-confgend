@@ -18,22 +18,24 @@
 import unittest
 import sys
 
-from ConfigParser import NoOptionError
-
-from mock import Mock
-
 from xivo_confgen.asterisk import AsteriskFrontend
 
 
 class Test(unittest.TestCase):
 
     def setUp(self):
-        self._config = Mock()
+        self._config = {'templates': {'contextsconf': None}}
         self.asteriskFrontEnd = AsteriskFrontend(self._config)
 
-    def test_nova_compat_not_defined(self):
-        self._config.getboolean.side_effect = NoOptionError('section', 'option')
+    def test_nova_compat_defined(self):
+        config = dict(self._config)
+        config['asterisk'] = {'nova_compatibility': True}
 
+        asterisk_frontend = AsteriskFrontend(config)
+
+        self.assertTrue(asterisk_frontend._nova_compatibility)
+
+    def test_nova_compat_not_defined(self):
         asterisk_frontend = AsteriskFrontend(self._config)
 
         self.assertFalse(asterisk_frontend._nova_compatibility)

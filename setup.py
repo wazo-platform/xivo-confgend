@@ -24,6 +24,8 @@ setup(
     license='GPLv3',
     packages=packages,
     scripts=['bin/xivo-confgend'],
-    data_files=[('/etc/xivo', ['etc/xivo-confgend.conf']),
-                ('/etc/xivo/xivo-confgend/asterisk', ['etc/asterisk/contexts.conf'])],
+    data_files=[
+        ('/etc/xivo-confgend', ['etc/xivo-confgend/config.yml']),
+        ('/etc/xivo-confgend/templates', ['etc/xivo-confgend/templates/contexts.conf']),
+    ],
 )

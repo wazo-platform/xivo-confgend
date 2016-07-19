@@ -6,11 +6,6 @@
 # should be.
 extra_config_files: /etc/xivo-confgend/conf.d/
 
-log_filename: /var/log/xivo-confgend.log
-pid_filename: /var/run/xivo-confgend/xivo-confgend.pid
-foreground: False
-debug: False
-
 # Listen address and port the xivo-confgen
 listen_address: 127.0.0.1
 listen_port: 8669

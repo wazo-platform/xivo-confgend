@@ -10,8 +10,10 @@ set -e
 case "$1" in
 	configure)
 		# Has to be after the debhelper tag
-		rmdir --ignore-fail-on-non-empty /etc/xivo/xivo-confgend/asterisk
-		rmdir --ignore-fail-on-non-empty /etc/xivo/xivo-confgend
+		if [ -d /etc/xivo/xivo-confgend ] ; then
+			rmdir --ignore-fail-on-non-empty /etc/xivo/xivo-confgend/asterisk
+			rmdir --ignore-fail-on-non-empty /etc/xivo/xivo-confgend
+		fi
 	;;
 
 	abort-upgrade|abort-remove|abort-deconfigure)

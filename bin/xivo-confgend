@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 # Copyright (C) 2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,49 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import xivo_dao
-
-from twisted.internet           import reactor
-from twisted.application        import service, internet
-
-from xivo.chain_map import ChainMap
-from xivo.config_helper import read_config_file_hierarchy
-
-from xivo_confgen.confgen import ConfgendFactory
-
-
-_DEFAULT_CONFIG = {
-    'config_file': '/etc/xivo-confgend/config.yml',
-    'extra_config_files': '/etc/xivo-confgend/conf.d',
-    'cache': '/var/lib/xivo-confgend',
-    'listen_address': '127.0.0.1',
-    'listen_port': 8669,
-    'db_uri': 'postgresql://asterisk:proformatique@localhost/asterisk',
-}
-
-
-def _get_reinterpreted_raw_values(config):
-    if config.get('listen_address') == '*':
-        return {'listen_address': ''}
-    else:
-        return {}
-
-
-file_config = read_config_file_hierarchy(_DEFAULT_CONFIG)
-reinterpreted_config = _get_reinterpreted_raw_values(ChainMap(file_config, _DEFAULT_CONFIG))
-config = ChainMap(reinterpreted_config, file_config, _DEFAULT_CONFIG)
-
-
-xivo_dao.init_db(config['db_uri'])
-
-f = ConfgendFactory(config['cache'], config)
+from xivo_confgen.bin.daemon import main, twisted_application
 
 if __name__ == '__main__':
-    reactor.listenTCP(config['listen_port'], f, interface=config['listen_address'])
-    reactor.run()
+    main()
 else:
-    application = service.Application('confgend')
-    service.IProcess(application).processName = "confgend"
-
-    svc = internet.TCPServer(config['listen_port'], f, interface=config['listen_address'])
-    svc.setServiceParent(application)
+    application = twisted_application()

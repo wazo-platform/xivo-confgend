@@ -16,5 +16,6 @@ cache: /var/lib/xivo-confgend
 # Database connection informations.
 db_uri: postgresql://asterisk:proformatique@localhost/asterisk
 
+# Templates location
 templates:
   contextsconf: /etc/xivo-confgend/templates/contexts.conf

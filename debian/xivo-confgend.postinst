@@ -7,7 +7,20 @@ set -e
 
 #DEBHELPER#
 
-# Has to be after the debhelper tag
-sed -i 's#/etc/pf-xivo#/etc/xivo#' /etc/xivo/xivo-confgend.conf
+case "$1" in
+	configure)
+		# Has to be after the debhelper tag
+		rmdir --ignore-fail-on-non-empty /etc/xivo/xivo-confgend/asterisk
+		rmdir --ignore-fail-on-non-empty /etc/xivo/xivo-confgend
+	;;
+
+	abort-upgrade|abort-remove|abort-deconfigure)
+	;;
+
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1
+	;;
+esac
 
 exit 0

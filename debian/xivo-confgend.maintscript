@@ -2,5 +2,5 @@
 
 mv_conffile /etc/pf-xivo/xivo-confgend/asterisk/contexts.conf /etc/xivo/xivo-confgend/asterisk/contexts.conf 1:14.02
 mv_conffile /etc/pf-xivo/xivo-confgend.conf /etc/xivo/xivo-confgend.conf 1:14.02
-rm_conffile /etc/xivo/xivo-confgen.conf 1:16.09~
+rm_conffile /etc/xivo/xivo-confgend.conf 1:16.09~
 mv_conffile /etc/xivo/xivo-confgend/asterisk/contexts.conf /etc/xivo-confgend/templates/contexts.conf 1:16.09~

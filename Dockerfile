@@ -25,9 +25,8 @@ RUN python setup.py install
 
 # Configure environment
 RUN touch /var/log/xivo-confgend.log
-RUN mkdir -p /etc/xivo/
 RUN mkdir /var/lib/xivo-confgend
-RUN cp -a etc/* /etc/xivo/
+RUN cp -a etc/* /etc
 WORKDIR /root
 
 # Clean

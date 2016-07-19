@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from ConfigParser import NoOptionError
 from StringIO import StringIO
 
 from xivo_confgen.generators.extensionsconf import ExtensionsConf
@@ -35,11 +34,8 @@ from xivo_dao.resources.endpoint_sip import dao as sip_dao
 class AsteriskFrontend(object):
 
     def __init__(self, config):
-        self.contextsconf = config.get('asterisk', 'contextsconf')
-        try:
-            self._nova_compatibility = config.getboolean('asterisk', 'nova_compatibility')
-        except NoOptionError:
-            self._nova_compatibility = False
+        self.contextsconf = config['templates']['contextsconf']
+        self._nova_compatibility = config.get('asterisk', {}).get('nova_compatibility', False)
 
     def features_conf(self):
         config_generator = FeaturesConf()

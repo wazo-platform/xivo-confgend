@@ -1,0 +1,21 @@
+# This file should not be modified as it may get changed by the maintainer.
+# Add extra configuration files in the extra_config_files directory to override
+# the content from this file
+
+# Extra configuration directory where the config files overriding this file
+# should be.
+extra_config_files: /etc/xivo-confgend/conf.d/
+
+# Listen address and port the xivo-confgen
+listen_address: 127.0.0.1
+listen_port: 8669
+
+# Cache location
+cache: /var/lib/xivo-confgend
+
+# Database connection informations.
+db_uri: postgresql://asterisk:proformatique@localhost/asterisk
+
+# Templates location
+templates:
+  contextsconf: /etc/xivo-confgend/templates/contexts.conf

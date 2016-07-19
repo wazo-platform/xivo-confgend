@@ -17,6 +17,7 @@
 
 import time
 import sys
+
 from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo import XivoFrontend
@@ -80,6 +81,7 @@ class Confgen(Protocol):
 
 
 class ConfgendFactory(ServerFactory):
+
     protocol = Confgen
 
     def __init__(self, cachedir, config):

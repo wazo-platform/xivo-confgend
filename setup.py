@@ -1,31 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from distutils.core import setup
-import fnmatch
-import os
-
-
-def is_package(path):
-    is_svn_dir = fnmatch.fnmatch(path, '*/.svn*')
-    is_test_module = fnmatch.fnmatch(path, '*tests')
-    return not (is_svn_dir or is_test_module)
-
-packages = [p for p, _, _ in os.walk('xivo_confgen') if is_package(p)]
+from setuptools import setup
+from setuptools import find_packages
 
 
 setup(
     name='xivo-confgend',
-    version='0.1',
+    version='0.2',
     description='XIVO Configurations Generator',
     author='Avencall',
     author_email='xivo-dev@lists.proformatique.com',
     url='http://www.xivo.io/',
     license='GPLv3',
-    packages=packages,
+    packages=find_packages(),
     scripts=['bin/xivo-confgend'],
-    data_files=[
-        ('/etc/xivo-confgend', ['etc/xivo-confgend/config.yml']),
-        ('/etc/xivo-confgend/templates', ['etc/xivo-confgend/templates/contexts.conf']),
-    ],
 )

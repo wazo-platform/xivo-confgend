@@ -47,7 +47,7 @@ class Confgen(Protocol):
 
         # 'asterisk/sip.conf' => ('asterisk', 'sip_conf')
         content = self._content_from_plugin(data)
-        if content is None:
+        if not content:
             content = self._content_from_frontend(data)
 
         if content is None:

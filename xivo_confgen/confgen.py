@@ -34,52 +34,72 @@ class Confgen(Protocol):
     def dataReceived(self, data):
         try:
             t1 = time.time()
-            self._write_response(data.replace('\n', ''))
+            try:
+                resource, filename = data.replace('\n', '').split('/')
+            except ValueError:
+                print "cannot split {}".format(data)
+                return
+
+            content = self.factory.generate(resource, filename)
+            if content:
+                self.transport.write(content)
             t2 = time.time()
 
             print "serving %s in %.3f seconds" % (data, t2 - t1)
         finally:
             self.transport.loseConnection()
 
-    def _write_response(self, data):
-        handler = self._find_handler(data)
-        if not handler:
-            print 'No handler found for {}'.format(data)
+
+class ConfgendFactory(ServerFactory):
+
+    protocol = Confgen
+
+    def __init__(self, cachedir, config):
+        self.frontends = {
+            'asterisk': AsteriskFrontend(config),
+            'dird': DirdFrontend(),
+            'dird-phoned': DirdPhonedFrontend(),
+            'xivo': XivoFrontend(),
+        }
+        self._cache = cache.FileCache(cachedir)
+        self._handlers = {}
+        self._config = config
+
+    def generate(self, resource, filename):
+        cache_key = '{}/{}'.format(resource, filename)
+        handler = self._get_handler(resource, filename)
+        with session_scope():
+            content = handler() or self._get_cached_content(cache_key)
+        return self._encode_and_cache(cache_key, content)
+
+    def _get_cached_content(self, cache_key):
+        print "cache hit on {}".format(cache_key)
+        try:
+            return self._cache.get(cache_key).decode('utf-8')
+        except AttributeError:
+            print "No cached content for {}".format(cache_key)
+
+    def _get_handler(self, resource, filename):
+        handler_key = '{}.{}'.format(resource, filename)
+        if handler_key not in self._handlers:
+            self._find_and_update_handler(handler_key, resource, filename)
+        return self._handlers[handler_key]
+
+    def _find_and_update_handler(self, handler_key, resource, filename):
+        plugin = self._find_plugin(resource, filename)
+        if plugin:
+            self._handlers[handler_key] = plugin.generate
             return
 
-        with session_scope():
-            content = handler()
+        frontend_callback = self._find_frontend_callback(resource, filename)
+        if frontend_callback:
+            self._handlers[handler_key] = frontend_callback
+            return
 
-        if content is None:
-            print "cache hit on {}".format(data)
-            try:
-                content = self.factory.cache.get(data).decode('utf8')
-            except AttributeError:
-                print "No cached content for {}".format(data)
-                return
-        else:
-            # write to cache
-            self.factory.cache.put(data, content.encode('utf8'))
+        self._handlers[handler_key] = _NullHandler(resource, filename).generate
 
-        self.transport.write(content.encode('utf8'))
-
-    def _find_handler(self, data):
-        handler = self.factory.handlers.get(data)
-        if handler:
-            return handler
-
-        plugin = self._find_matching_plugin(data)
-        if plugin:
-            handler = plugin.generate
-        else:
-            handler = self._find_matching_frontend_callback(data)
-
-        if handler:
-            self.factory.handlers[data] = handler
-            return handler
-
-    def _find_matching_plugin(self, data):
-        suffix = data.replace('/', '.')
+    def _find_plugin(self, resource, filename):
+        suffix = '{}.{}'.format(resource, filename)
         namespace = 'confgend.{}'.format(suffix)
         driver_name = self._config['plugins'].get(suffix)
         if not driver_name:
@@ -95,15 +115,9 @@ class Confgen(Protocol):
         except exception.NoMatches:
             return
 
-    def _find_matching_frontend_callback(self, data):
-        try:
-            (frontend_name, callback) = data.split('/')
-            callback = callback.replace('.', '_')
-        except Exception:
-            print "cannot split"
-            return
-
-        frontend = self.factory.frontends.get(frontend_name)
+    def _find_frontend_callback(self, frontend_name, filename):
+        callback = filename.replace('.', '_')
+        frontend = self.frontends.get(frontend_name)
         if frontend is None:
             return
 
@@ -114,18 +128,19 @@ class Confgen(Protocol):
             print e
             traceback.print_exc(file=sys.stdout)
 
+    def _encode_and_cache(self, cache_key, content):
+        if not content:
+            return
 
-class ConfgendFactory(ServerFactory):
+        encoded_content = content.encode('utf-8')
+        self._cache.put(cache_key, encoded_content)
+        return encoded_content
 
-    protocol = Confgen
 
-    def __init__(self, cachedir, config):
-        self.protocol._config = config
-        self.frontends = {
-            'asterisk': AsteriskFrontend(config),
-            'dird': DirdFrontend(),
-            'dird-phoned': DirdPhonedFrontend(),
-            'xivo': XivoFrontend(),
-        }
-        self.cache = cache.FileCache(cachedir)
-        self.handlers = {}
+class _NullHandler(object):
+
+    def __init__(self, resource, filename):
+        self._error_msg = 'No handler found for {}/{}'.format(resource, filename)
+
+    def generate(self):
+        print self._error_msg

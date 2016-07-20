@@ -34,7 +34,7 @@ class Confgen(Protocol):
     def dataReceived(self, data):
         try:
             t1 = time.time()
-            self._write_response(data)
+            self._write_response(data.replace('\n', ''))
             t2 = time.time()
 
             print "serving %s in %.3f seconds" % (data, t2 - t1)
@@ -42,21 +42,20 @@ class Confgen(Protocol):
             self.transport.loseConnection()
 
     def _write_response(self, data):
-        if data[-1] == '\n':
-            data = data[:-1]
+        handler = self._find_handler(data)
+        if not handler:
+            print 'No handler found for {}'.format(data)
+            return
 
-        # 'asterisk/sip.conf' => ('asterisk', 'sip_conf')
-        content = self._content_from_plugin(data)
-        if not content:
-            content = self._content_from_frontend(data)
+        with session_scope():
+            content = handler()
 
         if content is None:
-            # get cache content
-            print "cache hit on %s" % data
+            print "cache hit on {}".format(data)
             try:
                 content = self.factory.cache.get(data).decode('utf8')
             except AttributeError:
-                print "No such configuration for %s" % data
+                print "No cached content for {}".format(data)
                 return
         else:
             # write to cache
@@ -64,7 +63,39 @@ class Confgen(Protocol):
 
         self.transport.write(content.encode('utf8'))
 
-    def _content_from_frontend(self, data):
+    def _find_handler(self, data):
+        handler = self.factory.handlers.get(data)
+        if handler:
+            return handler
+
+        plugin = self._find_matching_plugin(data)
+        if plugin:
+            handler = plugin.generate
+        else:
+            handler = self._find_matching_frontend_callback(data)
+
+        if handler:
+            self.factory.handlers[data] = handler
+            return handler
+
+    def _find_matching_plugin(self, data):
+        suffix = data.replace('/', '.')
+        namespace = 'confgend.{}'.format(suffix)
+        driver_name = self._config['plugins'].get(suffix)
+        if not driver_name:
+            return None
+
+        try:
+            return driver.DriverManager(
+                namespace=namespace,
+                name=driver_name,
+                invoke_on_load=True,
+                invoke_args=(self._config,),
+            ).driver
+        except exception.NoMatches:
+            return
+
+    def _find_matching_frontend_callback(self, data):
         try:
             (frontend_name, callback) = data.split('/')
             callback = callback.replace('.', '_')
@@ -74,35 +105,14 @@ class Confgen(Protocol):
 
         frontend = self.factory.frontends.get(frontend_name)
         if frontend is None:
-            print "no such frontend %r" % frontend_name
             return
 
         try:
-            with session_scope():
-                return getattr(frontend, callback)()
+            return getattr(frontend, callback)
         except Exception as e:
             import traceback
             print e
             traceback.print_exc(file=sys.stdout)
-
-    def _content_from_plugin(self, data):
-        suffix = data.replace('/', '.')
-        namespace = 'confgend.{}'.format(suffix)
-        driver_name = self._config['plugins'].get(suffix)
-        if not driver_name:
-            print 'No plugin configuration found for namespace {}'.format(namespace)
-            return None
-
-        try:
-            mgr = driver.DriverManager(
-                namespace=namespace,
-                name=driver_name,
-                invoke_on_load=True,
-                invoke_args=(self._config,))
-        except exception.NoMatches:
-            print 'No plugin found in {} with name {}'.format(namespace, driver_name)
-        else:
-            return mgr.driver.generate()
 
 
 class ConfgendFactory(ServerFactory):
@@ -118,3 +128,4 @@ class ConfgendFactory(ServerFactory):
             'xivo': XivoFrontend(),
         }
         self.cache = cache.FileCache(cachedir)
+        self.handlers = {}

@@ -19,13 +19,15 @@
 from __future__ import unicode_literals
 
 import unittest
+
 from mock import Mock
 from hamcrest import assert_that, equal_to
 
 from xivo_dao.alchemy.usersip import UserSIP as SIP
 
-from xivo_confgen.generators.sip_trunk import SipTrunkGenerator
 from xivo_confgen.generators.tests.util import assert_section_equal
+
+from ..sip_conf import _SipTrunkGenerator
 
 
 class TestSipTrunkGenerator(unittest.TestCase):
@@ -33,7 +35,7 @@ class TestSipTrunkGenerator(unittest.TestCase):
     def setUp(self):
         self.dao = Mock()
         self.dao.find_all_by.return_value = []
-        self.generator = SipTrunkGenerator(self.dao)
+        self.generator = _SipTrunkGenerator(self.dao)
 
     def generate_output(self):
         return '\n'.join(self.generator.generate())

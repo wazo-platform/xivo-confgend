@@ -1,7 +1,7 @@
 Source: xivo-confgend
 Section: python
 Priority: extra
-Maintainer: XiVO Dev Team <dev@avencall.com>
+Maintainer: XiVO Dev Team <dev+dpk@proformatique.com>
 Uploaders: XiVO Builder Team <release@xivo.io>
 Build-Depends: debhelper (>= 9), dh-python, dh-systemd (>= 1.5), python-all (>= 2.7), python-setuptools
 Standards-Version: 3.9.4
@@ -30,7 +30,7 @@ Description: XIVO telephony systems configurations generator
 
 Package: xivo-libconfgend
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, xivo-libdao, python-yaml
+Depends: ${python:Depends}, ${misc:Depends}, xivo-libdao, python-yaml, python-stevedore
 Suggests: xivo-confgen, xivo-web-interface
 Provides: pf-xivo-libconfgend
 Replaces: pf-xivo-libconfgend

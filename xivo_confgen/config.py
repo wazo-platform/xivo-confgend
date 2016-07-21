@@ -28,6 +28,7 @@ _DEFAULT_CONFIG = {
     'listen_port': 8669,
     'db_uri': 'postgresql://asterisk:proformatique@localhost/asterisk',
     'templates': {'contextsconf': '/etc/xivo-confgend/templates/contexts.conf'},
+    'plugins': {},
 }
 
 

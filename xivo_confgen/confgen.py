@@ -16,13 +16,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import time
-import sys
 
 from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo import XivoFrontend
 from xivo_confgen.dird import DirdFrontend
 from xivo_confgen.dird_phoned import DirdPhonedFrontend
+from xivo_confgen.handler import CachedHandlerFactoryDecorator
+from xivo_confgen.handler import MultiHandlerFactory
+from xivo_confgen.handler import PluginHandlerFactory
+from xivo_confgen.handler import FrontendHandlerFactory
+from xivo_confgen.handler import NullHandlerFactory
 from xivo_dao.helpers.db_utils import session_scope
 from twisted.internet.protocol import Protocol, ServerFactory
 
@@ -32,52 +36,20 @@ class Confgen(Protocol):
     def dataReceived(self, data):
         try:
             t1 = time.time()
-            self._write_response(data)
+            try:
+                resource, filename = data.replace('\n', '').split('/')
+            except ValueError:
+                print "cannot split {}".format(data)
+                return
+
+            content = self.factory.generate(resource, filename)
+            if content:
+                self.transport.write(content)
             t2 = time.time()
 
             print "serving %s in %.3f seconds" % (data, t2 - t1)
         finally:
             self.transport.loseConnection()
-
-    def _write_response(self, data):
-        if data[-1] == '\n':
-            data = data[:-1]
-
-        # 'asterisk/sip.conf' => ('asterisk', 'sip_conf')
-        try:
-            (frontend_name, callback) = data.split('/')
-            callback = callback.replace('.', '_')
-        except Exception:
-            print "cannot split"
-            return
-
-        frontend = self.factory.frontends.get(frontend_name)
-        if frontend is None:
-            print "no such frontend %r" % frontend_name
-            return
-
-        content = None
-        try:
-            with session_scope():
-                content = getattr(frontend, callback)()
-        except Exception as e:
-            import traceback
-            print e
-            traceback.print_exc(file=sys.stdout)
-
-        if content is None:
-            # get cache content
-            print "cache hit on %s" % data
-            try:
-                content = self.factory.cache.get(data).decode('utf8')
-            except AttributeError, e:
-                print "No such configuration for %s" % data
-                return
-        else:
-            # write to cache
-            self.factory.cache.put(data, content.encode('utf8'))
-
-        self.transport.write(content.encode('utf8'))
 
 
 class ConfgendFactory(ServerFactory):
@@ -85,10 +57,35 @@ class ConfgendFactory(ServerFactory):
     protocol = Confgen
 
     def __init__(self, cachedir, config):
-        self.frontends = {
+        frontends = {
             'asterisk': AsteriskFrontend(config),
             'dird': DirdFrontend(),
             'dird-phoned': DirdPhonedFrontend(),
             'xivo': XivoFrontend(),
         }
-        self.cache = cache.FileCache(cachedir)
+        self._cache = cache.FileCache(cachedir)
+        self._handler_factory = CachedHandlerFactoryDecorator(MultiHandlerFactory([PluginHandlerFactory(config),
+                                                                                   FrontendHandlerFactory(frontends),
+                                                                                   NullHandlerFactory()]))
+
+    def generate(self, resource, filename):
+        cache_key = '{}/{}'.format(resource, filename)
+        handler = self._handler_factory.get(resource, filename)
+        with session_scope():
+            content = handler() or self._get_cached_content(cache_key)
+        return self._encode_and_cache(cache_key, content)
+
+    def _get_cached_content(self, cache_key):
+        print "cache hit on {}".format(cache_key)
+        try:
+            return self._cache.get(cache_key).decode('utf-8')
+        except AttributeError:
+            print "No cached content for {}".format(cache_key)
+
+    def _encode_and_cache(self, cache_key, content):
+        if not content:
+            return
+
+        encoded_content = content.encode('utf-8')
+        self._cache.put(cache_key, encoded_content)
+        return encoded_content

@@ -20,30 +20,39 @@ from mock import Mock
 
 from StringIO import StringIO
 
-from xivo_confgen.generators import sip
 from xivo_confgen.generators.tests.util import assert_config_equal
 from xivo_confgen.generators.tests.util import assert_section_equal
-from xivo_confgen.generators.sip_trunk import SipTrunkGenerator
-from xivo_confgen.generators.sip_user import SipUserGenerator
+
+from ..sip_conf import (
+    _SipTrunkGenerator,
+    _SipUserGenerator,
+    _SipConf,
+    gen_value_line,
+    unicodify_string,
+    CC_OFFER_TIMER,
+    CC_RECALL_TIMER,
+    CCBS_AVAILABLE_TIMER,
+    CCNR_AVAILABLE_TIMER,
+)
 
 
 class TestSipConf(unittest.TestCase):
 
     def setUp(self):
-        self.trunk_generator = Mock(SipTrunkGenerator)
-        self.user_generator = Mock(SipUserGenerator)
-        self.sip_conf = sip.SipConf(self.trunk_generator, self.user_generator)
+        self.trunk_generator = Mock(_SipTrunkGenerator)
+        self.user_generator = Mock(_SipUserGenerator)
+        self.sip_conf = _SipConf(self.trunk_generator, self.user_generator)
         self.output = StringIO()
 
     def test_get_line(self):
-        result = sip.gen_value_line('emailbody', 'pépè')
+        result = gen_value_line('emailbody', 'pépè')
         self.assertEqual(result, u'emailbody = pépè')
 
     def test_unicodify_string(self):
-        self.assertEqual(u'pépé', sip.unicodify_string(u'pépé'))
-        self.assertEqual(u'pépé', sip.unicodify_string(u'pépé'.encode('utf8')))
-        self.assertEqual(u'pépé', sip.unicodify_string('pépé'))
-        self.assertEqual(u'8', sip.unicodify_string(8))
+        self.assertEqual(u'pépé', unicodify_string(u'pépé'))
+        self.assertEqual(u'pépé', unicodify_string(u'pépé'.encode('utf8')))
+        self.assertEqual(u'pépé', unicodify_string('pépé'))
+        self.assertEqual(u'8', unicodify_string(8))
 
     def test_gen_general(self):
         staticsip = [
@@ -131,10 +140,10 @@ class TestSipConf(unittest.TestCase):
 
         self.assertEqual('generic', ccss_options['cc_agent_policy'])
         self.assertEqual('generic', ccss_options['cc_monitor_policy'])
-        self.assertEqual(sip.CC_OFFER_TIMER, ccss_options['cc_offer_timer'])
-        self.assertEqual(sip.CC_RECALL_TIMER, ccss_options['cc_recall_timer'])
-        self.assertEqual(sip.CCBS_AVAILABLE_TIMER, ccss_options['ccbs_available_timer'])
-        self.assertEqual(sip.CCNR_AVAILABLE_TIMER, ccss_options['ccnr_available_timer'])
+        self.assertEqual(CC_OFFER_TIMER, ccss_options['cc_offer_timer'])
+        self.assertEqual(CC_RECALL_TIMER, ccss_options['cc_recall_timer'])
+        self.assertEqual(CCBS_AVAILABLE_TIMER, ccss_options['ccbs_available_timer'])
+        self.assertEqual(CCNR_AVAILABLE_TIMER, ccss_options['ccnr_available_timer'])
 
     def test__ccss_options_disabled(self):
         data_ccss = [{'commented': 1}]

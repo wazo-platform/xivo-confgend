@@ -59,7 +59,7 @@ class PluginHandlerFactory(HandlerFactory):
 
     def get(self, resource, filename):
         suffix = '{}.{}'.format(resource, filename)
-        namespace = 'confgend.{}'.format(suffix)
+        namespace = 'xivo_confgend.{}'.format(suffix)
         driver_name = self._config['plugins'].get(suffix)
         if not driver_name:
             raise NoSuchHandler()

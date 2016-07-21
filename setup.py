@@ -16,7 +16,7 @@ setup(
     packages=find_packages(),
     scripts=['bin/xivo-confgend'],
     entry_points={
-        'confgend.asterisk.sip.conf': [
+        'xivo_confgend.asterisk.sip.conf': [
             'xivo = xivo_confgen.plugins.sip_conf:SIPConfGenerator',
         ],
     },

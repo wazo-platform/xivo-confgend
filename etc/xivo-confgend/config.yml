@@ -6,6 +6,12 @@
 # should be.
 extra_config_files: /etc/xivo-confgend/conf.d/
 
+# Change the log level to debug level.
+debug: false
+
+# Log file.
+log_filename: /var/log/xivo-confgend.log
+
 # Listen address and port the xivo-confgen
 listen_address: 127.0.0.1
 listen_port: 8669

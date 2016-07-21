@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import logging
 import time
 
 from xivo_confgen import cache
@@ -30,6 +31,8 @@ from xivo_confgen.handler import NullHandlerFactory
 from xivo_dao.helpers.db_utils import session_scope
 from twisted.internet.protocol import Protocol, ServerFactory
 
+logger = logging.getLogger(__name__)
+
 
 class Confgen(Protocol):
 
@@ -39,7 +42,7 @@ class Confgen(Protocol):
             try:
                 resource, filename = data.replace('\n', '').split('/')
             except ValueError:
-                print "cannot split {}".format(data)
+                logger.error("cannot split %s", data)
                 return
 
             content = self.factory.generate(resource, filename)
@@ -47,7 +50,7 @@ class Confgen(Protocol):
                 self.transport.write(content)
             t2 = time.time()
 
-            print "serving %s in %.3f seconds" % (data, t2 - t1)
+            logger.info("serving %s in %.3f seconds", data, t2 - t1)
         finally:
             self.transport.loseConnection()
 
@@ -76,11 +79,11 @@ class ConfgendFactory(ServerFactory):
         return self._encode_and_cache(cache_key, content)
 
     def _get_cached_content(self, cache_key):
-        print "cache hit on {}".format(cache_key)
+        logger.info("cache hit on %s", cache_key)
         try:
             return self._cache.get(cache_key).decode('utf-8')
         except AttributeError:
-            print "No cached content for {}".format(cache_key)
+            logger.warning("No cached content for %s", cache_key)
 
     def _encode_and_cache(self, cache_key, content):
         if not content:

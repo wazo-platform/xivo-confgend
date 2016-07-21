@@ -16,15 +16,22 @@
 
 import xivo_dao
 
-from twisted.internet import reactor
 from twisted.application import service, internet
-
+from twisted.internet import reactor
+from twisted.python import log
+from xivo import xivo_logging
 from xivo_confgen.confgen import ConfgendFactory
 from xivo_confgen.config import load as load_config
 
 
 def main():
     config = load_config()
+
+    observer = log.PythonLoggingObserver()
+    observer.start()
+    foreground = True
+    xivo_logging.setup_logging(config['log_filename'], foreground, config['debug'], config['log_level'])
+
     xivo_dao.init_db(config['db_uri'])
     f = ConfgendFactory(config['cache'], config)
 
@@ -34,6 +41,12 @@ def main():
 
 def twisted_application():
     config = load_config()
+
+    observer = log.PythonLoggingObserver()
+    observer.start()
+    foreground = False
+    xivo_logging.setup_logging(config['log_filename'], foreground, config['debug'], config['log_level'])
+
     xivo_dao.init_db(config['db_uri'])
     f = ConfgendFactory(config['cache'], config)
 

@@ -27,8 +27,6 @@ from xivo_confgen.config import load as load_config
 def main():
     config = load_config()
 
-    observer = log.PythonLoggingObserver()
-    observer.start()
     foreground = True
     xivo_logging.setup_logging(config['log_filename'], foreground, config['debug'], config['log_level'])
 
@@ -42,8 +40,6 @@ def main():
 def twisted_application():
     config = load_config()
 
-    observer = log.PythonLoggingObserver()
-    observer.start()
     foreground = False
     xivo_logging.setup_logging(config['log_filename'], foreground, config['debug'], config['log_level'])
 
@@ -57,3 +53,8 @@ def twisted_application():
     svc.setServiceParent(application)
 
     return application
+
+
+# given in command line to redirect logs to standard logging
+def twistd_logs():
+    return log.PythonLoggingObserver().emit

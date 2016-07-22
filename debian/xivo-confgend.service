@@ -8,7 +8,7 @@ Wants=postgresql.service
 Type=forking
 ExecStartPre=/usr/bin/touch /var/log/xivo-confgend.log
 ExecStartPre=/bin/chown nobody /var/log/xivo-confgend.log
-ExecStart=/usr/bin/twistd --pidfile=/var/run/xivo-confgend.pid --rundir=/var/run --python=/usr/bin/xivo-confgend --no_save
+ExecStart=/usr/bin/twistd --pidfile=/var/run/xivo-confgend.pid --rundir=/var/run --python=/usr/bin/xivo-confgend --no_save --logger xivo_confgen.bin.daemon.twistd_logs
 PIDFile=/var/run/xivo-confgend.pid
 
 [Install]

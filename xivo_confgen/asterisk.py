@@ -31,7 +31,7 @@ class AsteriskFrontend(object):
 
     def __init__(self, config):
         self.contextsconf = config['templates']['contextsconf']
-        self._nova_compatibility = config.get('asterisk', {}).get('nova_compatibility', False)
+        self._nova_compatibility = config['nova_compatibility']
 
     def features_conf(self):
         config_generator = FeaturesConf()

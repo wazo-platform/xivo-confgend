@@ -24,14 +24,16 @@ from xivo_confgen.asterisk import AsteriskFrontend
 class Test(unittest.TestCase):
 
     def setUp(self):
-        self._config = {'templates': {'contextsconf': None}}
+        self._config = {
+            'templates': {'contextsconf': None},
+            'nova_compatibility': False,
+        }
         self.asteriskFrontEnd = AsteriskFrontend(self._config)
 
     def test_nova_compat_defined(self):
-        config = dict(self._config)
-        config['asterisk'] = {'nova_compatibility': True}
+        self._config['nova_compatibility'] = True
 
-        asterisk_frontend = AsteriskFrontend(config)
+        asterisk_frontend = AsteriskFrontend(self._config)
 
         self.assertTrue(asterisk_frontend._nova_compatibility)
 

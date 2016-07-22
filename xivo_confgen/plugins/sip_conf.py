@@ -35,7 +35,7 @@ class SIPConfGenerator(object):
 
     def __init__(self, config):
         self._config = config
-        self._nova_compatibility = config.get('asterisk', {}).get('nova_compatibility', False)
+        self._nova_compatibility = config['nova_compatibility']
 
     def generate(self):
         trunk_generator = _SipTrunkGenerator(sip_dao)

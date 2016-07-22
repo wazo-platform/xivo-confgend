@@ -18,11 +18,15 @@ from __future__ import absolute_import
 
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
+from xivo.xivo_logging import get_log_level_by_name
 
 
 _DEFAULT_CONFIG = {
     'config_file': '/etc/xivo-confgend/config.yml',
     'extra_config_files': '/etc/xivo-confgend/conf.d',
+    'debug': False,
+    'log_level': 'info',
+    'log_filename': '/var/log/xivo-confgend.log',
     'cache': '/var/lib/xivo-confgend',
     'listen_address': '127.0.0.1',
     'listen_port': 8669,
@@ -40,7 +44,13 @@ def load():
 
 
 def _get_reinterpreted_raw_values(config):
+    result = {}
+
     if config.get('listen_address') == '*':
-        return {'listen_address': ''}
-    else:
-        return {}
+        result = {'listen_address': ''}
+
+    log_level = config.get('log_level')
+    if log_level:
+        result['log_level'] = get_log_level_by_name(log_level)
+
+    return result

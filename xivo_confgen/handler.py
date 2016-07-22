@@ -15,9 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import sys
+import logging
 
 from stevedore import driver
+
+logger = logging.getLogger(__name__)
 
 
 class NoSuchHandler(Exception):
@@ -88,10 +90,8 @@ class FrontendHandlerFactory(HandlerFactory):
 
         try:
             return getattr(frontend, callback)
-        except Exception as e:
-            import traceback
-            print e
-            traceback.print_exc(file=sys.stdout)
+        except AttributeError as e:
+            logger.error(e)
             raise NoSuchHandler()
 
 
@@ -102,7 +102,7 @@ class NullHandlerFactory(HandlerFactory):
             self._error_msg = 'No handler found for {}/{}'.format(resource, filename)
 
         def generate(self):
-            print self._error_msg
+            logger.error(self._error_msg)
 
     def get(self, resource, filename):
         return self._NullHandler(resource, filename).generate

@@ -37,8 +37,12 @@ class CachedHandlerFactoryDecorator(object):
 
     def get(self, resource, filename):
         key = (resource, filename)
-        result = self._cache.get(key, self._factory.get(resource, filename))
-        return self._cache.setdefault(key, result)
+        if key in self._cache:
+            result = self._cache[key]
+        else:
+            result = self._factory.get(resource, filename)
+            self._cache[key] = result
+        return result
 
 
 class MultiHandlerFactory(HandlerFactory):

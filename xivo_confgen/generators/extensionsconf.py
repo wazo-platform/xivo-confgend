@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2011-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -56,6 +56,51 @@ DEFAULT_EXTENFEATURES = {
     'fwdbusy': 'GoSub(feature_forward,s,1(busy,${EXTEN:3}))',
     'fwdrna': 'GoSub(feature_forward,s,1(rna,${EXTEN:3}))',
     'fwdunc': 'GoSub(feature_forward,s,1(unc,${EXTEN:3}))',
+}
+
+
+class ExtensionGenerator(object):
+    def __init__(self, exten_row):
+        self._exten_row = exten_row
+
+
+class UserExtensionGenerator(ExtensionGenerator):
+
+    def generate(self):
+        return {
+            'context': self._exten_row['context'],
+            'exten': self._exten_row['exten'],
+            'priority': '1',
+            'action': 'GoSub(user,s,1({},,{}))'.format(self._exten_row['typeval'], self._exten_row['id']),
+        }
+
+
+class IncallExtensionGenerator(ExtensionGenerator):
+
+    def generate(self):
+        return {
+            'context': self._exten_row['context'],
+            'exten': self._exten_row['exten'],
+            'priority': '1',
+            'action': 'GoSub(did,s,1({},))'.format(self._exten_row['typeval']),
+        }
+
+
+class GenericExtensionGenerator(ExtensionGenerator):
+
+    def generate(self):
+        return {
+            'context': self._exten_row['context'],
+            'exten': self._exten_row['exten'],
+            'priority': '1',
+            'action': 'GoSub({},s,1({},))'.format(self._exten_row['type'], self._exten_row['typeval']),
+        }
+
+
+extension_generators = {
+    'user': UserExtensionGenerator,
+    'incall': IncallExtensionGenerator,
+    'did': IncallExtensionGenerator,
 }
 
 
@@ -120,14 +165,9 @@ class ExtensionsConf(object):
             print >> options
 
             # objects extensions (user, group, ...)
-            for exten in asterisk_conf_dao.find_exten_settings(ctx['name']):
-                exten_type = exten['type']
-                exten_typeval = exten['typeval']
-                if exten_type == 'incall':
-                    exten_type = 'did'
-
-                exten['action'] = 'GoSub(%s,s,1(%s,))' % (exten_type, exten_typeval)
-
+            for exten_row in asterisk_conf_dao.find_exten_settings(ctx['name']):
+                exten_generator = extension_generators.get(exten_row['type'], GenericExtensionGenerator)
+                exten = exten_generator(exten_row).generate()
                 self.gen_dialplan_from_template(tmpl, exten, options)
 
             # conference supervision

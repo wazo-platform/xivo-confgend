@@ -12,14 +12,10 @@
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
-rundir=/var/run/
-pidfile=$rundir/xivo-confgend.pid 
-logfile=/var/log/xivo-confgend.log
+pidfile=/var/run/xivo-confgend/xivo-confgend.pid
 name="xivo-confgend"
 daemon=/usr/bin/$name
 twistd=/usr/bin/twistd
-user=nobody
-group=nogroup
 
 . /lib/lsb/init-functions
 
@@ -44,18 +40,14 @@ alive()
 
 case "$1" in
 	start)
-        log_daemon_msg "Starting" "$name"
+		log_daemon_msg "Starting" "$name"
 
-		[ ! -d $rundir ] && mkdir $rundir
-		[ ! -f $logfile ] && touch $logfile
-
-		chown $user $rundir $logfile 
-		[ -f $pidfile ] && chown $user $pidfile
+		install -d -o xivo-confgend -g xivo-confgend /var/run/xivo-confgend
 
 		umask 022
 		start-stop-daemon --start --quiet --exec $twistd -- \
-			--pidfile=$pidfile 	--rundir=$rundir --python=$daemon \
-			--logfile=$logfile 	--no_save
+			--pidfile=$pidfile 	--rundir=/ --uid=xivo-confgend --gid=xivo-confgend --python=$daemon \
+			--logger xivo_confgen.bin.daemon.twistd_logs --no_save
 		log_end_msg $?
 		;;
 

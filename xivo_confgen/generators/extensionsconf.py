@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2011-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -126,7 +126,12 @@ class ExtensionsConf(object):
                 if exten_type == 'incall':
                     exten_type = 'did'
 
-                exten['action'] = 'GoSub(%s,s,1(%s,))' % (exten_type, exten_typeval)
+                if exten_type == 'user':
+                    args = '{},,{}'.format(exten_typeval, exten['id'])
+                else:
+                    args = '{},'.format(exten_typeval)
+
+                exten['action'] = 'GoSub(%s,s,1(%s))' % (exten_type, args)
 
                 self.gen_dialplan_from_template(tmpl, exten, options)
 

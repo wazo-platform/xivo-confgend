@@ -47,7 +47,6 @@ def twisted_application():
     f = ConfgendFactory(config['cache'], config)
 
     application = service.Application('confgend')
-    service.IProcess(application).processName = "confgend"
 
     svc = internet.TCPServer(config['listen_port'], f, interface=config['listen_address'])
     svc.setServiceParent(application)

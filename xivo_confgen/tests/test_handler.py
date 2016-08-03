@@ -44,6 +44,7 @@ class TestCachedHandlerFactoryDecorator(TestCase):
         result_2 = factory.get(s.resource, s.filename)
 
         assert_that(result_1, equal_to(result_2))
+        decorated.get.assert_called_once_with(s.resource, s.filename)
 
     def test_given_decorated_raises_when_get_then_raise(self):
         decorated = Mock()

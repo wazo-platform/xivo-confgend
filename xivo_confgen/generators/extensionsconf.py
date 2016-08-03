@@ -59,6 +59,51 @@ DEFAULT_EXTENFEATURES = {
 }
 
 
+class ExtensionGenerator(object):
+    def __init__(self, exten_row):
+        self._exten_row = exten_row
+
+
+class UserExtensionGenerator(ExtensionGenerator):
+
+    def generate(self):
+        return {
+            'context': self._exten_row['context'],
+            'exten': self._exten_row['exten'],
+            'priority': '1',
+            'action': 'GoSub(user,s,1({},,{}))'.format(self._exten_row['typeval'], self._exten_row['id']),
+        }
+
+
+class IncallExtensionGenerator(ExtensionGenerator):
+
+    def generate(self):
+        return {
+            'context': self._exten_row['context'],
+            'exten': self._exten_row['exten'],
+            'priority': '1',
+            'action': 'GoSub(did,s,1({},))'.format(self._exten_row['typeval']),
+        }
+
+
+class GenericExtensionGenerator(ExtensionGenerator):
+
+    def generate(self):
+        return {
+            'context': self._exten_row['context'],
+            'exten': self._exten_row['exten'],
+            'priority': '1',
+            'action': 'GoSub({},s,1({},))'.format(self._exten_row['type'], self._exten_row['typeval']),
+        }
+
+
+extension_generators = {
+    'user': UserExtensionGenerator,
+    'incall': IncallExtensionGenerator,
+    'did': IncallExtensionGenerator,
+}
+
+
 class ExtensionsConf(object):
 
     def __init__(self, contextsconf, hint_generator):
@@ -120,19 +165,9 @@ class ExtensionsConf(object):
             print >> options
 
             # objects extensions (user, group, ...)
-            for exten in asterisk_conf_dao.find_exten_settings(ctx['name']):
-                exten_type = exten['type']
-                exten_typeval = exten['typeval']
-                if exten_type == 'incall':
-                    exten_type = 'did'
-
-                if exten_type == 'user':
-                    args = '{},,{}'.format(exten_typeval, exten['id'])
-                else:
-                    args = '{},'.format(exten_typeval)
-
-                exten['action'] = 'GoSub(%s,s,1(%s))' % (exten_type, args)
-
+            for exten_row in asterisk_conf_dao.find_exten_settings(ctx['name']):
+                exten_generator = extension_generators.get(exten_row['type'], GenericExtensionGenerator)
+                exten = exten_generator(exten_row).generate()
                 self.gen_dialplan_from_template(tmpl, exten, options)
 
             # conference supervision

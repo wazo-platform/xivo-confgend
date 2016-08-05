@@ -67,9 +67,9 @@ class ConfgendFactory(ServerFactory):
             'xivo': XivoFrontend(),
         }
         self._cache = cache.FileCache(cachedir)
-        self._handler_factory = CachedHandlerFactoryDecorator(MultiHandlerFactory([PluginHandlerFactory(config),
-                                                                                   FrontendHandlerFactory(frontends),
-                                                                                   NullHandlerFactory()]))
+        self._handler_factory = MultiHandlerFactory([CachedHandlerFactoryDecorator(PluginHandlerFactory(config)),
+                                                     FrontendHandlerFactory(frontends),
+                                                     NullHandlerFactory()])
 
     def generate(self, resource, filename):
         cache_key = '{}/{}'.format(resource, filename)

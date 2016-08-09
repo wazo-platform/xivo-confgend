@@ -7,10 +7,16 @@ USER="xivo-confgend"
 
 case "$1" in
 	configure)
-		if ! getent passwd "$USER" > /dev/null; then
-			echo "Adding system user for $USER" 1>&2
-			adduser --system --group --quiet \
-				--home / --no-create-home "$USER"
+		# add/update user
+		if ! getent passwd $USER > /dev/null; then
+			echo "Adding system user $USER" 1>&2
+			adduser --quiet --system --group --no-create-home \
+					--home /var/lib/xivo-confgend \
+					$USER
+		else
+			if dpkg --compare-versions "$2" lt '1:16.12~'; then
+				usermod --home /var/lib/xivo-confgend $USER
+			fi
 		fi
 
 		if [ ! -e "$LOG_FILENAME" ]; then
@@ -19,8 +25,7 @@ case "$1" in
 
 		chown "$USER:$USER" "$LOG_FILENAME" /var/lib/xivo-confgend
 
-		previous_version="$2"
-		if dpkg --compare-versions "$previous_version" "<<" "1:16.10"; then
+		if dpkg --compare-versions "$2" "<<" "1:16.10"; then
 			chown -R "$USER:$USER" /var/lib/xivo-confgend
 		fi
 	;;

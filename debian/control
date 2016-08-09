@@ -11,7 +11,7 @@ Homepage: http://www.xivo.io/
 Package: xivo-confgend
 Architecture: all
 Pre-Depends: xivo-libconfgend
-Depends: ${python:Depends}, ${misc:Depends}, python-twisted, xivo-lib-python
+Depends: ${python:Depends}, ${misc:Depends}, adduser, python-twisted, xivo-lib-python
 Provides: pf-xivo-confgend
 Replaces: pf-xivo-confgend
 Conflicts: pf-xivo-confgend

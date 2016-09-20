@@ -80,8 +80,15 @@ sources = [
      'format_columns': {
          'firstname': '{givenName}',
          'lastname': '{sn}',
-         'number': '{telephoneNumber}',
-     }},
+         'number': '{telephoneNumber}'}},
+    {'type': 'dird_phonebook',
+     'uri': 'postgresql://db',
+     'dird_tenant': 'tenant',
+     'dird_phonebook': 'phonebook-name',
+     'name': 'dird',
+     'searched_columns': [],
+     'first_matched_columns': [],
+     'format_columns': {}},
 ]
 
 
@@ -182,6 +189,16 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                     'firstname': '{givenName}',
                     'lastname': '{sn}',
                     'number': '{telephoneNumber}'},
+            },
+            'dird': {
+                'type': 'dird_phonebook',
+                'name': 'dird',
+                'db_uri': 'postgresql://db',
+                'tenant': 'tenant',
+                'phonebook_name': 'phonebook-name',
+                'format_columns': {},
+                'searched_columns': [],
+                'first_matched_columns': [],
             },
         }
 

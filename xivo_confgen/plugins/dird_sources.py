@@ -50,7 +50,7 @@ class _NoContextSeparationSourceGenerator(object):
     confd_api_version = '1.1'
     confd_default_timeout = 4
     phonebook_default_timeout = 4
-    supported_types = ['csv', 'csv_ws', 'ldap', 'phonebook', 'xivo']
+    supported_types = ['csv', 'csv_ws', 'ldap', 'phonebook', 'xivo', 'dird_phonebook']
 
     def __init__(self, raw_sources):
         self._raw_sources = raw_sources
@@ -79,6 +79,8 @@ class _NoContextSeparationSourceGenerator(object):
             config.update(self._format_csv_ws_source(source))
         elif type_ == 'ldap':
             config.update(self._format_ldap_source(source))
+        elif type_ == 'dird_phonebook':
+            config.update(self._format_dird_phonebook_source(source))
 
         return name, config
 
@@ -136,6 +138,11 @@ class _NoContextSeparationSourceGenerator(object):
                 return True
         else:
             return False
+
+    def _format_dird_phonebook_source(self, source):
+        return {'tenant': source['dird_tenant'],
+                'phonebook_name': source['dird_phonebook'],
+                'db_uri': source['uri']}
 
 
 class _ContextSeparatedSourceGenerator(_NoContextSeparationSourceGenerator, _ContextSeparatedMixin):

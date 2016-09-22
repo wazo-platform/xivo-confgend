@@ -21,7 +21,6 @@ from xivo_dao import cti_context_dao
 from xivo_dao import cti_displays_dao
 from xivo_dao import cti_main_dao
 from xivo_dao import cti_reverse_dao
-from xivo_dao import directory_dao
 
 
 class _ContextSeparatedMixin(object):
@@ -102,121 +101,6 @@ class _ContextSeparatedLookupServiceGenerator(_ContextSeparatedMixin, _LookupSer
             yield source
 
 
-class _NoContextSeparationSourceGenerator(object):
-
-    confd_api_version = '1.1'
-    confd_default_timeout = 4
-    phonebook_default_timeout = 4
-    supported_types = ['csv', 'csv_ws', 'ldap', 'phonebook', 'xivo']
-
-    def __init__(self, raw_sources):
-        self._raw_sources = raw_sources
-
-    def generate(self):
-        return dict(self._format_source(source)
-                    for source in self._raw_sources
-                    if source['type'] in self.supported_types)
-
-    def _format_source(self, source):
-        name = source['name']
-        type_ = source['type']
-        config = {'type': type_,
-                  'name': name,
-                  'searched_columns': source['searched_columns'],
-                  'first_matched_columns': source['first_matched_columns'],
-                  'format_columns': source['format_columns']}
-
-        if type_ == 'xivo':
-            config.update(self._format_xivo_source(source))
-        elif type_ == 'phonebook':
-            config.update(self._format_phonebook_source(source))
-        elif type_ == 'csv':
-            config.update(self._format_csv_source(source))
-        elif type_ == 'csv_ws':
-            config.update(self._format_csv_ws_source(source))
-        elif type_ == 'ldap':
-            config.update(self._format_ldap_source(source))
-
-        return name, config
-
-    def _format_csv_source(self, source):
-        _, _, filename = source['uri'].partition('file://')
-        return {'file': filename,
-                'separator': source['delimiter']}
-
-    def _format_csv_ws_source(self, source):
-        return {'delimiter': source['delimiter'],
-                'lookup_url': source['uri']}
-
-    def _format_ldap_source(self, source):
-        return {
-            'ldap_uri': source['ldap_uri'],
-            'ldap_username': source['ldap_username'],
-            'ldap_password': source['ldap_password'],
-            'ldap_base_dn': source['ldap_base_dn'],
-            'ldap_custom_filter': source['ldap_custom_filter'],
-        }
-
-    def _format_phonebook_source(self, source):
-        return {'phonebook_url': source['uri'],
-                'phonebook_timeout': 4}
-
-    def _format_xivo_source(self, source):
-        return {'unique_column': 'id',
-                'confd_config': self._format_confd_config(source)}
-
-    def _format_confd_config(self, source):
-        scheme, _, end = source['uri'].partition('://')
-        host, _, port = end.partition(':')
-        verify_certificate = self._format_confd_verify_certificate(source)
-
-        config = {
-            'https': scheme == 'https',
-            'host': host,
-            'timeout': self.confd_default_timeout,
-            'version': self.confd_api_version,
-            'verify_certificate': verify_certificate
-        }
-        if port:
-            config['port'] = int(port)
-        if source['xivo_username'] and source['xivo_password']:
-            config['username'] = source['xivo_username']
-            config['password'] = source['xivo_password']
-
-        return config
-
-    def _format_confd_verify_certificate(self, source):
-        if source['xivo_verify_certificate']:
-            if source['xivo_custom_ca_path']:
-                return source['xivo_custom_ca_path']
-            else:
-                return True
-        else:
-            return False
-
-
-class _ContextSeparatedSourceGenerator(_NoContextSeparationSourceGenerator, _ContextSeparatedMixin):
-
-    def __init__(self, *args, **kwargs):
-        super(_ContextSeparatedSourceGenerator, self).__init__(*args, **kwargs)
-        self._profiles = cti_context_dao.get_context_names()
-
-    def generate(self):
-        raw_result = super(_ContextSeparatedSourceGenerator, self).generate()
-
-        results = {}
-        for name, config in raw_result.iteritems():
-            if config['type'] not in self._context_separated_types:
-                results[name] = config
-                continue
-            for profile in self._profiles:
-                new_name = self.source_name(profile, name, config['type'])
-                results[new_name] = dict(config)
-                results[new_name]['name'] = new_name
-                results[new_name]['extra_search_params'] = {'context': profile}
-        return results
-
-
 class _NoContextSeparationFavoritesServiceGenerator(_NoContextSeparationLookupServiceGenerator):
     pass
 
@@ -290,13 +174,6 @@ class _BaseDirdFrontend(object):
                                             'favorites': favorites,
                                             'reverse': reverses}})
 
-    def sources_yml(self):
-        raw_sources = directory_dao.get_all_sources()
-
-        sources = self._SourceGenerator(raw_sources).generate()
-
-        return yaml.safe_dump({'sources': sources})
-
     def views_yml(self):
         displays = _DisplayGenerator().generate()
         associations = _AssociationGenerator().generate()
@@ -314,7 +191,6 @@ class _ContextSeparatedDirdFrontend(_BaseDirdFrontend):
     _LookupServiceGenerator = _ContextSeparatedLookupServiceGenerator
     _FavoritesServiceGenerator = _ContextSeparatedFavoritesServiceGenerator
     _ReverseServiceGenerator = _ContextSeparatedReverseServiceGenerator
-    _SourceGenerator = _ContextSeparatedSourceGenerator
 
 
 class _NoContextSeparationDirdFrontend(_BaseDirdFrontend):
@@ -322,4 +198,3 @@ class _NoContextSeparationDirdFrontend(_BaseDirdFrontend):
     _LookupServiceGenerator = _NoContextSeparationLookupServiceGenerator
     _FavoritesServiceGenerator = _NoContextSeparationFavoritesServiceGenerator
     _ReverseServiceGenerator = _NoContextSeparationReverseServiceGenerator
-    _SourceGenerator = _NoContextSeparationSourceGenerator

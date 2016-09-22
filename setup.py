@@ -19,5 +19,8 @@ setup(
         'xivo_confgend.asterisk.sip.conf': [
             'xivo = xivo_confgen.plugins.sip_conf:SIPConfGenerator',
         ],
+        'xivo_confgend.dird.sources.yml': [
+            'xivo = xivo_confgen.plugins.dird_sources:SourceGenerator',
+        ],
     },
 )

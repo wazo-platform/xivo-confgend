@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2015-2016 Avencall
+# Copyright (C) 2016 Proformatique
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -162,7 +163,7 @@ class TestNoContextSeparatReverseServiceGenerator(unittest.TestCase):
 
     def test_generate(self):
         reverse_configuration = {'sources': ['internal', 'xivodir'],
-                                 'types': ['phonebook', 'xivo']}
+                                 'types': ['dird_phonebook', 'xivo']}
 
         generator = _NoContextSeparationReverseServiceGenerator(reverse_configuration)
 
@@ -178,7 +179,7 @@ class TestContextSeparatedReverseServiceGenerator(unittest.TestCase):
 
     def test_generate(self):
         reverse_configuration = {'sources': ['internal', 'xivodir'],
-                                 'types': ['phonebook', 'xivo']}
+                                 'types': ['dird_phonebook', 'xivo']}
 
         generator = _ContextSeparatedReverseServiceGenerator(reverse_configuration)
 

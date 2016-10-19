@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2016 Avencall
+# Copyright (C) 2016 Proformatique
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -50,7 +51,7 @@ class _NoContextSeparationSourceGenerator(object):
     confd_api_version = '1.1'
     confd_default_timeout = 4
     phonebook_default_timeout = 4
-    supported_types = ['csv', 'csv_ws', 'ldap', 'phonebook', 'xivo', 'dird_phonebook']
+    supported_types = ['csv', 'csv_ws', 'ldap', 'xivo', 'dird_phonebook']
 
     def __init__(self, raw_sources):
         self._raw_sources = raw_sources
@@ -71,8 +72,6 @@ class _NoContextSeparationSourceGenerator(object):
 
         if type_ == 'xivo':
             config.update(self._format_xivo_source(source))
-        elif type_ == 'phonebook':
-            config.update(self._format_phonebook_source(source))
         elif type_ == 'csv':
             config.update(self._format_csv_source(source))
         elif type_ == 'csv_ws':
@@ -101,10 +100,6 @@ class _NoContextSeparationSourceGenerator(object):
             'ldap_base_dn': source['ldap_base_dn'],
             'ldap_custom_filter': source['ldap_custom_filter'],
         }
-
-    def _format_phonebook_source(self, source):
-        return {'phonebook_url': source['uri'],
-                'phonebook_timeout': 4}
 
     def _format_xivo_source(self, source):
         return {'unique_column': 'id',

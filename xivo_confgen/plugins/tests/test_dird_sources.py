@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2016 Avencall
+# Copyright (C) 2016 Proformatique
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,14 +47,6 @@ sources = [
      'format_columns': {'number': '{exten}',
                         'mobile': '{mobile_phone_number}',
                         'name': '{firstname} {lastname}'}},
-    {'type': 'phonebook',
-     'name': 'xivodir',
-     'uri': 'http://localhost/service/ipbx/json.php/private/pbx_services/phonebook',
-     'searched_columns': ['firstname', 'lastname', 'company'],
-     'first_matched_columns': ['number'],
-     'format_columns': {'firstname': '{phonebook.firstname}',
-                        'lastname': '{phonebook.lastname}',
-                        'number': '{phonebooknumber.office.number}'}},
     {'type': 'csv',
      'name': 'mycsv',
      'uri': 'file:///usr/tmp/test.csv',
@@ -145,17 +138,6 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                     'password': 'passwd',
                     'verify_certificate': '/tmp/ca.crt',
                 },
-            },
-            'xivodir': {
-                'type': 'phonebook',
-                'name': 'xivodir',
-                'phonebook_url': 'http://localhost/service/ipbx/json.php/private/pbx_services/phonebook',
-                'searched_columns': ['firstname', 'lastname', 'company'],
-                'first_matched_columns': ['number'],
-                'format_columns': {'firstname': '{phonebook.firstname}',
-                                   'lastname': '{phonebook.lastname}',
-                                   'number': '{phonebooknumber.office.number}'},
-                'phonebook_timeout': 4,
             },
             'mycsv': {
                 'type': 'csv',

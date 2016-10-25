@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2011-2014 Avencall
+# Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,25 +19,31 @@
 import unittest
 from StringIO import StringIO
 
-from mock import Mock
+from hamcrest import assert_that, contains_string
+from mock import Mock, patch
+from xivo_dao.alchemy.ivr import IVR
 
 from xivo_confgen.generators.extensionsconf import ExtensionsConf
 from xivo_confgen.hints.generator import HintGenerator
+from xivo_confgen.template import TemplateHelper
+from jinja2.loaders import DictLoader
 
 
 class TestExtensionsConf(unittest.TestCase):
 
     def setUp(self):
         self.hint_generator = Mock(HintGenerator)
-        self.extensionsconf = ExtensionsConf('context.conf', self.hint_generator)
+        self.tpl_mapping = {}
+        self.tpl_helper = TemplateHelper(DictLoader(self.tpl_mapping))
+        self.extensionsconf = ExtensionsConf('context.conf', self.hint_generator, self.tpl_helper)
+        self.output = StringIO()
 
     def test_generate_dialplan_from_template(self):
-        output = StringIO()
         template = ["%%EXTEN%%,%%PRIORITY%%,Set('XIVO_BASE_CONTEXT': ${CONTEXT})"]
         exten = {'exten': '*98', 'priority': 1}
-        self.extensionsconf.gen_dialplan_from_template(template, exten, output)
+        self.extensionsconf.gen_dialplan_from_template(template, exten, self.output)
 
-        self.assertEqual(output.getvalue(), "exten = *98,1,Set('XIVO_BASE_CONTEXT': ${CONTEXT})\n\n")
+        self.assertEqual(self.output.getvalue(), "exten = *98,1,Set('XIVO_BASE_CONTEXT': ${CONTEXT})\n\n")
 
     def test_bsfilter_build_extens(self):
         bs1 = {'bsfilter': 'boss',
@@ -87,7 +94,6 @@ class TestExtensionsConf(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_generate_hints(self):
-        output = StringIO()
         hints = [
             'exten = 1000,hint,SIP/abcdef',
             'exten = 4000,hint,meetme:4000',
@@ -96,8 +102,18 @@ class TestExtensionsConf(unittest.TestCase):
 
         self.hint_generator.generate.return_value = hints
 
-        self.extensionsconf._generate_hints('context', output)
+        self.extensionsconf._generate_hints('context', self.output)
 
         self.hint_generator.generate.assert_called_once_with('context')
         for hint in hints:
-            self.assertTrue(hint in output.getvalue())
+            self.assertTrue(hint in self.output.getvalue())
+
+    @patch('xivo_confgen.generators.extensionsconf.ivr_dao')
+    def test_generate_ivrs(self, mock_ivr_dao):
+        ivr = IVR(id=42, name='foo', menu_sound='hello-world')
+        mock_ivr_dao.find_all_by.return_value = [ivr]
+        self.tpl_mapping['ivr.jinja'] = '{{ ivr.id }}'
+
+        self.extensionsconf._generate_ivr(self.output)
+
+        assert_that(self.output.getvalue(), contains_string('42'))

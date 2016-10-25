@@ -1,0 +1,40 @@
+[ivr-{{ ivr.id }}]
+exten = s,1,Set(IVR_COUNTER=0)
+same  =   n,Gosub(xivo-pickup,0,1)
+{% if ivr.greeting_sound -%}
+same  =   n,Background({{ ivr.greeting_sound }})
+{% endif -%}
+same  =   n(start),Set(IVR_COUNTER=$[${IVR_COUNTER} + 1])
+same  =   n,Background({{ ivr.menu_sound }})
+same  =   n,WaitExten({{ ivr.timeout }})
+
+{% for choice in ivr.choices %}
+exten = {{ choice.exten }},1,Gosub(forward,s,1({{ choice.destination.gosub_args }}))
+{% endfor %}
+
+exten = t,1,NoOp()
+{% if ivr.timeout_destination -%}
+same  =   n,Gosub(forward,s,1({{ ivr.timeout_destination.gosub_args }}))
+{% else -%}
+same  =   n,GotoIf($[${IVR_COUNTER}>={{ ivr.max_tries }}]?abort,1)
+same  =   n,Goto(s,start)
+{%- endif %}
+
+exten = i,1,NoOp()
+{% if ivr.invalid_destination -%}
+same  =   n,Gosub(forward,s,1({{ ivr.invalid_destination.gosub_args }}))
+{% else -%}
+same  =   n,GotoIf($[${IVR_COUNTER}>={{ ivr.max_tries }}]?abort,1)
+{% if ivr.invalid_sound -%}
+same  =   n,Playback({{ ivr.invalid_sound }})
+{% endif -%}
+same  =   n,Goto(s,start)
+{%- endif %}
+
+exten = abort,1,NoOp()
+{% if ivr.abort_destination -%}
+same  =   n,Gosub(forward,s,1({{ ivr.abort_destination.gosub_args }}))
+{% else -%}
+same  =   n,Playback({{ ivr.abort_sound|d('error-sorry', true) }})
+same  =   n,Hangup()
+{% endif %}

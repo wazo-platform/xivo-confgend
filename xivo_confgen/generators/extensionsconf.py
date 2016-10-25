@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2011-2016 Avencall
+# Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +21,7 @@ from StringIO import StringIO
 
 from xivo import OrderedConf, xivo_helpers
 from xivo_dao import asterisk_conf_dao
+from xivo_dao.resources.ivr import dao as ivr_dao
 
 
 DEFAULT_EXTENFEATURES = {
@@ -106,9 +108,10 @@ extension_generators = {
 
 class ExtensionsConf(object):
 
-    def __init__(self, contextsconf, hint_generator):
+    def __init__(self, contextsconf, hint_generator, tpl_helper):
         self.contextsconf = contextsconf
         self.hint_generator = hint_generator
+        self._tpl_helper = tpl_helper
 
     def generate(self, output):
         options = output
@@ -184,6 +187,8 @@ class ExtensionsConf(object):
             self._generate_hints(ctx['name'], options)
 
         print >> options, self._extensions_features(conf, xfeatures)
+        self._generate_ivr(output)
+
         return options.getvalue()
 
     def _extensions_features(self, conf, xfeatures):
@@ -252,3 +257,10 @@ class ExtensionsConf(object):
     def _generate_hints(self, context, output):
         for line in self.hint_generator.generate(context):
             print >> output, line
+
+    def _generate_ivr(self, output):
+        for ivr in ivr_dao.find_all_by():
+            template_context = {'ivr': ivr}
+            template = self._tpl_helper.get_customizable_template('ivr', ivr.id)
+            template.generate(template_context, output)
+            print >> output

@@ -10,6 +10,7 @@ same  =   n,WaitExten({{ ivr.timeout }})
 
 {% for choice in ivr.choices %}
 exten = {{ choice.exten }},1,Gosub(forward,s,1({{ choice.destination.gosub_args }}))
+same  =   n,Hangup()
 {% endfor %}
 
 exten = t,1,NoOp()

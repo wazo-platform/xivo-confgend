@@ -1,0 +1,1 @@
+include xivo_confgen/templates/*.jinja

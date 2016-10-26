@@ -6,7 +6,11 @@ same  =   n,Background({{ ivr.greeting_sound }})
 {% endif -%}
 same  =   n(start),Set(IVR_COUNTER=$[${IVR_COUNTER} + 1])
 same  =   n,Background({{ ivr.menu_sound }})
+{% if ivr.timeout -%}
 same  =   n,WaitExten({{ ivr.timeout }})
+{% else -%}
+same  =   n,Goto(t,1)
+{%- endif %}
 
 {% for choice in ivr.choices %}
 exten = {{ choice.exten }},1,Gosub(forward,s,1({{ choice.destination.gosub_args }}))

@@ -29,9 +29,10 @@ from xivo_dao import asterisk_conf_dao
 
 class AsteriskFrontend(object):
 
-    def __init__(self, config):
+    def __init__(self, config, tpl_helper):
         self.contextsconf = config['templates']['contextsconf']
         self._nova_compatibility = config['nova_compatibility']
+        self._tpl_helper = tpl_helper
 
     def features_conf(self):
         config_generator = FeaturesConf()
@@ -52,7 +53,7 @@ class AsteriskFrontend(object):
 
     def extensions_conf(self):
         hint_generator = HintGenerator.build()
-        config_generator = ExtensionsConf(self.contextsconf, hint_generator)
+        config_generator = ExtensionsConf(self.contextsconf, hint_generator, self._tpl_helper)
         return self._generate_conf_from_generator(config_generator)
 
     def queues_conf(self):

@@ -28,6 +28,7 @@ from xivo_confgen.handler import MultiHandlerFactory
 from xivo_confgen.handler import PluginHandlerFactory
 from xivo_confgen.handler import FrontendHandlerFactory
 from xivo_confgen.handler import NullHandlerFactory
+from xivo_confgen.template import new_template_helper
 from xivo_dao.helpers.db_utils import session_scope
 from twisted.internet.protocol import Protocol, ServerFactory
 
@@ -60,8 +61,9 @@ class ConfgendFactory(ServerFactory):
     protocol = Confgen
 
     def __init__(self, cachedir, config):
+        tpl_helper = new_template_helper()
         frontends = {
-            'asterisk': AsteriskFrontend(config),
+            'asterisk': AsteriskFrontend(config, tpl_helper),
             'dird': DirdFrontend(),
             'dird-phoned': DirdPhonedFrontend(),
             'xivo': XivoFrontend(),

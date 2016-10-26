@@ -1,4 +1,4 @@
-[ivr-{{ ivr.id }}]
+[xivo-ivr-{{ ivr.id }}]
 exten = s,1,Set(IVR_COUNTER=0)
 same  =   n,Gosub(xivo-pickup,0,1)
 {% if ivr.greeting_sound -%}

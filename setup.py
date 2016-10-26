@@ -13,6 +13,7 @@ setup(
     author_email='dev+pkg@proformatique.com',
     url='http://www.xivo.io/',
     license='GPLv3',
+    include_package_data=True,
     packages=find_packages(),
     scripts=['bin/xivo-confgend'],
     entry_points={

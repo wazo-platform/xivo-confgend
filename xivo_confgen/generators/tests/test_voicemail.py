@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2012-2014 Avencall
+# Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +25,7 @@ from mock import patch, Mock
 from xivo_confgen.generators.tests.util import assert_generates_config
 from xivo_confgen.generators.voicemail import VoicemailConf, VoicemailGenerator
 
-from xivo_dao.resources.voicemail.model import Voicemail
+from xivo_dao.alchemy.voicemail import Voicemail
 
 
 class TestVoicemailGenerator(unittest.TestCase):
@@ -49,7 +50,7 @@ class TestVoicemailGenerator(unittest.TestCase):
         expected = textwrap.dedent(
             """\
             [default]
-            1000 => ,myvoicemail,,,
+            1000 => ,myvoicemail,,,deletevoicemail=no
 
             """)
 
@@ -95,7 +96,7 @@ class TestVoicemailGenerator(unittest.TestCase):
         expected = textwrap.dedent(
             """\
             [default]
-            1000 => ,myvoicemail,,,emailbody=howdy\\thello\\nworld\\r!
+            1000 => ,myvoicemail,,,deletevoicemail=no|emailbody=howdy\\thello\\nworld\\r!
 
             """)
 
@@ -115,8 +116,8 @@ class TestVoicemailGenerator(unittest.TestCase):
         expected = textwrap.dedent(
             """\
             [default]
-            1000 => ,myvoicemail,,,
-            1001 => ,othervoicemail,,,
+            1000 => ,myvoicemail,,,deletevoicemail=no
+            1001 => ,othervoicemail,,,deletevoicemail=no
 
             """)
 
@@ -136,10 +137,10 @@ class TestVoicemailGenerator(unittest.TestCase):
         expected = textwrap.dedent(
             """\
             [default]
-            1000 => ,myvoicemail,,,
+            1000 => ,myvoicemail,,,deletevoicemail=no
 
             [otherctx]
-            1001 => ,othervoicemail,,,
+            1001 => ,othervoicemail,,,deletevoicemail=no
 
             """)
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2011-2015 Avencall
+# Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,10 +27,10 @@ class VoicemailGenerator(object):
 
     @classmethod
     def build(cls):
-        return cls(voicemail_dao.find_enabled_voicemails)
+        return cls(voicemail_dao.find_all_by(enabled=True))
 
-    def __init__(self, get_voicemails):
-        self.get_voicemails = get_voicemails
+    def __init__(self, voicemails):
+        self._voicemails = voicemails
 
     def generate(self):
         output = u""
@@ -42,7 +43,7 @@ class VoicemailGenerator(object):
         return output
 
     def group_voicemails(self):
-        return itertools.groupby(self.get_voicemails(), lambda v: v.context)
+        return itertools.groupby(self._voicemails, lambda v: v.context)
 
     def format_context(self, context):
         return u"[{}]".format(context)

@@ -30,22 +30,20 @@ from xivo_dao.alchemy.voicemail import Voicemail
 
 class TestVoicemailGenerator(unittest.TestCase):
 
-    def setUp(self):
-        self.voicemail_list = Mock()
-        self.generator = VoicemailGenerator(self.voicemail_list)
-
     def test_given_no_voicemails_when_generating_then_generates_nothing(self):
-        self.voicemail_list.return_value = []
+        generator = VoicemailGenerator([])
 
-        output = self.generator.generate()
+        output = generator.generate()
 
         assert_that(output, equal_to(''))
 
     def test_given_voicemail_with_minimal_parameters_when_generating_then_generates_one_entry(self):
-        self.voicemail_list.return_value = [Voicemail(name='myvoicemail',
-                                                      number='1000',
-                                                      context='default',
-                                                      options=[])]
+        generator = VoicemailGenerator([
+            Voicemail(name='myvoicemail',
+                      number='1000',
+                      context='default',
+                      options=[]),
+        ])
 
         expected = textwrap.dedent(
             """\
@@ -54,26 +52,28 @@ class TestVoicemailGenerator(unittest.TestCase):
 
             """)
 
-        output = self.generator.generate()
+        output = generator.generate()
         assert_that(output, equal_to(expected))
 
     def test_given_voicemail_with_all_parameters_when_generating_then_generates_one_entry(self):
-        self.voicemail_list.return_value = [Voicemail(name='myvoicemail',
-                                                      number='1000',
-                                                      context='default',
-                                                      password='1234',
-                                                      email='email@example.com',
-                                                      pager='pager@example.com',
-                                                      language='fr_FR',
-                                                      timezone='eu-fr',
-                                                      attach_audio=True,
-                                                      delete_messages=True,
-                                                      max_messages=5,
-                                                      ask_password=True,
-                                                      options=[
-                                                          ["volgain", "0.5"],
-                                                          ["saycid", "yes"]
-                                                      ])]
+        generator = VoicemailGenerator([
+            Voicemail(name='myvoicemail',
+                      number='1000',
+                      context='default',
+                      password='1234',
+                      email='email@example.com',
+                      pager='pager@example.com',
+                      language='fr_FR',
+                      timezone='eu-fr',
+                      attach_audio=True,
+                      delete_messages=True,
+                      max_messages=5,
+                      ask_password=True,
+                      options=[
+                          ["volgain", "0.5"],
+                          ["saycid", "yes"]
+                      ]),
+        ])
 
         expected = textwrap.dedent(
             """\
@@ -82,16 +82,18 @@ class TestVoicemailGenerator(unittest.TestCase):
 
             """)
 
-        output = self.generator.generate()
+        output = generator.generate()
         assert_that(output, equal_to(expected))
 
     def test_given_voicemail_parameter_with_special_characters_when_generating_then_escapes_characters(self):
-        self.voicemail_list.return_value = [Voicemail(name='myvoicemail',
-                                                      number='1000',
-                                                      context='default',
-                                                      options=[
-                                                          ["emailbody", "howdy\thello\nworld\r|!"],
-                                                      ])]
+        generator = VoicemailGenerator([
+            Voicemail(name='myvoicemail',
+                      number='1000',
+                      context='default',
+                      options=[
+                          ["emailbody", "howdy\thello\nworld\r|!"],
+                      ]),
+        ])
 
         expected = textwrap.dedent(
             """\
@@ -100,18 +102,20 @@ class TestVoicemailGenerator(unittest.TestCase):
 
             """)
 
-        output = self.generator.generate()
+        output = generator.generate()
         assert_that(output, equal_to(expected))
 
     def test_given_two_voicemails_in_same_context_when_generating_then_generates_two_entries(self):
-        self.voicemail_list.return_value = [Voicemail(name='myvoicemail',
-                                                      number='1000',
-                                                      context='default',
-                                                      options=[]),
-                                            Voicemail(name='othervoicemail',
-                                                      number='1001',
-                                                      context='default',
-                                                      options=[])]
+        generator = VoicemailGenerator([
+            Voicemail(name='myvoicemail',
+                      number='1000',
+                      context='default',
+                      options=[]),
+            Voicemail(name='othervoicemail',
+                      number='1001',
+                      context='default',
+                      options=[]),
+        ])
 
         expected = textwrap.dedent(
             """\
@@ -121,18 +125,20 @@ class TestVoicemailGenerator(unittest.TestCase):
 
             """)
 
-        output = self.generator.generate()
+        output = generator.generate()
         assert_that(output, equal_to(expected))
 
     def test_given_two_voicemails_in_different_contexts_when_generating_then_generates_two_contexts(self):
-        self.voicemail_list.return_value = [Voicemail(name='myvoicemail',
-                                                      number='1000',
-                                                      context='default',
-                                                      options=[]),
-                                            Voicemail(name='othervoicemail',
-                                                      number='1001',
-                                                      context='otherctx',
-                                                      options=[])]
+        generator = VoicemailGenerator([
+            Voicemail(name='myvoicemail',
+                      number='1000',
+                      context='default',
+                      options=[]),
+            Voicemail(name='othervoicemail',
+                      number='1001',
+                      context='otherctx',
+                      options=[]),
+        ])
 
         expected = textwrap.dedent(
             """\
@@ -144,7 +150,7 @@ class TestVoicemailGenerator(unittest.TestCase):
 
             """)
 
-        output = self.generator.generate()
+        output = generator.generate()
         assert_that(output, equal_to(expected))
 
 

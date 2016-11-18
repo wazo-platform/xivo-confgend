@@ -97,8 +97,6 @@ class Test(unittest.TestCase):
             'mask': None,
             'regexten': None,
             'peercontext': None,
-            'ipaddr': u'',
-            'regseconds': 0,
             'immediate': None,
             'parkinglot': None,
             'protocol': u'iax',
@@ -110,7 +108,6 @@ class Test(unittest.TestCase):
         result = self.asteriskFrontEnd._gen_iax_trunk(trunk)
 
         self.assertTrue(u'[xivo_devel_51]' in result)
-        self.assertTrue(u'regseconds =  0' in result)
         self.assertTrue(u'qualifysmoothing =  0' in result)
         self.assertTrue(u'secret =  xivo_devel_51' in result)
         self.assertTrue(u'type =  friend' in result)

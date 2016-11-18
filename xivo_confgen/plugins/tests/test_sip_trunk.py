@@ -56,7 +56,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
                     id=64,
                     name=u'trunksip',
                     protocol='sip',
-                    regseconds=0,
                     subscribemwi=0,
                     type=u'peer',
                     _options=[])
@@ -67,7 +66,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
         assert_section_equal(output, '''
             [trunksip]
             amaflags = default
-            regseconds = 0
             call-limit = 10
             host = dynamic
             type = peer
@@ -82,7 +80,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
                     id=64,
                     name=u'trunksip',
                     protocol='sip',
-                    regseconds=0,
                     subscribemwi=0,
                     type=u'peer',
                     allow='gsm',
@@ -94,7 +91,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
         assert_section_equal(output, '''
             [trunksip]
             amaflags = default
-            regseconds = 0
             call-limit = 10
             host = dynamic
             type = peer
@@ -111,7 +107,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
                      id=64,
                      name=u'trunksip1',
                      protocol='sip',
-                     regseconds=0,
                      subscribemwi=0,
                      type=u'peer',
                      _options=[])
@@ -123,7 +118,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
                      id=65,
                      name=u'trunksip2',
                      protocol='sip',
-                     regseconds=0,
                      subscribemwi=0,
                      type=u'peer',
                      _options=[])
@@ -134,7 +128,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
         assert_section_equal(output, '''
             [trunksip1]
             amaflags = default
-            regseconds = 0
             call-limit = 10
             host = dynamic
             type = peer
@@ -142,7 +135,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
 
             [trunksip2]
             amaflags = default
-            regseconds = 0
             call-limit = 10
             host = dynamic
             type = peer
@@ -215,15 +207,10 @@ class TestSipTrunkGenerator(unittest.TestCase):
                     vmexten='1000',
                     callingpres=1,
                     parkinglot=700,
-                    fullcontact='fullcontact',
                     defaultip='127.0.0.1',
                     qualifyfreq=5000,
                     protocol='sip',
                     regexten='regexten',
-                    regseconds=60,
-                    regserver='127.0.0.1',
-                    ipaddr='127.0.0.1',
-                    lastms='500',
                     cid_number='0123456789',
                     callbackextension='0123456789',
                     port=10000,
@@ -297,14 +284,9 @@ class TestSipTrunkGenerator(unittest.TestCase):
             vmexten = 1000
             callingpres = 1
             parkinglot = 700
-            fullcontact = fullcontact
             defaultip = 127.0.0.1
             qualifyfreq = 5000
             regexten = regexten
-            regseconds = 60
-            regserver = 127.0.0.1
-            ipaddr = 127.0.0.1
-            lastms = 500
             cid_number = 0123456789
             callbackextension = 0123456789
             port = 10000
@@ -320,7 +302,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
                     id=64,
                     name=u'trunksip',
                     protocol='sip',
-                    regseconds=0,
                     subscribemwi=0,
                     type=u'peer',
                     _options=[
@@ -335,7 +316,6 @@ class TestSipTrunkGenerator(unittest.TestCase):
         assert_section_equal(output, '''
             [trunksip]
             amaflags = default
-            regseconds = 0
             call-limit = 10
             host = dynamic
             type = peer

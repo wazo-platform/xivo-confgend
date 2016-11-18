@@ -52,11 +52,7 @@ class _SipUserGenerator(object):
                        'protocol',
                        'category',
                        'disallow',
-                       'regseconds',
-                       'lastms',
-                       'name',
-                       'fullcontact',
-                       'ipaddr')
+                       'name')
 
     def __init__(self, dao, nova_compatibility=False):
         self.dao = dao

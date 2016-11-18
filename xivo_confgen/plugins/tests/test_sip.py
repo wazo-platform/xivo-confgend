@@ -90,7 +90,6 @@ class TestSipConf(unittest.TestCase):
         self.trunk_generator.generate.return_value = [
             u'[trûnksip]',
             u'amaflags = default',
-            u'regseconds = 0',
             u'call-limit = 10',
             u'host = dynamic',
             u'type = peer',
@@ -102,7 +101,6 @@ class TestSipConf(unittest.TestCase):
         assert_section_equal(self.output.getvalue(), u'''
             [trûnksip]
             amaflags = default
-            regseconds = 0
             call-limit = 10
             host = dynamic
             type = peer

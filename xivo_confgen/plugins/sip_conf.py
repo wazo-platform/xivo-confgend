@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2016 Avencall
+# Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,10 +18,12 @@
 
 from __future__ import unicode_literals
 
+import logging
+
+from collections import namedtuple
 from StringIO import StringIO
 
 from xivo_dao import asterisk_conf_dao
-from xivo_dao.resources.endpoint_sip import dao as sip_dao
 
 CC_POLICY_ENABLED = 'generic'
 CC_POLICY_DISABLED = 'never'
@@ -28,16 +31,26 @@ CC_OFFER_TIMER = 30
 CC_RECALL_TIMER = 20
 CCBS_AVAILABLE_TIMER = 900
 CCNR_AVAILABLE_TIMER = 900
+COMMON_EXCLUDE_OPTIONS = (
+    'name',
+    'protocol',
+    'category',
+    'disallow',
+)
+
+logger = logging.getLogger(__name__)
 
 
 class SIPConfGenerator(object):
 
-    def __init__(self, config):
-        self._config = config
+    def __init__(self, dependencies):
+        config = dependencies['config']
         self._nova_compatibility = config['nova_compatibility']
+        self._tpl_helper = dependencies['tpl_helper']
 
     def generate(self):
-        trunk_generator = _SipTrunkGenerator(sip_dao)
+        twilio_config_generator = _TwilioConfigGenerator(self._tpl_helper)
+        trunk_generator = _SipTrunkGenerator(asterisk_conf_dao, twilio_config_generator)
         user_generator = _SipUserGenerator(asterisk_conf_dao, nova_compatibility=self._nova_compatibility)
         config_generator = _SipConf(trunk_generator, user_generator)
         output = StringIO()
@@ -47,11 +60,7 @@ class SIPConfGenerator(object):
 
 class _SipUserGenerator(object):
 
-    EXCLUDE_OPTIONS = ('name',
-                       'protocol',
-                       'category',
-                       'disallow',
-                       'name')
+    EXCLUDE_OPTIONS = COMMON_EXCLUDE_OPTIONS
 
     def __init__(self, dao, nova_compatibility=False):
         self.dao = dao
@@ -114,20 +123,17 @@ class _SipUserGenerator(object):
 
 class _SipTrunkGenerator(object):
 
-    EXCLUDE_OPTIONS = ('id',
-                       'name',
-                       'commented',
-                       'protocol',
-                       'category',
-                       'disallow')
+    EXCLUDE_OPTIONS = COMMON_EXCLUDE_OPTIONS
 
-    def __init__(self, dao):
+    def __init__(self, dao, twilio_config_generator):
         self.dao = dao
+        self._twilio_config_generator = twilio_config_generator
 
     def generate(self):
-        trunks = self.dao.find_all_by(commented=0, category='trunk')
+        trunks = self.dao.find_sip_trunk_settings()
+        yield self._twilio_config_generator.generate(trunks)
         for trunk in trunks:
-            for line in self.format_trunk(trunk):
+            for line in self.format_trunk(trunk.UserSIP):
                 yield line
 
     def format_trunk(self, trunk):
@@ -143,6 +149,77 @@ class _SipTrunkGenerator(object):
             yield '{} = {}'.format(name, value)
 
         yield ''
+
+
+_TwilioGateway = namedtuple('_TwilioGateway', ['ip_address', 'cluster_name'])
+
+
+class _TwilioConfigGenerator(object):
+
+    TWILIO_GATEWAYS = [
+        # see https://www.twilio.com/docs/api/sip-trunking/getting-started#whitelist
+        _TwilioGateway('54.172.60.0', 'north-america-virginia'),
+        _TwilioGateway('54.172.60.1', 'north-america-virginia'),
+        _TwilioGateway('54.172.60.2', 'north-america-virginia'),
+        _TwilioGateway('54.172.60.3', 'north-america-virginia'),
+        _TwilioGateway('54.244.51.0', 'north-america-oregon'),
+        _TwilioGateway('54.244.51.1', 'north-america-oregon'),
+        _TwilioGateway('54.244.51.2', 'north-america-oregon'),
+        _TwilioGateway('54.244.51.3', 'north-america-oregon'),
+        _TwilioGateway('54.171.127.192', 'europe-ireland'),
+        _TwilioGateway('54.171.127.193', 'europe-ireland'),
+        _TwilioGateway('54.171.127.194', 'europe-ireland'),
+        _TwilioGateway('54.171.127.195', 'europe-ireland'),
+        _TwilioGateway('54.65.63.192', 'asia-pacific-tokyo'),
+        _TwilioGateway('54.65.63.193', 'asia-pacific-tokyo'),
+        _TwilioGateway('54.65.63.194', 'asia-pacific-tokyo'),
+        _TwilioGateway('54.65.63.195', 'asia-pacific-tokyo'),
+        _TwilioGateway('54.169.127.128', 'asia-pacific-singapore'),
+        _TwilioGateway('54.169.127.129', 'asia-pacific-singapore'),
+        _TwilioGateway('54.169.127.130', 'asia-pacific-singapore'),
+        _TwilioGateway('54.169.127.131', 'asia-pacific-singapore'),
+        _TwilioGateway('54.252.254.64', 'asia-pacific-sydney'),
+        _TwilioGateway('54.252.254.65', 'asia-pacific-sydney'),
+        _TwilioGateway('54.252.254.66', 'asia-pacific-sydney'),
+        _TwilioGateway('54.252.254.67', 'asia-pacific-sydney'),
+        _TwilioGateway('177.71.206.192', 'south-america-sao-paulo'),
+        _TwilioGateway('177.71.206.193', 'south-america-sao-paulo'),
+        _TwilioGateway('177.71.206.194', 'south-america-sao-paulo'),
+        _TwilioGateway('177.71.206.195', 'south-america-sao-paulo'),
+    ]
+    EXCLUDE_OPTIONS = COMMON_EXCLUDE_OPTIONS + ('type',
+                                                'description',
+                                                'defaultuser',
+                                                'host',
+                                                'qualify',
+                                                'secret',
+                                                'subscribemwi',
+                                                'username')
+
+    def __init__(self, tpl_helper):
+        self._tpl_helper = tpl_helper
+
+    def generate(self, trunks):
+        # the order is important in the case there's more than
+        # one "twilio incoming trunk": the first one is used
+        trunk = self._find_twilio_incoming_trunk(trunks)
+        if trunk is None:
+            return ''
+
+        logger.info('generating Twilio config using trunk %s', trunk.UserSIP.name)
+        template_context = {
+            'endpoint': trunk.UserSIP,
+            'exclude_options': self.EXCLUDE_OPTIONS,
+            'gateways': self.TWILIO_GATEWAYS,
+        }
+        template = self._tpl_helper.get_template('asterisk/sip/twilio')
+        return template.dump(template_context)
+
+    def _find_twilio_incoming_trunk(self, trunks):
+        for trunk in trunks:
+            if trunk.twilio_incoming:
+                return trunk
+        return None
 
 
 class _SipConf(object):
@@ -227,7 +304,7 @@ class _SipConf(object):
 
 
 def gen_value_line(key, value):
-    return u'%s = %s' % (key, unicodify_string(value))
+    return '%s = %s' % (key, unicodify_string(value))
 
 
 def unicodify_string(to_unicodify):

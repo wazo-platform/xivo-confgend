@@ -46,6 +46,13 @@ class TestTemplateHelper(TestCase):
 
         assert_that(basename(template._jinja_template.filename), equal_to('foo.jinja'))
 
+    def test_dump_template(self):
+        template = self.tpl_helper.get_template('foo')
+
+        output = template.dump({'value': 'hello world'})
+
+        assert_that(output, contains_string('hello world'))
+
     def test_generate_template(self):
         output = StringIO()
         template = self.tpl_helper.get_template('foo')

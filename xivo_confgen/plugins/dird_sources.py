@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2016 Avencall
-# Copyright (C) 2016 Proformatique
+# Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,11 +23,11 @@ from xivo_dao import cti_context_dao, cti_main_dao, directory_dao
 
 class SourceGenerator(object):
 
-    def __init__(self, config):
-        self._config = config
+    def __init__(self, dependencies):
+        pass
 
     def generate(self):
-        raw_sources = raw_sources = directory_dao.get_all_sources()
+        raw_sources = directory_dao.get_all_sources()
         if bool(cti_main_dao.get_config()['main']['context_separation']):
             generator = _ContextSeparatedSourceGenerator(raw_sources)
         else:

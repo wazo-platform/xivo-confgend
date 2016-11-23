@@ -20,7 +20,6 @@ from __future__ import unicode_literals
 from StringIO import StringIO
 
 from xivo_dao import asterisk_conf_dao
-from xivo_dao.helpers.db_utils import session_scope
 from xivo_dao.resources.endpoint_sip import dao as sip_dao
 
 CC_POLICY_ENABLED = 'generic'
@@ -153,8 +152,7 @@ class _SipConf(object):
         self.user_generator = user_generator
 
     def generate(self, output):
-        with session_scope():
-            self._generate(output)
+        self._generate(output)
 
     def _generate(self, output):
         data_general = asterisk_conf_dao.find_sip_general_settings()

@@ -112,7 +112,7 @@ class TestExtensionsConf(unittest.TestCase):
     def test_generate_ivrs(self, mock_ivr_dao):
         ivr = IVR(id=42, name='foo', menu_sound='hello-world')
         mock_ivr_dao.find_all_by.return_value = [ivr]
-        self.tpl_mapping['ivr.jinja'] = '{{ ivr.id }}'
+        self.tpl_mapping['asterisk/extensions/ivr.jinja'] = '{{ ivr.id }}'
 
         self.extensionsconf._generate_ivr(self.output)
 

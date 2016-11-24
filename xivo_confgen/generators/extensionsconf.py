@@ -261,6 +261,6 @@ class ExtensionsConf(object):
     def _generate_ivr(self, output):
         for ivr in ivr_dao.find_all_by():
             template_context = {'ivr': ivr}
-            template = self._tpl_helper.get_customizable_template('ivr', ivr.id)
+            template = self._tpl_helper.get_customizable_template('asterisk/extensions/ivr', ivr.id)
             template.generate(template_context, output)
             print >> output

@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # Copyright (C) 2015-2016 Avencall
+# Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,21 +22,26 @@ from __future__ import unicode_literals
 import unittest
 
 from mock import Mock
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, contains_string, equal_to, empty
+from jinja2.loaders import PackageLoader
 
 from xivo_dao.alchemy.usersip import UserSIP as SIP
 
 from xivo_confgen.generators.tests.util import assert_section_equal
+from xivo_confgen.template import TemplateHelper
 
 from ..sip_conf import _SipTrunkGenerator
+from ..sip_conf import _TwilioConfigGenerator
 
 
 class TestSipTrunkGenerator(unittest.TestCase):
 
     def setUp(self):
         self.dao = Mock()
-        self.dao.find_all_by.return_value = []
-        self.generator = _SipTrunkGenerator(self.dao)
+        self.dao.find_sip_trunk_settings.return_value = []
+        self.twilio_config_generator = Mock()
+        self.twilio_config_generator.generate.return_value = ''
+        self.generator = _SipTrunkGenerator(self.dao, self.twilio_config_generator)
 
     def generate_output(self):
         return '\n'.join(self.generator.generate())
@@ -46,10 +52,10 @@ class TestSipTrunkGenerator(unittest.TestCase):
 
     def test_trunk_generator_calls_dao_with_right_arguments(self):
         self.generate_output()
-        self.dao.find_all_by.assert_called_once_with(commented=0, category='trunk')
+        self.dao.find_sip_trunk_settings.assert_called_once_with()
 
     def test_given_one_trunk_with_minimal_parameters_then_one_section_is_generated(self):
-        trunk = SIP(amaflags='default',
+        endpoint = SIP(amaflags='default',
                     call_limit=10,
                     commented=0,
                     host=u'dynamic',
@@ -59,8 +65,9 @@ class TestSipTrunkGenerator(unittest.TestCase):
                     subscribemwi=0,
                     type=u'peer',
                     _options=[])
+        trunk = Mock(UserSIP=endpoint)
 
-        self.dao.find_all_by.return_value = [trunk]
+        self.dao.find_sip_trunk_settings.return_value = [trunk]
 
         output = self.generate_output()
         assert_section_equal(output, '''
@@ -73,7 +80,7 @@ class TestSipTrunkGenerator(unittest.TestCase):
         ''')
 
     def test_given_allow_is_set_then_disallow_is_set_to_all(self):
-        trunk = SIP(amaflags='default',
+        endpoint = SIP(amaflags='default',
                     call_limit=10,
                     commented=0,
                     host=u'dynamic',
@@ -84,8 +91,9 @@ class TestSipTrunkGenerator(unittest.TestCase):
                     type=u'peer',
                     allow='gsm',
                     _options=[])
+        trunk = Mock(UserSIP=endpoint)
 
-        self.dao.find_all_by.return_value = [trunk]
+        self.dao.find_sip_trunk_settings.return_value = [trunk]
 
         output = self.generate_output()
         assert_section_equal(output, '''
@@ -100,7 +108,7 @@ class TestSipTrunkGenerator(unittest.TestCase):
         ''')
 
     def test_given_two_trunks_then_two_sections_generated(self):
-        trunk1 = SIP(amaflags='default',
+        endpoint1 = SIP(amaflags='default',
                      call_limit=10,
                      commented=0,
                      host=u'dynamic',
@@ -110,8 +118,9 @@ class TestSipTrunkGenerator(unittest.TestCase):
                      subscribemwi=0,
                      type=u'peer',
                      _options=[])
+        trunk1 = Mock(UserSIP=endpoint1)
 
-        trunk2 = SIP(amaflags='default',
+        endpoint2 = SIP(amaflags='default',
                      call_limit=10,
                      commented=0,
                      host=u'dynamic',
@@ -121,8 +130,9 @@ class TestSipTrunkGenerator(unittest.TestCase):
                      subscribemwi=0,
                      type=u'peer',
                      _options=[])
+        trunk2 = Mock(UserSIP=endpoint2)
 
-        self.dao.find_all_by.return_value = [trunk1, trunk2]
+        self.dao.find_sip_trunk_settings.return_value = [trunk1, trunk2]
 
         output = self.generate_output()
         assert_section_equal(output, '''
@@ -142,7 +152,7 @@ class TestSipTrunkGenerator(unittest.TestCase):
         ''')
 
     def test_given_trunk_with_all_options_then_all_options_in_section(self):
-        trunk = SIP(id=1,
+        endpoint = SIP(id=1,
                     name='trunksip',
                     commented=0,
                     buggymwi=1,
@@ -217,8 +227,9 @@ class TestSipTrunkGenerator(unittest.TestCase):
                     outboundproxy='127.0.0.1',
                     remotesecret='remotesecret',
                     _options=[])
+        trunk = Mock(UserSIP=endpoint)
 
-        self.dao.find_all_by.return_value = [trunk]
+        self.dao.find_sip_trunk_settings.return_value = [trunk]
 
         output = self.generate_output()
         assert_section_equal(output, '''
@@ -295,7 +306,7 @@ class TestSipTrunkGenerator(unittest.TestCase):
         ''')
 
     def test_given_additional_options_then_generated_at_the_end_of_section(self):
-        trunk = SIP(amaflags='default',
+        endpoint = SIP(amaflags='default',
                     call_limit=10,
                     commented=0,
                     host=u'dynamic',
@@ -309,8 +320,9 @@ class TestSipTrunkGenerator(unittest.TestCase):
                         ['foo', 'baz'],
                         ['spam', 'eggs'],
                     ])
+        trunk = Mock(UserSIP=endpoint)
 
-        self.dao.find_all_by.return_value = [trunk]
+        self.dao.find_sip_trunk_settings.return_value = [trunk]
 
         output = self.generate_output()
         assert_section_equal(output, '''
@@ -324,3 +336,42 @@ class TestSipTrunkGenerator(unittest.TestCase):
             foo = baz
             spam = eggs
         ''')
+
+    def test_twilio_config_generator_is_used(self):
+        self.twilio_config_generator.generate.return_value = 'twilio config'
+        self.dao.find_sip_trunk_settings.return_value = []
+
+        output = self.generate_output()
+
+        assert_that(output, contains_string('twilio config'))
+        self.twilio_config_generator.generate.assert_called_once_with([])
+
+
+class TestTwilioConfigGenerator(unittest.TestCase):
+
+    def setUp(self):
+        loader = PackageLoader('xivo_confgen.template')
+        self.tpl_helper = TemplateHelper(loader)
+        self.generator = _TwilioConfigGenerator(self.tpl_helper)
+
+    def test_no_twilio_incoming_trunks(self):
+        trunks = [Mock(twilio_incoming=False)]
+
+        output = self.generator.generate(trunks)
+
+        assert_that(output, empty())
+
+    def test_template_renders_correctly(self):
+        endpoint = SIP(
+            commented=0,
+            id=64,
+            name=u'trunksip',
+            protocol='sip',
+            type=u'peer',
+            _options=[]
+        )
+        trunks = [Mock(UserSIP=endpoint, twilio_incoming=True)]
+
+        output = self.generator.generate(trunks)
+
+        assert_that(output, contains_string('[twilio-gateway01](twilio-gateway-tpl)'))

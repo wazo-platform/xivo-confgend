@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016 Avencall
+# Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -99,7 +100,7 @@ class TestPluginHandlerFactory(TestCase):
         resource = 'resource'
         filename = 'filename'
         config = {'plugins': {'resource.filename': s.driver_name}}
-        factory = PluginHandlerFactory(config)
+        factory = PluginHandlerFactory(config, s.dependencies)
 
         assert_that(calling(factory.get).with_args(resource, filename),
                     raises(NoSuchHandler))
@@ -108,7 +109,7 @@ class TestPluginHandlerFactory(TestCase):
         resource = 'resource'
         filename = 'filename'
         config = {'plugins': {}}
-        factory = PluginHandlerFactory(config)
+        factory = PluginHandlerFactory(config, s.dependencies)
 
         assert_that(calling(factory.get).with_args(resource, filename),
                     raises(NoSuchHandler))
@@ -119,7 +120,7 @@ class TestPluginHandlerFactory(TestCase):
         resource = 'resource'
         filename = 'filename'
         config = {'plugins': {'resource.filename': s.driver_name}}
-        factory = PluginHandlerFactory(config)
+        factory = PluginHandlerFactory(config, s.dependencies)
 
         result = factory.get(resource, filename)
 

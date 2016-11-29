@@ -51,5 +51,9 @@ class _Template(object):
     def __init__(self, jinja_template):
         self._jinja_template = jinja_template
 
+    def dump(self, context):
+        # XXX do we encode in utf-8 ?
+        return self._jinja_template.render(context)
+
     def generate(self, context, output):
         self._jinja_template.stream(context).dump(output, encoding='utf-8')

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2011-2016 Avencall
+# Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -62,6 +63,10 @@ class ConfgendFactory(ServerFactory):
 
     def __init__(self, cachedir, config):
         tpl_helper = new_template_helper()
+        dependencies = {
+            'config': config,
+            'tpl_helper': tpl_helper,
+        }
         frontends = {
             'asterisk': AsteriskFrontend(config, tpl_helper),
             'dird': DirdFrontend(),
@@ -69,7 +74,7 @@ class ConfgendFactory(ServerFactory):
             'xivo': XivoFrontend(),
         }
         self._cache = cache.FileCache(cachedir)
-        self._handler_factory = MultiHandlerFactory([CachedHandlerFactoryDecorator(PluginHandlerFactory(config)),
+        self._handler_factory = MultiHandlerFactory([CachedHandlerFactoryDecorator(PluginHandlerFactory(config, dependencies)),
                                                      FrontendHandlerFactory(frontends),
                                                      NullHandlerFactory()])
 

@@ -57,8 +57,9 @@ class MultiHandlerFactory(HandlerFactory):
 
 
 class PluginHandlerFactory(HandlerFactory):
-    def __init__(self, config):
+    def __init__(self, config, dependencies):
         self._config = config
+        self._dependencies = dependencies
 
     def get(self, resource, filename):
         suffix = '{}.{}'.format(resource, filename)
@@ -72,7 +73,7 @@ class PluginHandlerFactory(HandlerFactory):
                 namespace=namespace,
                 name=driver_name,
                 invoke_on_load=True,
-                invoke_args=(self._config,),
+                invoke_args=(self._dependencies,),
             ).driver.generate
         except RuntimeError:
             raise NoSuchHandler()

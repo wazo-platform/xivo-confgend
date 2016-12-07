@@ -28,5 +28,6 @@ templates:
 
 # Plugins to use to generate the configuration files
 plugins:
+  asterisk.confbridge.conf: xivo
   asterisk.sip.conf: xivo
   dird.sources.yml: xivo

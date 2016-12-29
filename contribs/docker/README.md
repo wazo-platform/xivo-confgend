@@ -14,7 +14,7 @@ To install docker on Linux :
 
 To build the image, simply invoke
 
-    docker build -t xivo-confgend github.com/xivo-pbx/xivo-confgen
+    docker build -t xivo-confgend github.com/wazo-pbx/xivo-confgen
 
 Or directly in the sources in contribs/docker
 

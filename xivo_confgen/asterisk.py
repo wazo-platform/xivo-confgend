@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2010-2016 Avencall
+# Copyright 2010-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -137,22 +137,6 @@ class AsteriskFrontend(object):
         print >> options, '\n[rooms]'
         for r in asterisk_conf_dao.find_meetme_rooms_settings():
             print >> options, "%s = %s" % (r['var_name'], r['var_val'])
-
-        return options.getvalue()
-
-    def musiconhold_conf(self):
-        options = StringIO()
-
-        cat = None
-        for m in asterisk_conf_dao.find_musiconhold_settings():
-            if m['var_val'] is None:
-                continue
-
-            if m['category'] != cat:
-                cat = m['category']
-                print >> options, '\n[%s]' % cat
-
-            print >> options, "%s = %s" % (m['var_name'], m['var_val'])
 
         return options.getvalue()
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright 2016 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ from setuptools import find_packages
 setup(
     name='xivo-confgend',
     version='0.2',
-    description='XIVO Configurations Generator',
+    description='Wazo configurations generator',
     author='Wazo Authors',
     author_email='dev.wazo@gmail.com',
     url='http://wazo.community',
@@ -34,6 +34,9 @@ setup(
     entry_points={
         'xivo_confgend.asterisk.confbridge.conf': [
             'xivo = xivo_confgen.plugins.confbridge_conf:ConfBridgeConfGenerator',
+        ],
+        'xivo_confgend.asterisk.musiconhold.conf': [
+            'xivo = xivo_confgen.plugins.musiconhold_conf:MOHConfGenerator',
         ],
         'xivo_confgend.asterisk.sip.conf': [
             'xivo = xivo_confgen.plugins.sip_conf:SIPConfGenerator',

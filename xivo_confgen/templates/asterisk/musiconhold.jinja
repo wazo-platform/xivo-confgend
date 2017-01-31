@@ -1,0 +1,13 @@
+{% for moh in moh_list %}
+[{{ moh.name }}]
+mode = {{ moh.mode }}
+{% if moh.mode == 'custom' -%}
+application = {{ moh.application }}
+{% else -%}
+directory = {{ base_directory }}/{{ moh.name }}
+{%- endif %}
+{% if moh.sort -%}
+sort = {{ sort_map.get(moh.sort, moh.sort) }}
+{%- endif %}
+{% endfor %}
+

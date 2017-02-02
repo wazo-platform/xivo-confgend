@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import itertools
@@ -32,7 +32,17 @@ class TestSccpConf(unittest.TestCase):
 
             [xivo_device_tpl](!)
 
+            [guest](xivo_device_tpl)
+            type = device
+            line = guestline
+
             [xivo_line_tpl](!)
+
+            [guestline](xivo_line_tpl)
+            type = line
+            context = xivo-initconfig
+            cid_name = Autoprov
+            cid_num = autoprov
         ''')
 
     def test_one_element_speeddials_section(self):

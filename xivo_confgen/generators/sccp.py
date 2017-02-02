@@ -8,6 +8,9 @@ from xivo_confgen.generators.util import format_ast_section, \
     format_ast_option, format_ast_section_tpl, format_ast_section_using_tpl
 from xivo_dao import asterisk_conf_dao
 
+_GUEST_DEVICE_NAME = 'guest'
+_GUEST_LINE_NAME = 'guestline'
+
 
 class SccpConf(object):
 
@@ -83,12 +86,19 @@ class _SccpDeviceConf(object):
 
     def generate(self, sccpdevice, general_device_items, output):
         self._generate_template(general_device_items, output)
+        self._generate_guest_device(output)
         self._generate_devices(sccpdevice, output)
 
     def _generate_template(self, device_items, output):
         print >> output, format_ast_section_tpl(self._TPL_NAME)
         for item in device_items:
             print >> output, format_ast_option(item['option_name'], item['option_value'])
+        print >> output
+
+    def _generate_guest_device(self, output):
+        print >> output, format_ast_section_using_tpl(_GUEST_DEVICE_NAME, self._TPL_NAME)
+        print >> output, format_ast_option('type', 'device')
+        print >> output, format_ast_option('line', _GUEST_LINE_NAME)
         print >> output
 
     def _generate_devices(self, sccpdevice, output):
@@ -117,6 +127,7 @@ class _SccpLineConf(object):
 
     def generate(self, sccplines, general_line_items, output):
         self._generate_template(general_line_items, output)
+        self._generate_guest_line(output)
         self._generate_lines(sccplines, output)
 
     def _generate_template(self, line_items, output):
@@ -135,6 +146,14 @@ class _SccpLineConf(object):
                 option_value = '0' if option_value == 'no' else '1'
 
             print >> output, format_ast_option(option_name, option_value)
+        print >> output
+
+    def _generate_guest_line(self, output):
+        print >> output, format_ast_section_using_tpl(_GUEST_LINE_NAME, self._TPL_NAME)
+        print >> output, format_ast_option('type', 'line')
+        print >> output, format_ast_option('context', 'xivo-initconfig')
+        print >> output, format_ast_option('cid_name', 'Autoprov')
+        print >> output, format_ast_option('cid_num', 'autoprov')
         print >> output
 
     def _generate_lines(self, sccplines, output):

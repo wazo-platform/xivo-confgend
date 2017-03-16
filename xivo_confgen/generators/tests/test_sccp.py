@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2016 Avencall
+# Copyright 2011-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -297,6 +297,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
+            setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             language = fr_FR
             context = a_context
         '''.format(uuid=uuid))
@@ -328,6 +329,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
+            setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             context = a_context
         '''.format(uuid=uuid))
 
@@ -359,6 +361,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
+            setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             context = a_context
             allow = g729,ulaw
         '''.format(uuid=uuid))
@@ -392,6 +395,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
+            setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             context = a_context
             disallow = all
             allow = g729,ulaw
@@ -426,6 +430,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
+            setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             context = a_context
             namedcallgroup = 1,2,3,4
             namedpickupgroup = 3,4
@@ -459,6 +464,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=1234%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
+            setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             language = fr_FR
             context = a_context
             accountcode = 1234

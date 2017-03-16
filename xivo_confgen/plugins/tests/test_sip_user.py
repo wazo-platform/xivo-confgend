@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (C) 2015-2016 Avencall
+# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -319,6 +319,7 @@ class TestSipUserGenerator(unittest.TestCase):
                 'setvar = TRANSFER_CONTEXT=default',
                 'setvar = XIVO_USERID=42',
                 'setvar = XIVO_USERUUID=user-uuid',
+                'setvar = WAZO_CHANNEL_DIRECTION=from-wazo',
                 'namedpickupgroup = 1,2',
                 'namedcallgroup = 3,4',
                 'mailbox = 1001@default',

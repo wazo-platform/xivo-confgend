@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2016 Avencall
+# Copyright 2016-2017 The Wazo Authors  (see the AUTHORS file)
 # Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -74,6 +74,7 @@ class _SipUserGenerator(object):
     def format_row(self, row, ccss_options):
         yield '[{}]'.format(row.UserSIP.name)
         yield 'setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1'
+        yield 'setvar = WAZO_CHANNEL_DIRECTION=from-wazo'
 
         for line in self.format_user_options(row):
             yield line

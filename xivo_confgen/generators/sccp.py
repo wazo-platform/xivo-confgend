@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2016 Avencall
+# Copyright 2011-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -162,6 +162,7 @@ class _SccpLineConf(object):
             print >> output, format_ast_option('setvar', 'PICKUPMARK=%(number)s%%%(context)s' % item)
             print >> output, format_ast_option('setvar', 'TRANSFER_CONTEXT=%s' % item['context'])
             print >> output, format_ast_option('setvar', 'CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1')
+            print >> output, format_ast_option('setvar', 'WAZO_CHANNEL_DIRECTION=from-wazo')
             if item['language']:
                 print >> output, format_ast_option('language', item['language'])
             print >> output, format_ast_option('context', item['context'])

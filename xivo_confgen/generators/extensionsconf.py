@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2016 Avencall
+# Copyright 2011-2017 The Wazo Authors  (see the AUTHORS file)
 # Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -125,19 +125,20 @@ class ExtensionsConf(object):
                 raise ValueError("Template section doesn't exist in %s" % self.contextsconf)
 
         # hints & features (init)
-        xfeatures = {
-            'bsfilter': {},
-            'callmeetme': {},
-            'calluser': {},
-            'fwdbusy': {},
-            'fwdrna': {},
-            'fwdunc': {},
-            'phoneprogfunckey': {},
-            'vmusermsg': {}
-        }
-
-        extensions = asterisk_conf_dao.find_extenfeatures_settings(features=xfeatures.keys())
-        xfeatures.update(dict([x['typeval'], {'exten': x['exten'], 'commented': x['commented']}] for x in extensions))
+        extenfeature_names = (
+            'bsfilter',
+            'callmeetme',
+            'calluser',
+            'fwdbusy',
+            'fwdrna',
+            'fwdunc',
+            'phoneprogfunckey',
+            'vmusermsg',
+        )
+        extenfeatures = asterisk_conf_dao.find_extenfeatures_settings(features=extenfeature_names)
+        xfeatures = {extenfeature.typeval: {'exten': extenfeature.exten,
+                                            'commented': extenfeature.commented}
+                     for extenfeature in extenfeatures}
 
         # foreach active context
         for ctx in asterisk_conf_dao.find_context_settings():

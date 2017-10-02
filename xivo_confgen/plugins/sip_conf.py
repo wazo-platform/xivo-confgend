@@ -288,7 +288,7 @@ class _SipConf(object):
     def _ccss_options(self, data_ccss):
         if data_ccss:
             ccss_info = data_ccss[0]
-            if ccss_info.get('commented') == 0:
+            if ccss_info.commented == 0:
                 return {
                     'cc_agent_policy': CC_POLICY_ENABLED,
                     'cc_monitor_policy': CC_POLICY_ENABLED,

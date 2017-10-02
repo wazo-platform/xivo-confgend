@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import re
 from StringIO import StringIO
 
 from xivo import OrderedConf, xivo_helpers
@@ -236,9 +235,11 @@ class ExtensionsConf(object):
         for line in template:
             prefix = 'exten =' if line.startswith('%%EXTEN%%') else 'same  =    '
 
-            def varset(matchObject):
-                return str(exten.get(matchObject.group(1).lower(), ''))
-            line = re.sub('%%([^%]+)%%', varset, line)
+            line = line.replace('%%CONTEXT%%', str(exten.get('context', '')))
+            line = line.replace('%%EXTEN%%', str(exten.get('exten', '')))
+            line = line.replace('%%PRIORITY%%', str(exten.get('priority', '')))
+            line = line.replace('%%ACTION%%', str(exten.get('action', '')))
+
             print >> output, prefix, line
         print >> output
 

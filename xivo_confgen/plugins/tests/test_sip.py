@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2016 Avencall
+# Copyright 2011-2017 The Wazo Authors  (see the AUTHORS file)
 # Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -133,7 +133,7 @@ class TestSipConf(unittest.TestCase):
         ''')
 
     def test__ccss_options_enabled(self):
-        data_ccss = [{'commented': 0}]
+        data_ccss = [Mock(commented=0)]
 
         ccss_options = self.sip_conf._ccss_options(data_ccss)
 
@@ -145,7 +145,7 @@ class TestSipConf(unittest.TestCase):
         self.assertEqual(CCNR_AVAILABLE_TIMER, ccss_options['ccnr_available_timer'])
 
     def test__ccss_options_disabled(self):
-        data_ccss = [{'commented': 1}]
+        data_ccss = [Mock(commented=1)]
 
         ccss_options = self.sip_conf._ccss_options(data_ccss)
 

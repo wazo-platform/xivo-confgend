@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2016 Avencall
+# Copyright 2011-2017 The Wazo Authors  (see the AUTHORS file)
 # Copyright (C) 2016 Proformatique Inc.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import re
 from StringIO import StringIO
 
 from xivo import OrderedConf, xivo_helpers
@@ -125,19 +124,20 @@ class ExtensionsConf(object):
                 raise ValueError("Template section doesn't exist in %s" % self.contextsconf)
 
         # hints & features (init)
-        xfeatures = {
-            'bsfilter': {},
-            'callmeetme': {},
-            'calluser': {},
-            'fwdbusy': {},
-            'fwdrna': {},
-            'fwdunc': {},
-            'phoneprogfunckey': {},
-            'vmusermsg': {}
-        }
-
-        extensions = asterisk_conf_dao.find_extenfeatures_settings(features=xfeatures.keys())
-        xfeatures.update(dict([x['typeval'], {'exten': x['exten'], 'commented': x['commented']}] for x in extensions))
+        extenfeature_names = (
+            'bsfilter',
+            'callmeetme',
+            'calluser',
+            'fwdbusy',
+            'fwdrna',
+            'fwdunc',
+            'phoneprogfunckey',
+            'vmusermsg',
+        )
+        extenfeatures = asterisk_conf_dao.find_extenfeatures_settings(features=extenfeature_names)
+        xfeatures = {extenfeature.typeval: {'exten': extenfeature.exten,
+                                            'commented': extenfeature.commented}
+                     for extenfeature in extenfeatures}
 
         # foreach active context
         for ctx in asterisk_conf_dao.find_context_settings():
@@ -235,9 +235,11 @@ class ExtensionsConf(object):
         for line in template:
             prefix = 'exten =' if line.startswith('%%EXTEN%%') else 'same  =    '
 
-            def varset(matchObject):
-                return str(exten.get(matchObject.group(1).lower(), ''))
-            line = re.sub('%%([^%]+)%%', varset, line)
+            line = line.replace('%%CONTEXT%%', str(exten.get('context', '')))
+            line = line.replace('%%EXTEN%%', str(exten.get('exten', '')))
+            line = line.replace('%%PRIORITY%%', str(exten.get('priority', '')))
+            line = line.replace('%%ACTION%%', str(exten.get('action', '')))
+
             print >> output, prefix, line
         print >> output
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Avencall
+# Copyright 2016-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -81,17 +81,27 @@ class _LookupServiceMixin(object):
 class _NoContextSeparationLookupServiceGenerator(_LookupServiceMixin):
 
     def generate(self):
-        return {profile: {'sources': conf['sources'] + self._default_sources,
-                          'timeout': self._default_timeout}
-                for profile, conf in self._profile_config.iteritems()}
+        result = {}
+
+        for profile, conf in self._profile_config.iteritems():
+            sources = conf['sources'] + self._default_sources
+            result[profile] = {'sources': {source: True for source in sources},
+                               'timeout': self._default_timeout}
+
+        return result
 
 
 class _ContextSeparatedLookupServiceGenerator(_ContextSeparatedMixin, _LookupServiceMixin):
 
     def generate(self):
-        return {profile: {'sources': list(self._generate_sources(profile, conf)),
-                          'timeout': self._default_timeout}
-                for profile, conf in self._profile_config.iteritems()}
+        result = {}
+
+        for profile, conf in self._profile_config.iteritems():
+            sources = self._generate_sources(profile, conf)
+            result[profile] = {'sources': {source: True for source in sources},
+                               'timeout': self._default_timeout}
+
+        return result
 
     def _generate_sources(self, profile, profile_config):
         for source, type_ in zip(profile_config['sources'], profile_config['types']):
@@ -119,8 +129,8 @@ class _ContextSeparatedReverseServiceGenerator(_ContextSeparatedMixin):
         self._reverse_config = reverse_configuration
 
     def generate(self):
-        sources = list(self._generate_sources(self._default_profile, self._reverse_config))
-        return {self._default_profile: {'sources': sources,
+        sources = self._generate_sources(self._default_profile, self._reverse_config)
+        return {self._default_profile: {'sources': {source: True for source in sources},
                                         'timeout': self._default_timeout}}
 
     def _generate_sources(self, profile, config):
@@ -141,7 +151,8 @@ class _NoContextSeparationReverseServiceGenerator(object):
         self._reverse_config = reverse_configuration
 
     def generate(self):
-        return {self._default_profile: {'sources': self._reverse_config['sources'] + self._default_sources,
+        sources = self._reverse_config['sources'] + self._default_sources
+        return {self._default_profile: {'sources': {source: True for source in sources},
                                         'timeout': self._default_timeout}}
 
 

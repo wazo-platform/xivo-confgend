@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Avencall
-# Copyright (C) 2016 Proformatique
+# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -127,9 +126,9 @@ class TestNoContextSeparationLookupServiceGenerator(unittest.TestCase):
 
         result = generator.generate()
 
-        expected = {'switchboard': {'sources': ['my-xivo', 'ldapone', 'personal'],
+        expected = {'switchboard': {'sources': {'my-xivo': True, 'ldapone': True, 'personal': True},
                                     'timeout': LOOKUP_TIMEOUT},
-                    'internal': {'sources': ['ldapone', 'ldaptwo', 'personal'],
+                    'internal': {'sources': {'ldapone': True, 'ldaptwo': True, 'personal': True},
                                  'timeout': LOOKUP_TIMEOUT}}
 
         assert_that(result, equal_to(expected))
@@ -149,11 +148,11 @@ class TestContextSeparatedLookupServiceGenerator(unittest.TestCase):
 
         result = generator.generate()
 
-        expected = {'switchboard': {'sources': ['my-xivo_switchboard', 'ldapone', 'personal'],
+        expected = {'switchboard': {'sources': {'my-xivo_switchboard': True, 'ldapone': True, 'personal': True},
                                     'timeout': LOOKUP_TIMEOUT},
-                    'internal': {'sources': ['ldapone', 'ldaptwo', 'personal'],
+                    'internal': {'sources': {'ldapone': True, 'ldaptwo': True, 'personal': True},
                                  'timeout': LOOKUP_TIMEOUT},
-                    'default': {'sources': ['ldapone', 'my-xivo_default', 'personal'],
+                    'default': {'sources': {'ldapone': True, 'my-xivo_default': True, 'personal': True},
                                 'timeout': LOOKUP_TIMEOUT}}
 
         assert_that(result, equal_to(expected))
@@ -169,7 +168,7 @@ class TestNoContextSeparatReverseServiceGenerator(unittest.TestCase):
 
         result = generator.generate()
 
-        expected = {'default': {'sources': ['internal', 'xivodir', 'personal'],
+        expected = {'default': {'sources': {'internal': True, 'xivodir': True, 'personal': True},
                                 'timeout': 1}}
 
         assert_that(result, equal_to(expected))
@@ -185,7 +184,7 @@ class TestContextSeparatedReverseServiceGenerator(unittest.TestCase):
 
         result = generator.generate()
 
-        expected = {'default': {'sources': ['internal', 'xivodir_default', 'personal'],
+        expected = {'default': {'sources': {'internal': True, 'xivodir_default': True, 'personal': True},
                                 'timeout': 1}}
 
         assert_that(result, equal_to(expected))

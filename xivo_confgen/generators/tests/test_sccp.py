@@ -296,7 +296,6 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
-            setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             language = fr_FR
             context = a_context
@@ -328,7 +327,6 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
-            setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             context = a_context
         '''.format(uuid=uuid))
@@ -360,7 +358,6 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
-            setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             context = a_context
             allow = g729,ulaw
@@ -394,7 +391,6 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
-            setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             context = a_context
             disallow = all
@@ -429,7 +425,6 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
-            setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             context = a_context
             namedcallgroup = 1,2,3,4
@@ -463,7 +458,6 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERUUID={uuid}
             setvar = PICKUPMARK=1234%a_context
             setvar = TRANSFER_CONTEXT=a_context
-            setvar = CHANNEL(hangup_handler_push)=hangup_handlers,userevent,1
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             language = fr_FR
             context = a_context

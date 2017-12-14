@@ -62,7 +62,6 @@ class TestConfBridgeConf(unittest.TestCase):
         assert_config_equal(self.output.getvalue(), '''
             [xivo-user-profile-1]
             type = user
-            dsp_drop_silence = yes
             quiet = no
             announce_join_leave = no
             announce_user_count = no
@@ -70,7 +69,6 @@ class TestConfBridgeConf(unittest.TestCase):
 
             [xivo-user-profile-2]
             type = user
-            dsp_drop_silence = yes
             quiet = yes
             announce_join_leave = yes
             announce_user_count = yes

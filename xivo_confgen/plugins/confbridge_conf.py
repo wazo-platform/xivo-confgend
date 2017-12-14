@@ -68,7 +68,6 @@ class _ConfBridgeConf(object):
     def _format_user_profile(self, row):
         yield '[xivo-user-profile-{}]'.format(row.id)
         yield 'type = user'
-        yield 'dsp_drop_silence = yes'
         yield 'quiet = {}'.format(self._convert_bool(row.quiet_join_leave))
         yield 'announce_join_leave = {}'.format(self._convert_bool(row.announce_join_leave))
         yield 'announce_user_count = {}'.format(self._convert_bool(row.announce_user_count))

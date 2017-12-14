@@ -32,9 +32,6 @@ class _ConfBridgeConf(object):
         self.conference_dao = dao
 
     def generate(self, output):
-        self._gen_general(output)
-        print >> output
-
         conferences = self.conference_dao.find_all_by()
         self._gen_bridge_profile(conferences, output)
         print >> output
@@ -44,9 +41,6 @@ class _ConfBridgeConf(object):
 
         self._gen_default_menu(output)
         print >> output
-
-    def _gen_general(self, output):
-        print >> output, '[general]'
 
     def _gen_bridge_profile(self, conferences, output):
         for row in conferences:

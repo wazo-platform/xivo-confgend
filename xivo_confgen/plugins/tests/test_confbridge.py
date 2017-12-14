@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2017 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -20,13 +20,6 @@ class TestConfBridgeConf(unittest.TestCase):
         self.conference_dao.find_all_by.return_value = []
         self.confbridge_conf = _ConfBridgeConf(self.conference_dao)
         self.output = StringIO()
-
-    def test_gen_general(self):
-        self.confbridge_conf._gen_general(self.output)
-
-        assert_config_equal(self.output.getvalue(), '''
-            [general]
-        ''')
 
     def test_gen_bridge_profile(self):
         conferences = [

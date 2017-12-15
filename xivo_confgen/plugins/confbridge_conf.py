@@ -1,25 +1,15 @@
 # -*- coding: utf-8 -*-
-
-# Copyright 2016 The Wazo Authors  (see the AUTHORS file)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>
+# Copyright 2016-2017 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0+
 
 from __future__ import unicode_literals
 
 from StringIO import StringIO
 
 from xivo_dao.resources.conference import dao as conference_dao
+from xivo_dao.resources.asterisk_file import dao as asterisk_file_dao
+
+from ..helpers.asterisk import AsteriskFileGenerator
 
 
 class ConfBridgeConfGenerator(object):
@@ -28,8 +18,10 @@ class ConfBridgeConfGenerator(object):
         self.dependencies = dependencies
 
     def generate(self):
+        asterisk_file_generator = AsteriskFileGenerator(asterisk_file_dao)
         generator = _ConfBridgeConf(conference_dao)
         output = StringIO()
+        asterisk_file_generator.generate('confbridge.conf', output)
         generator.generate(output)
         return output.getvalue()
 
@@ -40,9 +32,6 @@ class _ConfBridgeConf(object):
         self.conference_dao = dao
 
     def generate(self, output):
-        self._gen_general(output)
-        print >> output
-
         conferences = self.conference_dao.find_all_by()
         self._gen_bridge_profile(conferences, output)
         print >> output
@@ -52,9 +41,6 @@ class _ConfBridgeConf(object):
 
         self._gen_default_menu(output)
         print >> output
-
-    def _gen_general(self, output):
-        print >> output, '[general]'
 
     def _gen_bridge_profile(self, conferences, output):
         for row in conferences:
@@ -82,7 +68,6 @@ class _ConfBridgeConf(object):
     def _format_user_profile(self, row):
         yield '[xivo-user-profile-{}]'.format(row.id)
         yield 'type = user'
-        yield 'dsp_drop_silence = yes'
         yield 'quiet = {}'.format(self._convert_bool(row.quiet_join_leave))
         yield 'announce_join_leave = {}'.format(self._convert_bool(row.announce_join_leave))
         yield 'announce_user_count = {}'.format(self._convert_bool(row.announce_user_count))

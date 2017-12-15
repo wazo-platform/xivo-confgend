@@ -1,19 +1,6 @@
 # -*- coding: utf-8 -*-
-
-# Copyright 2016 The Wazo Authors  (see the AUTHORS file)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>
+# Copyright 2016-2017 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0+
 
 import unittest
 
@@ -33,13 +20,6 @@ class TestConfBridgeConf(unittest.TestCase):
         self.conference_dao.find_all_by.return_value = []
         self.confbridge_conf = _ConfBridgeConf(self.conference_dao)
         self.output = StringIO()
-
-    def test_gen_general(self):
-        self.confbridge_conf._gen_general(self.output)
-
-        assert_config_equal(self.output.getvalue(), '''
-            [general]
-        ''')
 
     def test_gen_bridge_profile(self):
         conferences = [
@@ -82,7 +62,6 @@ class TestConfBridgeConf(unittest.TestCase):
         assert_config_equal(self.output.getvalue(), '''
             [xivo-user-profile-1]
             type = user
-            dsp_drop_silence = yes
             quiet = no
             announce_join_leave = no
             announce_user_count = no
@@ -90,7 +69,6 @@ class TestConfBridgeConf(unittest.TestCase):
 
             [xivo-user-profile-2]
             type = user
-            dsp_drop_silence = yes
             quiet = yes
             announce_join_leave = yes
             announce_user_count = yes

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Avencall
+# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from xivo_confgen.generators.util import AsteriskFileWriter
@@ -15,6 +15,7 @@ class FeaturesConf(object):
         ast_file = AsteriskFileWriter(output)
         self._generate_general(ast_file)
         self._generate_featuremap(ast_file)
+        self._generate_applicationmap(ast_file)
 
     def _generate_general(self, ast_file):
         ast_file.write_section(u'general')
@@ -23,3 +24,7 @@ class FeaturesConf(object):
     def _generate_featuremap(self, ast_file):
         ast_file.write_section(u'featuremap')
         ast_file.write_options(self._settings['featuremap_options'])
+
+    def _generate_applicationmap(self, ast_file):
+        ast_file.write_section(u'applicationmap')
+        ast_file.write_options(self._settings['applicationmap_options'])

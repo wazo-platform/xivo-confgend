@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Avencall
+# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -21,6 +21,7 @@ class TestFeaturesConf(unittest.TestCase):
         settings = {
             'general_options': [],
             'featuremap_options': [],
+            'applicationmap_options': [],
         }
 
         features_conf = self._new_conf(settings)
@@ -29,12 +30,15 @@ class TestFeaturesConf(unittest.TestCase):
             [general]
 
             [featuremap]
+
+            [applicationmap]
         ''')
 
     def test_settings(self):
         settings = {
             'general_options': [(u'pickupexten', u'*8')],
             'featuremap_options': [(u'blindxfer', u'*1')],
+            'applicationmap_options': [(u'toto', u'*1')],
         }
 
         features_conf = self._new_conf(settings)
@@ -45,4 +49,7 @@ class TestFeaturesConf(unittest.TestCase):
 
             [featuremap]
             blindxfer = *1
+
+            [applicationmap]
+            toto = *1
         ''')

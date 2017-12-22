@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 # Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
@@ -24,9 +24,7 @@ Row = namedtuple('Row', ['UserSIP',
                          'mohsuggest',
                          'user_id',
                          'uuid',
-                         'mailbox',
-                         'namedpickupgroup',
-                         'namedcallgroup'])
+                         'mailbox'])
 
 
 class TestSipUserGenerator(unittest.TestCase):
@@ -48,7 +46,7 @@ class TestSipUserGenerator(unittest.TestCase):
         lines = list(self.generator.generate(self.ccss_options))
         return lines
 
-    def prepare_response(self, sip, **params):
+    def prepare_response(self, sip, pickup_groups=None, **params):
         params.setdefault('user_id', None)
         params.setdefault('protocol', None)
         params.setdefault('context', None)
@@ -56,10 +54,9 @@ class TestSipUserGenerator(unittest.TestCase):
         params.setdefault('mohsuggest', None)
         params.setdefault('uuid', None)
         params.setdefault('mailbox', None)
-        params.setdefault('namedpickupgroup', None)
-        params.setdefault('namedcallgroup', None)
         row = Row(UserSIP=sip, **params)
-        self.dao.find_sip_user_settings.return_value = [row]
+        pickup_groups = pickup_groups or {}
+        self.dao.find_sip_user_settings.return_value = [(row, pickup_groups)]
 
     def test_given_no_sip_users_then_nothing_is_generated(self):
         lines = self.generate_output()
@@ -292,8 +289,8 @@ class TestSipUserGenerator(unittest.TestCase):
                               user_id=42,
                               uuid='user-uuid',
                               mailbox='1001@default',
-                              namedpickupgroup='1,2',
-                              namedcallgroup='3,4')
+                              pickup_groups={'pickupgroup': [1, 2],
+                                             'callgroup': [3, 4]})
 
         lines = self.generate_output()
         assert_lines_contain(

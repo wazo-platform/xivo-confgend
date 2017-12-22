@@ -54,15 +54,15 @@ class _SipUserGenerator(object):
         self._nova_compatibility = nova_compatibility
 
     def generate(self, ccss_options):
-        for row in self.dao.find_sip_user_settings():
-            for line in self.format_row(row, ccss_options):
+        for row, pickup_groups in self.dao.find_sip_user_settings():
+            for line in self.format_row(row, pickup_groups, ccss_options):
                 yield line
 
-    def format_row(self, row, ccss_options):
+    def format_row(self, row, pickup_groups, ccss_options):
         yield '[{}]'.format(row.UserSIP.name)
         yield 'setvar = WAZO_CHANNEL_DIRECTION=from-wazo'
 
-        for line in self.format_user_options(row):
+        for line in self.format_user_options(row, pickup_groups):
             yield line
         for line in self.format_options(ccss_options.iteritems()):
             yield line
@@ -75,7 +75,7 @@ class _SipUserGenerator(object):
 
         yield ''
 
-    def format_user_options(self, row):
+    def format_user_options(self, row, pickup_groups):
         yield 'setvar = XIVO_ORIGINAL_CALLER_ID={}'.format(row.UserSIP.callerid)
         if row.context:
             yield 'setvar = TRANSFER_CONTEXT={}'.format(row.context)
@@ -85,10 +85,12 @@ class _SipUserGenerator(object):
             yield 'setvar = XIVO_USERID={}'.format(row.user_id)
         if row.uuid:
             yield 'setvar = XIVO_USERUUID={}'.format(row.uuid)
-        if row.namedpickupgroup:
-            yield 'namedpickupgroup = {}'.format(row.namedpickupgroup)
-        if row.namedcallgroup:
-            yield 'namedcallgroup = {}'.format(row.namedcallgroup)
+        named_pickup_groups = ','.join(str(id) for id in pickup_groups.get('pickupgroup', []))
+        if named_pickup_groups:
+            yield 'namedpickupgroup = {}'.format(named_pickup_groups)
+        named_pickup_groups = ','.join(str(id) for id in pickup_groups.get('callgroup', []))
+        if named_pickup_groups:
+            yield 'namedcallgroup = {}'.format(named_pickup_groups)
         if row.mohsuggest:
             yield 'mohsuggest = {}'.format(row.mohsuggest)
         if row.mailbox:

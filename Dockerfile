@@ -1,7 +1,7 @@
 ## Image to build from sources
 
-FROM debian:jessie
-MAINTAINER XiVO Team "dev+docker@proformatique.com"
+FROM debian:stretch
+MAINTAINER Wazo Maintainers <dev@wazo.community>
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV HOME /root
@@ -35,4 +35,4 @@ RUN rm -rf /root/confgend
 
 EXPOSE 8669
 
-CMD ["twistd", "-no", "-y", "/usr/local/bin/xivo-confgend"]
+CMD /usr/local/bin/xivo-confgend

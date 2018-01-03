@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2010-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from StringIO import StringIO
@@ -96,10 +96,11 @@ class AsteriskFrontend(object):
     def _gen_iax_trunk(self, trunk):
         output = StringIO()
 
-        print >> output, "\n[%s]" % trunk['name']
+        print >> output, "\n[%s]" % trunk.name
 
-        for k, v in trunk.iteritems():
-            if k in ('id', 'name', 'protocol', 'category', 'commented', 'disallow') or v in (None, ''):
+        exclude_options = ('id', 'name', 'protocol', 'category', 'commented', 'disallow')
+        for k, v in trunk.all_options(exclude=exclude_options):
+            if v in (None, ''):
                 continue
 
             if isinstance(v, unicode):

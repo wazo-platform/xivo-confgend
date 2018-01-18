@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from __future__ import unicode_literals
@@ -60,13 +60,13 @@ class _ConfBridgeConf(object):
             print >> output
 
     def _format_bridge_profile(self, row):
-        yield '[xivo-bridge-profile-{}]'.format(row.id)
+        yield '[xivo-bridge-profile-{}](wazo_default_bridge)'.format(row.id)
         yield 'type = bridge'
         yield 'max_members = {}'.format(row.max_users)
         yield 'record_conference = {}'.format(self._convert_bool(row.record))
 
     def _format_user_profile(self, row):
-        yield '[xivo-user-profile-{}]'.format(row.id)
+        yield '[xivo-user-profile-{}](wazo_default_user)'.format(row.id)
         yield 'type = user'
         yield 'quiet = {}'.format(self._convert_bool(row.quiet_join_leave))
         yield 'announce_join_leave = {}'.format(self._convert_bool(row.announce_join_leave))

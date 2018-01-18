@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -29,12 +29,12 @@ class TestConfBridgeConf(unittest.TestCase):
         self.confbridge_conf._gen_bridge_profile(conferences, self.output)
 
         assert_config_equal(self.output.getvalue(), '''
-            [xivo-bridge-profile-1]
+            [xivo-bridge-profile-1](wazo_default_bridge)
             type = bridge
             max_members = 50
             record_conference = yes
 
-            [xivo-bridge-profile-2]
+            [xivo-bridge-profile-2](wazo_default_bridge)
             type = bridge
             max_members = 0
             record_conference = no
@@ -60,14 +60,14 @@ class TestConfBridgeConf(unittest.TestCase):
         self.confbridge_conf._gen_user_profile(conferences, self.output)
 
         assert_config_equal(self.output.getvalue(), '''
-            [xivo-user-profile-1]
+            [xivo-user-profile-1](wazo_default_user)
             type = user
             quiet = no
             announce_join_leave = no
             announce_user_count = no
             announce_only_user = no
 
-            [xivo-user-profile-2]
+            [xivo-user-profile-2](wazo_default_user)
             type = user
             quiet = yes
             announce_join_leave = yes

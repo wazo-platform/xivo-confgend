@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2017 The Wazo Authors  (see the AUTHORS file)
-# Copyright (C) 2016 Proformatique Inc.
+# Copyright 2011-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from StringIO import StringIO
@@ -229,19 +228,6 @@ class ExtensionsConf(object):
 
             print >> output, prefix, line
         print >> output
-
-    @staticmethod
-    def _build_sorted_bsfilter(query_result):
-        numbers = []
-        for bsfilter in query_result:
-            if bsfilter['bsfilter'] == 'secretary':
-                boss, secretary = bsfilter['exten'], bsfilter['number']
-            elif bsfilter['bsfilter'] == 'boss':
-                boss, secretary = bsfilter['number'], bsfilter['exten']
-            else:
-                pass
-            numbers.append((boss, secretary))
-        return set(numbers)
 
     def _generate_hints(self, context, output):
         for line in self.hint_generator.generate(context):

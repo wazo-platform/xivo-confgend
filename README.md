@@ -1,6 +1,6 @@
 xivo-confgend
 =============
-[![Build Status](https://travis-ci.org/wazo-pbx/xivo-confgend.png?branch=master)](https://travis-ci.org/wazo-pbx/xivo-confgend)
+[![Build Status](https://jenkins.wazo.community/buildStatus/icon?job=xivo-confgend)](https://jenkins.wazo.community/job/xivo-confgend)
 
 xivo-confgend is a service for generating IPBX configuration files.
 

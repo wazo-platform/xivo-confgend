@@ -59,7 +59,7 @@ sources = [
      'first_matched_columns': [],
      'format_columns': {'name': '{firstname} {lastname}'}},
     {'type': 'csv_ws',
-     'name': 'my-csv',
+     'name': 'my_csv',
      'delimiter': '|',
      'uri': 'http://localhost:5000/ws',
      'searched_columns': ['firstname', 'lastname'],
@@ -169,9 +169,9 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                     'first_matched_columns': [],
                     'format_columns': {'name': '{firstname} {lastname}'},
                 },
-                'my-csv': {
+                'my_csv': {
                     'type': 'csv_ws',
-                    'name': 'my-csv',
+                    'name': 'my_csv',
                     'delimiter': '|',
                     'lookup_url': 'http://localhost:5000/ws',
                     'searched_columns': ['firstname', 'lastname'],

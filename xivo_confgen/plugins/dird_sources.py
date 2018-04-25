@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Avencall
-# Copyright (C) 2016 Proformatique Inc.
+# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import yaml
 
-from xivo_dao import cti_context_dao, cti_main_dao, directory_dao
+from xivo_dao import (
+    cti_context_dao,
+    cti_main_dao,
+    directory_dao,
+)
 
 
 class SourceGenerator(object):

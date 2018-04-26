@@ -96,24 +96,12 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
 
         result = generator.generate()
 
-
         assert_that(
             result,
-            has_entries({
-                'Internal': {
-                    'type': 'xivo',
-                    'name': 'Internal',
-                    'unique_column': 'id',
-                    'searched_columns': [
-                        'firstname',
-                        'lastname',
-                    ],
-                    'first_matched_columns': ['exten'],
-                    'format_columns': {
-                        'number': '{exten}',
-                        'mobile': '{mobile_phone_number}',
-                    },
-                    'auth': {
+            has_entries(
+                Internal=has_entries(
+                    type='xivo',
+                    auth={
                         'host': 'localhost',
                         'port': 9497,
                         'username': 'foo',
@@ -121,7 +109,7 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                         'backend': 'wazo_user',
                         'verify_certificate': '/usr/share/xivo-certs/server.crt',
                     },
-                    'confd': {
+                    confd={
                         'https': True,
                         'host': 'localhost',
                         'port': 9486,
@@ -129,21 +117,10 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                         'timeout': 4,
                         'verify_certificate': False,
                     }
-                },
-                'mtl': {
-                    'type': 'xivo',
-                    'name': 'mtl',
-                    'unique_column': 'id',
-                    'searched_columns': [
-                        'lastname',
-                    ],
-                    'first_matched_columns': ['exten'],
-                    'format_columns': {
-                        'number': '{exten}',
-                        'mobile': '{mobile_phone_number}',
-                        'name': '{firstname} {lastname}',
-                    },
-                    'auth': {
+                ),
+                mtl=has_entries(
+                    type='xivo',
+                    auth={
                         'host': 'montreal.lan.example.com',
                         'port': 9497,
                         'backend': 'xivo_service',
@@ -151,7 +128,7 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                         'password': 'test',
                         'verify_certificate': True,
                     },
-                    'confd': {
+                    confd={
                         'https': True,
                         'host': 'montreal.lan.example.com',
                         'port': 9486,
@@ -159,51 +136,36 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                         'timeout': 4,
                         'verify_certificate': True,
                     },
-                },
-                'mycsv': {
-                    'type': 'csv',
-                    'name': 'mycsv',
-                    'separator': '|',
-                    'file': '/usr/tmp/test.csv',
-                    'searched_columns': ['firstname', 'lastname'],
-                    'first_matched_columns': [],
-                    'format_columns': {'name': '{firstname} {lastname}'},
-                },
-                'my_csv': {
-                    'type': 'csv_ws',
-                    'name': 'my_csv',
-                    'delimiter': '|',
-                    'lookup_url': 'http://localhost:5000/ws',
-                    'searched_columns': ['firstname', 'lastname'],
-                    'first_matched_columns': [],
-                    'format_columns': {'name': '{firstname} {lastname}'},
-                },
-                'ldapdirectory': {
-                    'type': 'ldap',
-                    'name': 'ldapdirectory',
-                    'ldap_uri': 'ldaps://myldap.example.com:636',
-                    'ldap_base_dn': 'dc=example,dc=com',
-                    'ldap_username': 'cn=admin,dc=example,dc=com',
-                    'ldap_password': '53c8e7',
-                    'ldap_custom_filter': '(st=USA)',
-                    'searched_columns': ['cn'],
-                    'first_matched_columns': ['telephoneNumber'],
-                    'format_columns': {
-                        'firstname': '{givenName}',
-                        'lastname': '{sn}',
-                        'number': '{telephoneNumber}'},
-                },
-                'dird': {
-                    'type': 'dird_phonebook',
-                    'name': 'dird',
-                    'db_uri': 'postgresql://db',
-                    'tenant': 'tenant',
-                    'phonebook_name': 'phonebook-name',
-                    'format_columns': {},
-                    'searched_columns': [],
-                    'first_matched_columns': [],
-                }
-            })
+                ),
+                mycsv=has_entries(
+                    type='csv',
+                    name='mycsv',
+                    separator='|',
+                    file='/usr/tmp/test.csv',
+                    searched_columns=['firstname', 'lastname'],
+                    first_matched_columns=[],
+                    format_columns={'name': '{firstname} {lastname}'},
+                ),
+                my_csv=has_entries(
+                    type='csv_ws',
+                    lookup_url='http://localhost:5000/ws',
+                ),
+                ldapdirectory=has_entries(
+                    type='ldap',
+                    ldap_uri='ldaps://myldap.example.com:636',
+                    ldap_base_dn='dc=example,dc=com',
+                    ldap_username='cn=admin,dc=example,dc=com',
+                    ldap_password='53c8e7',
+                    ldap_custom_filter='(st=USA)',
+                ),
+                dird=has_entries(
+                    type='dird_phonebook',
+                    name='dird',
+                    db_uri='postgresql://db',
+                    tenant='tenant',
+                    phonebook_name='phonebook-name',
+                ),
+            )
         )
 
     def test_format_confd_allow_unspecified_port(self):

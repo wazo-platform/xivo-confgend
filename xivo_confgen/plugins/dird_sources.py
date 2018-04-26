@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Avencall
-# Copyright (C) 2016 Proformatique Inc.
+# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import yaml
 
-from xivo_dao import cti_context_dao, cti_main_dao, directory_dao
+from xivo_dao import (
+    cti_context_dao,
+    cti_main_dao,
+    directory_dao,
+)
 
 
 class SourceGenerator(object):
@@ -89,8 +92,29 @@ class _NoContextSeparationSourceGenerator(object):
         }
 
     def _format_xivo_source(self, source):
-        return {'unique_column': 'id',
-                'confd_config': self._format_confd_config(source)}
+        return {
+            'unique_column': 'id',
+            'confd': self._format_confd_config(source),
+            'auth': self._format_auth_config(source),
+        }
+
+    def _format_auth_config(self, source):
+        config = {
+            'host': source['auth_host'],
+            'port': source['auth_port'],
+            'backend': source['auth_backend'],
+            'username': source['xivo_username'],
+            'password': source['xivo_password'],
+        }
+        if not source['auth_verify_certificate']:
+            verify = False
+        elif source['auth_custom_ca_path']:
+            verify = source['auth_custom_ca_path']
+        else:
+            verify = True
+
+        config['verify_certificate'] = verify
+        return config
 
     def _format_confd_config(self, source):
         scheme, _, end = source['uri'].partition('://')
@@ -106,9 +130,6 @@ class _NoContextSeparationSourceGenerator(object):
         }
         if port:
             config['port'] = int(port)
-        if source['xivo_username'] and source['xivo_password']:
-            config['username'] = source['xivo_username']
-            config['password'] = source['xivo_password']
 
         return config
 

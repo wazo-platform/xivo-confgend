@@ -30,5 +30,6 @@ templates:
 plugins:
   asterisk.confbridge.conf: xivo
   asterisk.musiconhold.conf: xivo
+  asterisk.rtp.conf: xivo
   asterisk.sip.conf: xivo
   dird.sources.yml: xivo

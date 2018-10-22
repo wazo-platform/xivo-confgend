@@ -18,7 +18,6 @@ class AsteriskFrontend(object):
 
     def __init__(self, config, tpl_helper):
         self.contextsconf = config['templates']['contextsconf']
-        self._nova_compatibility = config['nova_compatibility']
         self._tpl_helper = tpl_helper
 
     def features_conf(self):
@@ -30,7 +29,7 @@ class AsteriskFrontend(object):
         return self._generate_conf_from_generator(config_generator)
 
     def sccp_conf(self):
-        config_generator = SccpConf(nova_compatibility=self._nova_compatibility)
+        config_generator = SccpConf()
         return self._generate_conf_from_generator(config_generator)
 
     def voicemail_conf(self):

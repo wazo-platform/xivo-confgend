@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from __future__ import unicode_literals
@@ -338,20 +338,5 @@ class TestSipUserGenerator(unittest.TestCase):
                 '[user]',
                 'disallow = all',
                 'allow = gsm,alaw',
-            ]
-        )
-
-    def test_nova_compatibility_adds_accountcode(self):
-        self.generator = _SipUserGenerator(self.dao, nova_compatibility=True)
-        self.prepare_response(sip=SIP(name='user', _options=[]),
-                              number='1000',
-                              context='default')
-
-        lines = self.generate_output()
-        assert_lines_contain(
-            lines,
-            [
-                '[user]',
-                'accountcode = 1000',
             ]
         )

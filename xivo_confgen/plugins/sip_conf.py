@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2017 The Wazo Authors  (see the AUTHORS file)
-# Copyright (C) 2016 Proformatique Inc.
+# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from __future__ import unicode_literals
@@ -32,13 +31,12 @@ class SIPConfGenerator(object):
 
     def __init__(self, dependencies):
         config = dependencies['config']
-        self._nova_compatibility = config['nova_compatibility']
         self._tpl_helper = dependencies['tpl_helper']
 
     def generate(self):
         twilio_config_generator = _TwilioConfigGenerator(self._tpl_helper)
         trunk_generator = _SipTrunkGenerator(asterisk_conf_dao, twilio_config_generator)
-        user_generator = _SipUserGenerator(asterisk_conf_dao, nova_compatibility=self._nova_compatibility)
+        user_generator = _SipUserGenerator(asterisk_conf_dao)
         config_generator = _SipConf(trunk_generator, user_generator)
         output = StringIO()
         config_generator.generate(output)
@@ -49,9 +47,8 @@ class _SipUserGenerator(object):
 
     EXCLUDE_OPTIONS = COMMON_EXCLUDE_OPTIONS
 
-    def __init__(self, dao, nova_compatibility=False):
+    def __init__(self, dao):
         self.dao = dao
-        self._nova_compatibility = nova_compatibility
 
     def generate(self, ccss_options):
         for row, pickup_groups in self.dao.find_sip_user_settings():
@@ -97,8 +94,6 @@ class _SipUserGenerator(object):
             yield 'mailbox = {}'.format(row.mailbox)
         if row.UserSIP.callerid:
             yield 'description = {}'.format(row.UserSIP.callerid)
-        if self._nova_compatibility and row.number:
-            yield 'accountcode = {}'.format(row.number)
 
     def format_allow_options(self, options):
         allow_found = 'allow' in (option_name for option_name, _ in options)

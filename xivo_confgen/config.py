@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Avencall
+# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from __future__ import absolute_import
@@ -19,7 +19,6 @@ _DEFAULT_CONFIG = {
     'listen_address': '127.0.0.1',
     'listen_port': 8669,
     'db_uri': 'postgresql://asterisk:proformatique@localhost/asterisk',
-    'nova_compatibility': False,
     'templates': {'contextsconf': '/etc/xivo-confgend/templates/contexts.conf'},
     'plugins': {},
 }

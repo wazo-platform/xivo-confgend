@@ -15,22 +15,9 @@ class Test(unittest.TestCase):
     def setUp(self):
         self._config = {
             'templates': {'contextsconf': None},
-            'nova_compatibility': False,
         }
         self.tpl_helper = Mock()
         self.asteriskFrontEnd = AsteriskFrontend(self._config, self.tpl_helper)
-
-    def test_nova_compat_defined(self):
-        self._config['nova_compatibility'] = True
-
-        asterisk_frontend = AsteriskFrontend(self._config, self.tpl_helper)
-
-        self.assertTrue(asterisk_frontend._nova_compatibility)
-
-    def test_nova_compat_not_defined(self):
-        asterisk_frontend = AsteriskFrontend(self._config, self.tpl_helper)
-
-        self.assertFalse(asterisk_frontend._nova_compatibility)
 
     def test_encoding(self):
         charset = ("ascii", "US-ASCII",)

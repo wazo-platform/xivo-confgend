@@ -12,7 +12,7 @@ setup(
     version='0.2',
     description='Wazo configurations generator',
     author='Wazo Authors',
-    author_email='dev.wazo@gmail.com',
+    author_email='dev@wazo.community',
     url='http://wazo.community',
     license='GPLv3',
     include_package_data=True,
@@ -33,6 +33,9 @@ setup(
         ],
         'xivo_confgend.dird.sources.yml': [
             'xivo = xivo_confgen.plugins.dird_sources:SourceGenerator',
+        ],
+        'xivo_confgend.asterisk.pjsip.conf': [
+            'wazo = xivo_confgen.plugins.pjsip_conf:PJSIPConfGenerator',
         ],
     },
 )

@@ -52,6 +52,11 @@ class SipDBExtractor(object):
         ('sipdebug', 'debug'),
         ('legacy_useroption_parsing', 'ignore_uri_user_options'),
     ]
+    sip_general_to_system = [
+        ('timert1', 'timer_t1'),
+        ('timerb', 'timer_b'),
+        ('compactheaders', 'compact_headers'),
+    ]
 
     def __init__(self):
         self._static_sip = asterisk_conf_dao.find_sip_general_settings()
@@ -72,17 +77,19 @@ class SipDBExtractor(object):
     def get(self, section):
         if section == 'global':
             return self._get_global()
+        elif section == 'system':
+            return self._get_system()
+        elif section == 'transport-udp':
+            return self._get_transport_udp()
+        elif section == 'transport-wss':
+            return self._get_transport_wss()
 
     def _get_global(self):
         fields = [
             ('type', 'global'),
         ]
 
-        for sip_key, pjsip_key in self.sip_general_to_global:
-            value = self._general_settings_dict.get(sip_key)
-            if not value:
-                continue
-            fields.append((pjsip_key, value))
+        self._add_from_mapping(fields, self.sip_general_to_global, self._general_settings_dict)
 
         return Section(
             name='global',
@@ -90,6 +97,61 @@ class SipDBExtractor(object):
             templates=None,
             fields=fields,
         )
+
+    def _get_system(self):
+        fields = [
+            ('type', 'system'),
+        ]
+
+        self._add_from_mapping(fields, self.sip_general_to_system, self._general_settings_dict)
+
+        return Section(
+            name='system',
+            type_='section',
+            templates=None,
+            fields=fields,
+        )
+
+    def _get_transport(self, protocol):
+        fields = [
+            ('type', 'transport'),
+            ('protocol', protocol),
+        ]
+
+        bind = self._general_settings_dict.get('udpbindaddr')
+        port = self._general_settings_dict.get('bindport')
+        if port:
+            bind += ':{}'.format(port)
+
+        fields.append(('bind', bind))
+
+        for row in self._static_sip:
+            if row['var_name'] != 'localnet':
+                continue
+            fields.append(('local_net', row['var_val']))
+
+        return Section(
+            name='transport-{}'.format(protocol),
+            type_='section',
+            templates=None,
+            fields=fields,
+        )
+
+    def _get_transport_udp(self):
+        return self._get_transport('udp')
+
+    def _get_transport_wss(self):
+        if not self._general_settings_dict.get('websocket_enabled'):
+            return
+
+        return self._get_transport('wss')
+
+    def _add_from_mapping(self, fields, mapping, config):
+        for sip_key, pjsip_key in mapping:
+            value = config.get(sip_key)
+            if not value:
+                continue
+            fields.append((pjsip_key, value))
 
 
 class PJSIPConfGenerator(object):
@@ -101,5 +163,13 @@ class PJSIPConfGenerator(object):
         extractor = SipDBExtractor()
 
         global_section = extractor.get('global')
+        system_section = extractor.get('system')
+        transport_udp_section = extractor.get('transport-udp')
+        transport_wss_section = extractor.get('transport-wss')
 
-        return self._config_file_generator.generate([global_section])
+        return self._config_file_generator.generate([section for section in [
+            global_section,
+            system_section,
+            transport_udp_section,
+            transport_wss_section,
+        ] if section])

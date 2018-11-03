@@ -60,7 +60,7 @@ class SipDBExtractor(object):
     sip_general_to_transport = [
         ('media_address', 'external_media_address'),
     ]
-    sip_general_to_aor_tpl = [
+    sip_to_aor = [
         ('qualifyfreq', 'qualify_frequency'),
         ('maxexpiry', 'maximum_expiration'),
         ('minexpiry', 'minimum_expiration'),
@@ -89,11 +89,12 @@ class SipDBExtractor(object):
         for row in self._static_sip:
             self._general_settings_dict[row['var_name']] = row['var_val']
 
-        logger.critical('%s', self._static_sip)
+        logger.critical('AUTH DATA')
         logger.critical('%s', self._auth_data)
+        logger.critical('USER SIP')
         logger.critical('%s', self._user_sip)
+        logger.critical('TRUNK SIP')
         logger.critical('%s', self._trunk)
-        logger.critical('%s', self._general_settings_dict)
 
     def get(self, section):
         if section == 'global':
@@ -109,12 +110,71 @@ class SipDBExtractor(object):
         elif section == 'wazo-general-endpoint':
             return self._get_general_endpoint_template()
 
+    def get_user_sections(self):
+        for user_sip, pickup_groups in self._user_sip:
+            logger.critical('Usersip: %s', user_sip)
+            logger.critical('pickup: %s', pickup_groups)
+            for section in self._get_user(user_sip, pickup_groups):
+                yield section
+
+    def _get_user(self, user_sip, pickup_groups):
+        yield self._get_user_endpoint(user_sip, pickup_groups)
+        yield self._get_user_aor(user_sip)
+        yield self._get_user_auth(user_sip)
+
+    def _get_user_aor(self, user_sip):
+        fields = [
+            ('type', 'aor'),
+        ]
+
+        self._add_from_mapping(fields, self.sip_to_aor, user_sip[0].__dict__)
+        # TODO check mailboxes AOR vs endpoint
+        host = user_sip[0].host
+        if host == 'dynamic':
+            self._add_option(fields, ('max_contacts', 1))
+        else:
+            # TODO add the contact field
+            pass
+
+        return Section(
+            name=user_sip[0].name,
+            type_='section',
+            templates=['wazo-general-aor'],
+            fields=fields,
+        )
+
+    def _get_user_auth(self, user_sip):
+        fields = [
+            ('type', 'auth'),
+            ('username', user_sip[0].name),
+            ('password', user_sip[0].secret),
+        ]
+
+        return Section(
+            name=user_sip[0].name,
+            type_='section',
+            templates=None,
+            fields=fields,
+        )
+
+    def _get_user_endpoint(self, user_sip, pickup_groups):
+        fields = [
+            ('type', 'endpoint'),
+        ]
+
+        return Section(
+            name=user_sip[0].name,
+            type_='section',
+            templates=['wazo-general-endpoint'],
+            fields=fields,
+        )
+
     def _get_general_aor_template(self):
         fields = [
             ('type', 'aor'),
         ]
 
-        self._add_from_mapping(fields, self.sip_general_to_aor_tpl, self._general_settings_dict)
+        self._add_from_mapping(fields, self.sip_to_aor, self._general_settings_dict)
 
         return Section(
             name='wazo-general-aor',
@@ -320,6 +380,7 @@ class PJSIPConfGenerator(object):
         transport_wss_section = extractor.get('transport-wss')
         general_aor_tpl = extractor.get('wazo-general-aor')
         general_endpoint_tpl = extractor.get('wazo-general-endpoint')
+        user_sections = list(extractor.get_user_sections())
 
         return self._config_file_generator.generate([section for section in [
             global_section,
@@ -328,4 +389,4 @@ class PJSIPConfGenerator(object):
             transport_wss_section,
             general_aor_tpl,
             general_endpoint_tpl,
-        ] if section])
+        ] if section] + user_sections)

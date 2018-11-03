@@ -132,9 +132,6 @@ class SipDBExtractor(object):
         host = user_sip[0].host
         if host == 'dynamic':
             self._add_option(fields, ('max_contacts', 1))
-        else:
-            # TODO add the contact field
-            pass
 
         return Section(
             name=user_sip[0].name,

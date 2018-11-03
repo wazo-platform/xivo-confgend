@@ -57,6 +57,27 @@ class SipDBExtractor(object):
         ('timerb', 'timer_b'),
         ('compactheaders', 'compact_headers'),
     ]
+    sip_general_to_transport = [
+        ('media_address', 'external_media_address'),
+    ]
+    sip_general_to_aor_tpl = [
+        ('qualifyfreq', 'qualify_frequency'),
+        ('maxexpiry', 'maximum_expiration'),
+        ('minexpiry', 'minimum_expiration'),
+        ('defaultexpiry', 'default_expiration'),
+    ]
+    sip_general_to_endpoint_tpl = [
+        ('icesupport', 'ice_support'),
+        ('autoframing', 'use_ptime'),
+        ('outboundproxy', 'outbound_proxy'),
+        ('mohsuggest', 'moh_suggest'),
+        ('session-minse', 'timers_min_se'),
+        ('session-expires', 'timers_sess_expires'),
+        ('fromdomain', 'from_domain'),
+        ('sdpowner', 'sdp_owner'),
+        ('sdpsession', 'sdp_session'),
+        ('language', 'language'),
+    ]
 
     def __init__(self):
         self._static_sip = asterisk_conf_dao.find_sip_general_settings()
@@ -83,6 +104,48 @@ class SipDBExtractor(object):
             return self._get_transport_udp()
         elif section == 'transport-wss':
             return self._get_transport_wss()
+        elif section == 'wazo-general-aor':
+            return self._get_general_aor_template()
+        elif section == 'wazo-general-endpoint':
+            return self._get_general_endpoint_template()
+
+    def _get_general_aor_template(self):
+        fields = [
+            ('type', 'aor'),
+        ]
+
+        self._add_from_mapping(fields, self.sip_general_to_aor_tpl, self._general_settings_dict)
+
+        return Section(
+            name='wazo-general-aor',
+            type_='template',
+            templates=None,
+            fields=fields,
+        )
+
+    def _get_general_endpoint_template(self):
+        fields = [
+            ('type', 'endpoint'),
+            ('allow', '!all,ulaw'),
+        ]
+
+        self._add_from_mapping(fields, self.sip_general_to_endpoint_tpl, self._general_settings_dict)
+
+        self._add_option(fields, self._convert_dtmfmode(self._general_settings_dict))
+        self._add_option(fields, self._convert_session_timers(self._general_settings_dict))
+        self._add_option(fields, self._convert_sendrpid(self._general_settings_dict))
+        self._add_option(fields, self._convert_encryption(self._general_settings_dict))
+        for pair in self._convert_nat(self._general_settings_dict):
+            self._add_option(fields, pair)
+        for pair in self._convert_directmedia(self._general_settings_dict):
+            self._add_option(fields, pair)
+
+        return Section(
+            name='wazo-general-endpoint',
+            type_='template',
+            templates=None,
+            fields=fields,
+        )
 
     def _get_global(self):
         fields = [
@@ -125,6 +188,12 @@ class SipDBExtractor(object):
 
         fields.append(('bind', bind))
 
+        extern_ip = self._general_settings_dict.get('externip')
+        extern_host = self._general_settings_dict.get('externhost')
+        extern_signaling_address = extern_host or extern_ip
+        if extern_signaling_address:
+            fields.append(('external_signaling_address', extern_signaling_address))
+
         for row in self._static_sip:
             if row['var_name'] != 'localnet':
                 continue
@@ -153,6 +222,89 @@ class SipDBExtractor(object):
                 continue
             fields.append((pjsip_key, value))
 
+    @staticmethod
+    def _add_option(fields, pair):
+        if not pair:
+            return
+
+        fields.append(pair)
+
+    @staticmethod
+    def _convert_directmedia(sip_config):
+        val = sip_config.get('directmedia')
+        if 'yes' in val:
+            yield 'direct_media', 'yes'
+        if 'update' in val:
+            yield 'direct_media_method', 'update'
+        if 'outgoing' in val:
+            yield 'direct_media_glare_mitigation', 'outgoing'
+        if 'nonat' in val:
+            yield 'disable_directed_media_on_nat', 'yes'
+        if val == 'no':
+            yield 'direct_media', 'no'
+
+    @staticmethod
+    def _convert_dtmfmode(sip_config):
+        val = sip_config.get('dtmfmode')
+        if not val:
+            return
+
+        key = 'dtmf_mode'
+        if val == 'rfc2833':
+            return key, 'rfc4733'
+        else:
+            return key, val
+
+    @staticmethod
+    def _convert_encryption(sip_config):
+        val = sip_config.get('encryption')
+        if val == 'yes':
+            return 'media_encryption', 'sdes'
+
+    @staticmethod
+    def _convert_nat(sip_config):
+        val = sip_config.get('nat')
+        if val == 'yes':
+            yield 'rtp_symmetric', 'yes'
+            yield 'rewrite_contact', 'yes'
+        elif val == 'comedia':
+            yield 'rtp_symmetric', 'yes'
+        elif val == 'force_rport':
+            yield 'force_rport', 'yes'
+            yield 'rewrite_contact', 'yes'
+
+    @staticmethod
+    def _convert_progressinband(sip_config):
+        val = sip_config.get('progressinband')
+        if val in ('no', 'never'):
+            return 'progress_inband', 'no'
+        elif val == 'yes':
+            return 'progress_inband', 'yes'
+
+    @staticmethod
+    def _convert_sendrpid(sip_config):
+        val = sip_config.get('sendrpid')
+        if val in ('yes', 'rpid'):
+            return 'send_rpid', 'yes'
+        elif val == 'pai':
+            return 'send_pai', 'yes'
+
+    @staticmethod
+    def _convert_session_timers(sip_config):
+        val = sip_config.get('session-timers')
+        if not val:
+            return
+
+        new_val = 'yes'
+        if val == 'originate':
+            new_val = 'always'
+        elif val == 'accept':
+            new_val = 'required'
+        elif val == 'never':
+            new_val = 'no'
+
+        return 'timers', new_val
+
 
 class PJSIPConfGenerator(object):
 
@@ -166,10 +318,14 @@ class PJSIPConfGenerator(object):
         system_section = extractor.get('system')
         transport_udp_section = extractor.get('transport-udp')
         transport_wss_section = extractor.get('transport-wss')
+        general_aor_tpl = extractor.get('wazo-general-aor')
+        general_endpoint_tpl = extractor.get('wazo-general-endpoint')
 
         return self._config_file_generator.generate([section for section in [
             global_section,
             system_section,
             transport_udp_section,
             transport_wss_section,
+            general_aor_tpl,
+            general_endpoint_tpl,
         ] if section])

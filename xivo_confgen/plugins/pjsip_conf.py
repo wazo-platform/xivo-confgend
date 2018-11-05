@@ -2,6 +2,7 @@
 # Copyright 2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
+from __future__ import unicode_literals
 import logging
 
 from collections import namedtuple
@@ -67,16 +68,47 @@ class SipDBExtractor(object):
         ('defaultexpiry', 'default_expiration'),
     ]
     sip_general_to_endpoint_tpl = [
-        ('icesupport', 'ice_support'),
+        ('allowsubscribe', 'allow_subscribe'),
+        ('allowtransfer', 'allow_transfer'),
         ('autoframing', 'use_ptime'),
-        ('outboundproxy', 'outbound_proxy'),
-        ('mohsuggest', 'moh_suggest'),
-        ('session-minse', 'timers_min_se'),
-        ('session-expires', 'timers_sess_expires'),
+        ('avpf', 'use_avpf'),
+        ('callerid', 'callerid'),
+        ('callingpres', 'callerid_privacy'),
+        ('cid_tag', 'callerid_tag'),
+        ('cos_audio', 'cos_audio'),
+        ('cos_video', 'cos_video'),
         ('fromdomain', 'from_domain'),
+        ('fromdomain', 'from_domain'),
+        ('fromuser', 'from_user'),
+        ('icesupport', 'ice_support'),
+        ('language', 'language'),
+        ('language', 'language'),
+        ('mohsuggest', 'moh_suggest'),
+        ('mwifrom', 'mwi_from_user'),
+        ('outboundproxy', 'outbound_proxy'),
+        ('rtp_engine', 'rtp_engine'),
+        ('rtptimeout', 'rtp_timeout'),
+        ('sdpowner', 'sdp_owner'),
         ('sdpowner', 'sdp_owner'),
         ('sdpsession', 'sdp_session'),
-        ('language', 'language'),
+        ('sdpsession', 'sdp_session'),
+        ('send_diversion', 'send_diversion'),
+        ('session-expires', 'timers_sess_expires'),
+        ('session-minse', 'timers_min_se'),
+        ('subminexpiry', 'sub_min_expiry'),
+        ('tonezone', 'tone_zone'),
+        ('tos_audio', 'tos_audio'),
+        ('tos_video', 'tos_video'),
+        ('trustpid', 'trust_id_inbound'),
+        ('busylevel', 'device_state_busy_at'),
+        ('dtlsverify', 'dtls_verify'),
+        ('dtlsrekey', 'dtls_rekey'),
+        ('dtlscertfile', 'dtls_cert_file'),
+        ('dtlsprivatekey', 'dtls_private_key'),
+        ('dtlscipher', 'dtls_cipher'),
+        ('dtlscafile', 'dtls_ca_file'),
+        ('dtlscapath', 'dtls_ca_path'),
+        ('dtlssetup', 'dtls_setup'),
     ]
 
     def __init__(self):
@@ -128,10 +160,13 @@ class SipDBExtractor(object):
         ]
 
         self._add_from_mapping(fields, self.sip_to_aor, user_sip[0].__dict__)
-        # TODO check mailboxes AOR vs endpoint
+
         host = user_sip[0].host
         if host == 'dynamic':
             self._add_option(fields, ('max_contacts', 1))
+
+        if user_sip.mailbox and user_sip[0].subscribemwi == 'yes':
+            self._add_option(fields, ('mailboxes', user_sip.mailbox))
 
         return Section(
             name=user_sip[0].name,
@@ -154,10 +189,62 @@ class SipDBExtractor(object):
             fields=fields,
         )
 
+    def _get_trunk_identify(self, trunk_sip):
+        # ['type',               setup_ident],
+        pass
+
     def _get_user_endpoint(self, user_sip, pickup_groups):
+        user_dict = user_sip[0].__dict__
+        all_options = user_sip[0].all_options()
+
+        for key, value in all_options:
+            user_dict[key] = value
+
         fields = [
             ('type', 'endpoint'),
+            ('context', user_dict['context']),
+            ('set_var', 'XIVO_ORIGINAL_CALLER_ID={callerid}'.format(**user_dict)),
+            ('set_var', 'TRANSFER_CONTEXT={}'.format(user_sip.context)),
+            ('set_var', 'PICKUPMARK={}%{}'.format(user_sip.number, user_sip.context)),
+            ('set_var', 'XIVO_USERID={}'.format(user_sip.user_id)),
+            ('set_var', 'XIVO_USERUUID={}'.format(user_sip.uuid)),
+            ('set_var', 'WAZO_CHANNEL_DIRECTION=from-wazo'),
         ]
+
+        for key, value in all_options:
+            if key in ('allow', 'disallow'):
+                self._add_option(fields, (key, value))
+
+        named_pickup_groups = ','.join(str(id) for id in pickup_groups.get('pickupgroup', []))
+        if named_pickup_groups:
+            self._add_option(fields, ('named_pickup_group', named_pickup_groups))
+
+        named_call_groups = ','.join(str(id) for id in pickup_groups.get('callgroup', []))
+        if named_call_groups:
+            self._add_option(fields, ('named_call_group', named_call_groups))
+
+        self._add_from_mapping(fields, self.sip_general_to_endpoint_tpl, user_dict)
+        self._add_option(fields, self._convert_dtmfmode(user_dict))
+        self._add_option(fields, self._convert_session_timers(user_dict))
+        self._add_option(fields, self._convert_sendrpid(user_dict))
+        self._add_option(fields, self._convert_encryption(user_dict))
+        self._add_option(fields, self._convert_progressinband(user_dict))
+        self._add_option(fields, self._convert_dtlsenable(user_dict))
+        self._add_option(fields, self._convert_encryption_taglen(self._general_settings_dict))
+        for pair in self._convert_nat(user_dict):
+            self._add_option(fields, pair)
+        for pair in self._convert_directmedia(user_dict):
+            self._add_option(fields, pair)
+        for pair in self._convert_recordonfeature(user_dict):
+            self._add_option(fields, pair)
+        for pair in self._convert_recordofffeature(user_dict):
+            self._add_option(fields, pair)
+
+        if user_sip.mailbox and user_dict.get('subscribemwi') != 'yes':
+            self._add_option(fields, ('mailboxes', user_sip.mailbox))
+
+        if user_dict.get('transport') == 'wss':
+            self._add_option(fields, ('transport', 'transport-wss'))
 
         return Section(
             name=user_sip[0].name,
@@ -192,9 +279,16 @@ class SipDBExtractor(object):
         self._add_option(fields, self._convert_session_timers(self._general_settings_dict))
         self._add_option(fields, self._convert_sendrpid(self._general_settings_dict))
         self._add_option(fields, self._convert_encryption(self._general_settings_dict))
+        self._add_option(fields, self._convert_progressinband(self._general_settings_dict))
+        self._add_option(fields, self._convert_dtlsenable(self._general_settings_dict))
+        self._add_option(fields, self._convert_encryption_taglen(self._general_settings_dict))
         for pair in self._convert_nat(self._general_settings_dict):
             self._add_option(fields, pair)
         for pair in self._convert_directmedia(self._general_settings_dict):
+            self._add_option(fields, pair)
+        for pair in self._convert_recordonfeature(self._general_settings_dict):
+            self._add_option(fields, pair)
+        for pair in self._convert_recordofffeature(self._general_settings_dict):
             self._add_option(fields, pair)
 
         return Section(
@@ -289,6 +383,9 @@ class SipDBExtractor(object):
     @staticmethod
     def _convert_directmedia(sip_config):
         val = sip_config.get('directmedia')
+        if not val:
+            return
+
         if 'yes' in val:
             yield 'direct_media', 'yes'
         if 'update' in val:
@@ -299,6 +396,12 @@ class SipDBExtractor(object):
             yield 'disable_directed_media_on_nat', 'yes'
         if val == 'no':
             yield 'direct_media', 'no'
+
+    @staticmethod
+    def _convert_dtlsenable(sip_config):
+        val = sip_config.get('dtlsenable')
+        if val == 'yes':
+            return 'media_encryption', 'dtls'
 
     @staticmethod
     def _convert_dtmfmode(sip_config):
@@ -319,6 +422,12 @@ class SipDBExtractor(object):
             return 'media_encryption', 'sdes'
 
     @staticmethod
+    def _convert_encryption_taglen(sip_config):
+        val = sip_config.get('encryption_taglen')
+        if val == 32:
+            return 'srtp_tag_32', 'yes'
+
+    @staticmethod
     def _convert_nat(sip_config):
         val = sip_config.get('nat')
         if val == 'yes':
@@ -337,6 +446,24 @@ class SipDBExtractor(object):
             return 'progress_inband', 'no'
         elif val == 'yes':
             return 'progress_inband', 'yes'
+
+    @staticmethod
+    def _convert_recordonfeature(sip_config):
+        val = sip_config.get('recordonfeature')
+        if not val:
+            return
+        if val == 'automixmon':
+            yield 'one_touch_recording', 'yes'
+        yield 'record_on_feature', val
+
+    @staticmethod
+    def _convert_recordofffeature(sip_config):
+        val = sip_config.get('recordofffeature')
+        if not val:
+            return
+        if val == 'automixmon':
+            yield 'one_touch_recording', 'yes'
+        yield 'record_off_feature', val
 
     @staticmethod
     def _convert_sendrpid(sip_config):

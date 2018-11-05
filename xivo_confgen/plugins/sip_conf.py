@@ -82,6 +82,7 @@ class _SipUserGenerator(object):
             yield 'setvar = XIVO_USERID={}'.format(row.user_id)
         if row.uuid:
             yield 'setvar = XIVO_USERUUID={}'.format(row.uuid)
+
         named_pickup_groups = ','.join(str(id) for id in pickup_groups.get('pickupgroup', []))
         if named_pickup_groups:
             yield 'namedpickupgroup = {}'.format(named_pickup_groups)

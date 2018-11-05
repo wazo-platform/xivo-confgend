@@ -443,9 +443,9 @@ class SipDBExtractor(object):
     def _convert_progressinband(sip_config):
         val = sip_config.get('progressinband')
         if val in ('no', 'never'):
-            return 'progress_inband', 'no'
+            return 'inband_progress', 'no'
         elif val == 'yes':
-            return 'progress_inband', 'yes'
+            return 'inband_progress', 'yes'
 
     @staticmethod
     def _convert_recordonfeature(sip_config):

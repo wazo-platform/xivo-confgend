@@ -3,13 +3,9 @@
 # SPDX-License-Identifier: GPL-3.0+
 
 from __future__ import unicode_literals
-import logging
 
 from collections import namedtuple
-
 from xivo_dao import asterisk_conf_dao
-
-logger = logging.getLogger(__name__)
 
 Section = namedtuple('Section', ['name', 'type_', 'templates', 'fields'])
 
@@ -121,13 +117,6 @@ class SipDBExtractor(object):
         for row in self._static_sip:
             self._general_settings_dict[row['var_name']] = row['var_val']
 
-        logger.critical('AUTH DATA')
-        logger.critical('%s', self._auth_data)
-        logger.critical('USER SIP')
-        logger.critical('%s', self._user_sip)
-        logger.critical('TRUNK SIP')
-        logger.critical('%s', self._trunk)
-
     def get(self, section):
         if section == 'global':
             return self._get_global()
@@ -144,8 +133,6 @@ class SipDBExtractor(object):
 
     def get_user_sections(self):
         for user_sip, pickup_groups in self._user_sip:
-            logger.critical('Usersip: %s', user_sip)
-            logger.critical('pickup: %s', pickup_groups)
             for section in self._get_user(user_sip, pickup_groups):
                 yield section
 
@@ -203,6 +190,7 @@ class SipDBExtractor(object):
         fields = [
             ('type', 'endpoint'),
             ('context', user_dict['context']),
+            ('aors', user_sip[0].name),
             ('set_var', 'XIVO_ORIGINAL_CALLER_ID={callerid}'.format(**user_dict)),
             ('set_var', 'TRANSFER_CONTEXT={}'.format(user_sip.context)),
             ('set_var', 'PICKUPMARK={}%{}'.format(user_sip.number, user_sip.context)),

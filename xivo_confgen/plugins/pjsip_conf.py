@@ -12,12 +12,15 @@ Section = namedtuple('Section', ['name', 'type_', 'templates', 'fields'])
 
 class AsteriskConfFileGenerator(object):
 
-    def generate(self, data):
+    def generate(self, sections):
         lines = []
 
-        for section, type_, templates, fields in data:
+        for section in sections:
+            if not section:
+                continue
+            name, type_, templates, fields = section
             fields = fields or []
-            header = self._build_header(section, type_, templates)
+            header = self._build_header(name, type_, templates)
 
             lines.append(header)
             for key, value in fields:
@@ -26,7 +29,7 @@ class AsteriskConfFileGenerator(object):
 
         return '\n'.join(lines)
 
-    def _build_header(self, section, type_, templates):
+    def _build_header(self, name, type_, templates):
         templates = templates or []
         in_parens = []
 
@@ -39,7 +42,7 @@ class AsteriskConfFileGenerator(object):
             in_parens.append(template)
 
         end = '({})'.format(','.join(in_parens)) if in_parens else ''
-        return '[{}]{}'.format(section, end)
+        return '[{}]{}'.format(name, end)
 
 
 class SipDBExtractor(object):
@@ -130,6 +133,9 @@ class SipDBExtractor(object):
             return self._get_general_aor_template()
         elif section == 'wazo-general-endpoint':
             return self._get_general_endpoint_template()
+
+    def get_trunk_sections(self):
+        return []
 
     def get_user_sections(self):
         for user_sip, pickup_groups in self._user_sip:
@@ -486,19 +492,16 @@ class PJSIPConfGenerator(object):
     def generate(self):
         extractor = SipDBExtractor()
 
-        global_section = extractor.get('global')
-        system_section = extractor.get('system')
-        transport_udp_section = extractor.get('transport-udp')
-        transport_wss_section = extractor.get('transport-wss')
-        general_aor_tpl = extractor.get('wazo-general-aor')
-        general_endpoint_tpl = extractor.get('wazo-general-endpoint')
+        global_sections = [
+            extractor.get('global'),
+            extractor.get('system'),
+            extractor.get('transport-udp'),
+            extractor.get('transport-wss'),
+            extractor.get('wazo-general-aor'),
+            extractor.get('wazo-general-endpoint'),
+        ]
         user_sections = list(extractor.get_user_sections())
+        trunk_sections = list(extractor.get_trunk_sections())
 
-        return self._config_file_generator.generate([section for section in [
-            global_section,
-            system_section,
-            transport_udp_section,
-            transport_wss_section,
-            general_aor_tpl,
-            general_endpoint_tpl,
-        ] if section] + user_sections)
+        return self._config_file_generator.generate(
+            global_sections + user_sections + trunk_sections)

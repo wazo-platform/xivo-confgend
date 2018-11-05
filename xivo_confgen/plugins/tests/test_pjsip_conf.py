@@ -204,10 +204,10 @@ class TestSipDBExtractor(unittest.TestCase):
         assert_that(result, none())
 
         result = SipDBExtractor._convert_progressinband({'progressinband': 'yes'})
-        assert_that(result, contains('progress_inband', 'yes'))
+        assert_that(result, contains('inband_progress', 'yes'))
 
         result = SipDBExtractor._convert_progressinband({'progressinband': 'no'})
-        assert_that(result, contains('progress_inband', 'no'))
+        assert_that(result, contains('inband_progress', 'no'))
 
         result = SipDBExtractor._convert_progressinband({'progressinband': 'never'})
-        assert_that(result, contains('progress_inband', 'no'))
+        assert_that(result, contains('inband_progress', 'no'))

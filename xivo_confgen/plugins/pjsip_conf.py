@@ -1,13 +1,148 @@
 # -*- coding: utf-8 -*-
 # Copyright 2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
-
 from __future__ import unicode_literals
 
 from collections import namedtuple
 from xivo_dao import asterisk_conf_dao
 
 Section = namedtuple('Section', ['name', 'type_', 'templates', 'fields'])
+
+
+class Registration(object):
+    """
+    Class for parsing and storing information in a register line in sip.conf.
+    """
+    def __init__(self, line):
+        self.parse(line)
+
+        self.section = 'reg_' + self.host
+        self.registration_fields = []
+
+        self.auth_section = 'auth_reg_' + self.host
+        self.auth_fields = []
+
+        self._generate()
+
+    def parse(self, line):
+        """
+        Initial parsing routine for register lines in sip.conf.
+
+        This splits the line into the part before the host, and the part
+        after the '@' symbol. These two parts are then passed to their
+        own parsing routines
+        """
+
+        # register =>
+        # [peer?][transport://]user[@domain][:secret[:authuser]]@host[:port][/extension][~expiry]
+
+        prehost, at, host_part = line.rpartition('@')
+        if not prehost:
+            raise
+
+        self.parse_host_part(host_part)
+        self.parse_user_part(prehost)
+
+    def parse_host_part(self, host_part):
+        """
+        Parsing routine for the part after the final '@' in a register line.
+        The strategy is to use partition calls to peel away the data starting
+        from the right and working to the left.
+        """
+        pre_expiry, sep, expiry = host_part.partition('~')
+        pre_extension, sep, self.extension = pre_expiry.partition('/')
+        self.host, sep, self.port = pre_extension.partition(':')
+
+        self.expiry = expiry if expiry else '120'
+
+    def parse_user_part(self, user_part):
+        """
+        Parsing routine for the part before the final '@' in a register line.
+        The only mandatory part of this line is the user portion. The strategy
+        here is to start by using partition calls to remove everything to
+        the right of the user, then finish by using rpartition calls to remove
+        everything to the left of the user.
+        """
+        self.peer = ''
+        self.protocol = 'udp'
+        protocols = ['udp', 'tcp', 'tls']
+        for protocol in protocols:
+            position = user_part.find(protocol + '://')
+            if -1 < position:
+                post_transport = user_part[position + 6:]
+                self.peer, sep, self.protocol = user_part[:position + 3].rpartition('?')
+                user_part = post_transport
+                break
+
+        colons = user_part.count(':')
+        if (colons == 3):
+            # :domainport:secret:authuser
+            pre_auth, sep, port_auth = user_part.partition(':')
+            self.domainport, sep, auth = port_auth.partition(':')
+            self.secret, sep, self.authuser = auth.partition(':')
+        elif (colons == 2):
+            # :secret:authuser
+            pre_auth, sep, auth = user_part.partition(':')
+            self.secret, sep, self.authuser = auth.partition(':')
+        elif (colons == 1):
+            # :secret
+            pre_auth, sep, self.secret = user_part.partition(':')
+        elif (colons == 0):
+            # No port, secret, or authuser
+            pre_auth = user_part
+        else:
+            # Invalid setting
+            raise
+
+        self.user, sep, self.domain = pre_auth.partition('@')
+
+    def _generate(self):
+        """
+        Write parsed registration data into a section in pjsip.conf
+
+        Most of the data in self will get written to a registration section.
+        However, there will also need to be an auth section created if a
+        secret or authuser is present.
+
+        General mapping of values:
+        A combination of self.host and self.port is server_uri
+        A combination of self.user, self.domain, and self.domainport is
+          client_uri
+        self.expiry is expiration
+        self.extension is contact_user
+        self.protocol will map to one of the mapped transports
+        self.secret and self.authuser will result in a new auth section, and
+          outbound_auth will point to that section.
+        XXX self.peer really doesn't map to anything :(
+        """
+
+        if self.extension:
+            self.registration_fields.append(('contact_user', self.extension))
+
+        self.registration_fields.append(('expiration', self.expiry))
+        self.registration_fields.append(('transport', 'transport-{}'.format(self.protocol)))
+
+        if hasattr(self, 'secret') and self.secret:
+            self.auth_fields.append(('password', self.secret))
+            self.auth_fields.append(('username', getattr(self, 'authuser', None) or self.user))
+            self.registration_fields.append(('outbound_auth', self.auth_section))
+
+        client_uri = "sip:%s@" % self.user
+        if self.domain:
+            client_uri += self.domain
+        else:
+            client_uri += self.host
+
+        if hasattr(self, 'domainport') and self.domainport:
+            client_uri += ":" + self.domainport
+        elif self.port:
+            client_uri += ":" + self.port
+        self.registration_fields.append(('client_uri', client_uri))
+
+        server_uri = "sip:%s" % self.host
+        if self.port:
+            server_uri += ":" + self.port
+        self.registration_fields.append(('server_uri', server_uri))
 
 
 class AsteriskConfFileGenerator(object):
@@ -60,6 +195,10 @@ class SipDBExtractor(object):
     sip_general_to_transport = [
         ('media_address', 'external_media_address'),
     ]
+    sip_general_to_register_tpl = [
+        ('registertimeout', 'retry_interval'),
+        ('registerattempts', 'max_retries'),
+    ]
     sip_to_aor = [
         ('qualifyfreq', 'qualify_frequency'),
         ('maxexpiry', 'maximum_expiration'),
@@ -80,7 +219,6 @@ class SipDBExtractor(object):
         ('fromdomain', 'from_domain'),
         ('fromuser', 'from_user'),
         ('icesupport', 'ice_support'),
-        ('language', 'language'),
         ('language', 'language'),
         ('mohsuggest', 'moh_suggest'),
         ('mwifrom', 'mwi_from_user'),
@@ -108,6 +246,7 @@ class SipDBExtractor(object):
         ('dtlscafile', 'dtls_ca_file'),
         ('dtlscapath', 'dtls_ca_path'),
         ('dtlssetup', 'dtls_setup'),
+        ('webrtc', 'webrtc'),
     ]
 
     def __init__(self):
@@ -133,9 +272,16 @@ class SipDBExtractor(object):
             return self._get_general_aor_template()
         elif section == 'wazo-general-endpoint':
             return self._get_general_endpoint_template()
+        elif section == 'wazo-general-registration':
+            return self._get_general_registration_template()
 
     def get_trunk_sections(self):
-        return []
+        for registration_section in self._get_registration_sections(self._static_sip):
+            yield registration_section
+
+        for trunk_sip, twillio_incoming in self._trunk:
+            for section in self._get_trunk(trunk_sip, twillio_incoming):
+                yield section
 
     def get_user_sections(self):
         for user_sip, pickup_groups in self._user_sip:
@@ -146,6 +292,83 @@ class SipDBExtractor(object):
         yield self._get_user_endpoint(user_sip, pickup_groups)
         yield self._get_user_aor(user_sip)
         yield self._get_user_auth(user_sip)
+
+    def _get_trunk(self, trunk_sip, twillio_incoming):
+        yield self._get_trunk_aor(trunk_sip)
+        yield self._get_trunk_identify(trunk_sip)
+        yield self._get_trunk_auth(trunk_sip)
+        yield self._get_trunk_endpoint(trunk_sip, twillio_incoming)
+
+    def _get_registration_sections(self, sip_general):
+        for row in sip_general:
+            if row['var_name'] != 'register':
+                continue
+            register = Registration(row['var_val'])
+
+            fields = register.registration_fields
+            fields.append(('type', 'registration'))
+            fields.append(('outbound_auth', register.auth_section))
+            yield Section(
+                name=register.section,
+                type_='section',
+                templates=['wazo-general-registration'],
+                fields=fields,
+            )
+
+            fields = register.auth_fields
+            fields.append(('type', 'auth'))
+            yield Section(
+                name=register.auth_section,
+                type_='section',
+                templates=None,
+                fields=fields,
+            )
+
+    def _get_trunk_aor(self, trunk_sip):
+        fields = [
+            ('type', 'aor'),
+        ]
+
+        self._add_from_mapping(fields, self.sip_to_aor, trunk_sip.__dict__)
+
+        host = trunk_sip.host
+        if host == 'dynamic':
+            self._add_option(fields, ('max_contacts', 1))
+
+        result = 'sip:'
+        # More difficult case. The host will be either a hostname or
+        # IP address and may or may not have a port specified. pjsip.conf
+        # expects the contact to be a SIP URI.
+
+        user = trunk_sip.username
+        if user:
+            result += user + '@'
+
+        host_port = '{}:{}'.format(trunk_sip.host, trunk_sip.port)
+        result += host_port
+
+        self._add_option(fields, ('contact', result))
+
+        return Section(
+            name=trunk_sip.name,
+            type_='section',
+            templates=['wazo-general-aor'],
+            fields=fields,
+        )
+
+    def _get_trunk_identify(self, trunk_sip):
+        fields = [
+            ('type', 'identify'),
+            ('endpoint', trunk_sip.name),
+            ('match', trunk_sip.host),
+        ]
+
+        return Section(
+            name=trunk_sip.name,
+            type_='section',
+            templates=None,
+            fields=fields,
+        )
 
     def _get_user_aor(self, user_sip):
         fields = [
@@ -182,9 +405,19 @@ class SipDBExtractor(object):
             fields=fields,
         )
 
-    def _get_trunk_identify(self, trunk_sip):
-        # ['type',               setup_ident],
-        pass
+    def _get_trunk_auth(self, trunk_sip):
+        fields = [
+            ('type', 'auth'),
+            ('username', trunk_sip.name),
+            ('password', trunk_sip.secret),
+        ]
+
+        return Section(
+            name=trunk_sip.name,
+            type_='section',
+            templates=None,
+            fields=fields,
+        )
 
     def _get_user_endpoint(self, user_sip, pickup_groups):
         user_dict = user_sip[0].__dict__
@@ -247,6 +480,45 @@ class SipDBExtractor(object):
             fields=fields,
         )
 
+    def _get_trunk_endpoint(self, trunk_sip, twillio_incoming):
+        trunk_dict = trunk_sip.__dict__
+        all_options = trunk_sip.all_options()
+
+        for key, value in all_options:
+            trunk_dict[key] = value
+
+        fields = [
+            ('type', 'endpoint'),
+            ('context', trunk_dict['context']),
+            ('aors', trunk_sip.name),
+            ('auth', trunk_sip.name),
+            ('outbound_auth', trunk_sip.name),
+        ]
+
+        for key, value in all_options:
+            if key in ('allow', 'disallow'):
+                self._add_option(fields, (key, value))
+
+        self._add_from_mapping(fields, self.sip_to_endpoint, trunk_dict)
+        self._add_option(fields, self._convert_dtmfmode(trunk_dict))
+        self._add_option(fields, self._convert_session_timers(trunk_dict))
+        self._add_option(fields, self._convert_sendrpid(trunk_dict))
+        self._add_option(fields, self._convert_encryption(trunk_dict))
+        self._add_option(fields, self._convert_progressinband(trunk_dict))
+        self._add_option(fields, self._convert_dtlsenable(trunk_dict))
+        self._add_option(fields, self._convert_encryption_taglen(trunk_dict))
+        for pair in self._convert_nat(trunk_dict):
+            self._add_option(fields, pair)
+        for pair in self._convert_directmedia(trunk_dict):
+            self._add_option(fields, pair)
+
+        return Section(
+            name=trunk_sip.name,
+            type_='section',
+            templates=['wazo-general-endpoint'],
+            fields=fields,
+        )
+
     def _get_general_aor_template(self):
         fields = [
             ('type', 'aor'),
@@ -287,6 +559,24 @@ class SipDBExtractor(object):
 
         return Section(
             name='wazo-general-endpoint',
+            type_='template',
+            templates=None,
+            fields=fields,
+        )
+
+    def _get_general_registration_template(self):
+        fields = [
+            ('type', 'registration'),
+            # ('transport', 'transport-udp'),
+        ]
+
+        self._add_from_mapping(fields, self.sip_general_to_register_tpl, self._general_settings_dict)
+        outbound_proxy = self._general_settings_dict.get('outboundproxy')
+        if outbound_proxy:
+            self._add_option(fields, ('outboundproxy', outbound_proxy))
+
+        return Section(
+            name='wazo-general-registration',
             type_='template',
             templates=None,
             fields=fields,
@@ -499,6 +789,7 @@ class PJSIPConfGenerator(object):
             extractor.get('transport-wss'),
             extractor.get('wazo-general-aor'),
             extractor.get('wazo-general-endpoint'),
+            extractor.get('wazo-general-registration'),
         ]
         user_sections = list(extractor.get_user_sections())
         trunk_sections = list(extractor.get_trunk_sections())

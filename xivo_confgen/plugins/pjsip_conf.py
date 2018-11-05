@@ -63,7 +63,7 @@ class SipDBExtractor(object):
         ('minexpiry', 'minimum_expiration'),
         ('defaultexpiry', 'default_expiration'),
     ]
-    sip_general_to_endpoint_tpl = [
+    sip_to_endpoint = [
         ('allowsubscribe', 'allow_subscribe'),
         ('allowtransfer', 'allow_transfer'),
         ('autoframing', 'use_ptime'),
@@ -211,7 +211,7 @@ class SipDBExtractor(object):
         if named_call_groups:
             self._add_option(fields, ('named_call_group', named_call_groups))
 
-        self._add_from_mapping(fields, self.sip_general_to_endpoint_tpl, user_dict)
+        self._add_from_mapping(fields, self.sip_to_endpoint, user_dict)
         self._add_option(fields, self._convert_dtmfmode(user_dict))
         self._add_option(fields, self._convert_session_timers(user_dict))
         self._add_option(fields, self._convert_sendrpid(user_dict))
@@ -261,7 +261,7 @@ class SipDBExtractor(object):
             ('allow', '!all,ulaw'),
         ]
 
-        self._add_from_mapping(fields, self.sip_general_to_endpoint_tpl, self._general_settings_dict)
+        self._add_from_mapping(fields, self.sip_to_endpoint, self._general_settings_dict)
 
         self._add_option(fields, self._convert_dtmfmode(self._general_settings_dict))
         self._add_option(fields, self._convert_session_timers(self._general_settings_dict))

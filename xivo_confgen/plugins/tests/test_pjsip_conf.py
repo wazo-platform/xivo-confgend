@@ -14,6 +14,7 @@ from hamcrest import (
 
 from ..pjsip_conf import (
     AsteriskConfFileGenerator,
+    Section,
     SipDBExtractor,
 )
 
@@ -25,13 +26,12 @@ class TestConfFileGenerator(unittest.TestCase):
 
     def test_generate(self):
         data = [
-            # section, type, templates, fields
-            ('global', 'section', None, [('type', 'global'), ('user_agent', 'Wazo')]),
-            ('global', 'extends', None, [('debug', 'yes')]),
-            ('general-abc', 'template', None, [('disallow', 'all'), ('allow', 'ulaw')]),
-            ('webrtc-endpoint', 'template', ['a', 'b'], [('transport', 'transport-wss')]),
-            ('peer1', 'section', ['general-abc'], [('type', 'endpoint')]),
-            ('peer1', 'extends', ['webrtc-endpoint'], [('context', 'inside')]),
+            Section('global', 'section', None, [('type', 'global'), ('user_agent', 'Wazo')]),
+            Section('global', 'extends', None, [('debug', 'yes')]),
+            Section('general-abc', 'template', None, [('disallow', 'all'), ('allow', 'ulaw')]),
+            Section('webrtc-endpoint', 'template', ['a', 'b'], [('transport', 'transport-wss')]),
+            Section('peer1', 'section', ['general-abc'], [('type', 'endpoint')]),
+            Section('peer1', 'extends', ['webrtc-endpoint'], [('context', 'inside')]),
         ]
 
         result = self.generator.generate(data)

@@ -32,4 +32,5 @@ plugins:
   asterisk.musiconhold.conf: xivo
   asterisk.rtp.conf: xivo
   asterisk.sip.conf: xivo
+  asterisk.pjsip.conf: wazo
   dird.sources.yml: xivo

@@ -178,25 +178,8 @@ class SipDBExtractor(object):
         ]
 
         self._add_from_mapping(fields, self.sip_to_aor, trunk_sip.__dict__)
-
-        host = trunk_sip.host
-        if host == 'dynamic':
-            self._add_option(fields, ('max_contacts', 1))
-            self._add_option(fields, ('remove_existing', 'yes'))
-
-        result = 'sip:'
-        # More difficult case. The host will be either a hostname or
-        # IP address and may or may not have a port specified. pjsip.conf
-        # expects the contact to be a SIP URI.
-
-        user = trunk_sip.username
-        if user:
-            result += user + '@'
-
-        host_port = '{}:{}'.format(trunk_sip.host, trunk_sip.port or 5060)
-        result += host_port
-
-        self._add_option(fields, ('contact', result))
+        for field in self._convert_host(trunk_sip):
+            self._add_option(fields, field)
 
         return Section(
             name=trunk_sip.name,
@@ -225,10 +208,8 @@ class SipDBExtractor(object):
         ]
 
         self._add_from_mapping(fields, self.sip_to_aor, user_sip[0].__dict__)
-
-        host = user_sip[0].host
-        if host == 'dynamic':
-            self._add_option(fields, ('max_contacts', 1))
+        for field in self._convert_host(user_sip[0]):
+            self._add_option(fields, field)
 
         if user_sip.mailbox and user_sip[0].subscribemwi == 'yes':
             self._add_option(fields, ('mailboxes', user_sip.mailbox))
@@ -564,6 +545,28 @@ class SipDBExtractor(object):
         val = sip_config.get('encryption_taglen')
         if val == 32:
             return 'srtp_tag_32', 'yes'
+
+    @staticmethod
+    def _convert_host(sip):
+        host = sip.host
+        if host == 'dynamic':
+            yield ('remove_existing', 'yes')
+            yield ('max_contacts', 1)
+            return
+
+        result = 'sip:'
+        # More difficult case. The host will be either a hostname or
+        # IP address and may or may not have a port specified. pjsip.conf
+        # expects the contact to be a SIP URI.
+
+        user = sip.username
+        if user:
+            result += user + '@'
+
+        host_port = '{}:{}'.format(sip.host, sip.port or 5060)
+        result += host_port
+
+        yield ('contact', result)
 
     @staticmethod
     def _convert_nat(sip_config):

@@ -4,6 +4,8 @@
 
 import unittest
 
+from mock import Mock
+
 from hamcrest import (
     assert_that,
     contains,
@@ -239,5 +241,43 @@ class TestSipDBExtractor(unittest.TestCase):
                         ('type', 'auth'),
                     ]
                 ),
+            )
+        )
+
+    def test_convert_host(self):
+        sip = Mock(host='dynamic')
+        result = list(SipDBExtractor._convert_host(sip))
+        assert_that(
+            result,
+            contains_inanyorder(
+                ('max_contacts', 1),
+                ('remove_existing', 'yes')
+            )
+        )
+
+        sip = Mock(host='localhost', port=None, username=None)
+        result = list(SipDBExtractor._convert_host(sip))
+        assert_that(
+            result,
+            contains_inanyorder(
+                ('contact', 'sip:localhost:5060'),
+            )
+        )
+
+        sip = Mock(host='localhost', port=6000, username=None)
+        result = list(SipDBExtractor._convert_host(sip))
+        assert_that(
+            result,
+            contains_inanyorder(
+                ('contact', 'sip:localhost:6000'),
+            )
+        )
+
+        sip = Mock(host='localhost', port=None, username='abcdef')
+        result = list(SipDBExtractor._convert_host(sip))
+        assert_that(
+            result,
+            contains_inanyorder(
+                ('contact', 'sip:abcdef@localhost:5060'),
             )
         )

@@ -557,6 +557,11 @@ class SipDBExtractor(object):
         for pair in self._convert_recordofffeature(self._general_settings_dict):
             self._add_option(fields, pair)
 
+        for row in self._static_sip:
+            key = row['var_name']
+            if key in ('allow', 'disallow'):
+                self._add_option(fields, (key, row['var_val']))
+
         return Section(
             name='wazo-general-endpoint',
             type_='template',

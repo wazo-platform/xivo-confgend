@@ -6,19 +6,25 @@
 # https://raw.githubusercontent.com/asterisk/asterisk/master/contrib/scripts/sip_to_pjsip/sip_to_pjsip.py
 
 
-class Registration:
+class Registration(object):
     """
     Class for parsing and storing information in a register line in sip.conf.
     """
-    def __init__(self, line, retry_interval, max_attempts, outbound_proxy):
-        self.retry_interval = retry_interval
-        self.max_attempts = max_attempts
-        self.outbound_proxy = outbound_proxy
+    def __init__(self, line):
         self.parse(line)
+
+        self.section = 'reg_' + self.host
+        self.registration_fields = []
+
+        self.auth_section = 'auth_reg_' + self.host
+        self.auth_fields = []
+
+        self._generate()
 
     def parse(self, line):
         """
         Initial parsing routine for register lines in sip.conf.
+
         This splits the line into the part before the host, and the part
         after the '@' symbol. These two parts are then passed to their
         own parsing routines
@@ -87,12 +93,14 @@ class Registration:
 
         self.user, sep, self.domain = pre_auth.partition('@')
 
-    def write(self, pjsip, nmapped):
+    def _generate(self):
         """
         Write parsed registration data into a section in pjsip.conf
+
         Most of the data in self will get written to a registration section.
         However, there will also need to be an auth section created if a
         secret or authuser is present.
+
         General mapping of values:
         A combination of self.host and self.port is server_uri
         A combination of self.user, self.domain, and self.domainport is
@@ -105,38 +113,16 @@ class Registration:
         XXX self.peer really doesn't map to anything :(
         """
 
-        section = 'reg_' + self.host
-
-        set_value('retry_interval', self.retry_interval, section, pjsip,
-                  nmapped, 'registration')
-        set_value('max_retries', self.max_attempts, section, pjsip, nmapped,
-                  'registration')
         if self.extension:
-            set_value('contact_user', self.extension, section, pjsip, nmapped,
-                      'registration')
+            self.registration_fields.append(('contact_user', self.extension))
 
-        set_value('expiration', self.expiry, section, pjsip, nmapped,
-                  'registration')
-
-        if self.protocol == 'udp':
-            set_value('transport', 'transport-udp', section, pjsip, nmapped,
-                      'registration')
-        elif self.protocol == 'tcp':
-            set_value('transport', 'transport-tcp', section, pjsip, nmapped,
-                      'registration')
-        elif self.protocol == 'tls':
-            set_value('transport', 'transport-tls', section, pjsip, nmapped,
-                      'registration')
-
-        auth_section = 'auth_reg_' + self.host
+        self.registration_fields.append(('expiration', self.expiry))
+        self.registration_fields.append(('transport', 'transport-{}'.format(self.protocol)))
 
         if hasattr(self, 'secret') and self.secret:
-            set_value('password', self.secret, auth_section, pjsip, nmapped,
-                      'auth')
-            set_value('username', self.authuser if hasattr(self, 'authuser')
-                      else self.user, auth_section, pjsip, nmapped, 'auth')
-            set_value('outbound_auth', auth_section, section, pjsip, nmapped,
-                      'registration')
+            self.auth_fields.append(('password', self.secret))
+            self.auth_fields.append(('username', getattr(self, 'authuser', None) or self.user))
+            self.registration_fields.append(('outbound_auth', self.auth_section))
 
         client_uri = "sip:%s@" % self.user
         if self.domain:
@@ -148,18 +134,9 @@ class Registration:
             client_uri += ":" + self.domainport
         elif self.port:
             client_uri += ":" + self.port
-
-        set_value('client_uri', client_uri, section, pjsip, nmapped,
-                  'registration')
+        self.registration_fields.append(('client_uri', client_uri))
 
         server_uri = "sip:%s" % self.host
         if self.port:
             server_uri += ":" + self.port
-
-        set_value('server_uri', server_uri, section, pjsip, nmapped,
-                  'registration')
-
-        if self.outbound_proxy:
-            set_value('outboundproxy', self.outbound_proxy, section, pjsip,
-                      nmapped, 'registration')
-
+        self.registration_fields.append(('server_uri', server_uri))

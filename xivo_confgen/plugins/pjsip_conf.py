@@ -169,26 +169,8 @@ class SipDBExtractor(object):
         for row in sip_general:
             if row['var_name'] != 'register':
                 continue
-            register = Registration(row['var_val'])
-
-            fields = register.registration_fields
-            fields.append(('type', 'registration'))
-            fields.append(('outbound_auth', register.auth_section))
-            yield Section(
-                name=register.section,
-                type_='section',
-                templates=['wazo-general-registration'],
-                fields=fields,
-            )
-
-            fields = register.auth_fields
-            fields.append(('type', 'auth'))
-            yield Section(
-                name=register.auth_section,
-                type_='section',
-                templates=None,
-                fields=fields,
-            )
+            for section in self._convert_register(row['var_val']):
+                yield section
 
     def _get_trunk_aor(self, trunk_sip):
         fields = [
@@ -620,6 +602,29 @@ class SipDBExtractor(object):
         if val == 'automixmon':
             yield 'one_touch_recording', 'yes'
         yield 'record_off_feature', val
+
+    @staticmethod
+    def _convert_register(register_url):
+        register = Registration(register_url)
+
+        fields = register.registration_fields
+        fields.append(('type', 'registration'))
+        fields.append(('outbound_auth', register.auth_section))
+        yield Section(
+            name=register.section,
+            type_='section',
+            templates=['wazo-general-registration'],
+            fields=fields,
+        )
+
+        fields = register.auth_fields
+        fields.append(('type', 'auth'))
+        yield Section(
+            name=register.auth_section,
+            type_='section',
+            templates=None,
+            fields=fields,
+        )
 
     @staticmethod
     def _convert_sendrpid(sip_config):

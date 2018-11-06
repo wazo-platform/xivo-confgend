@@ -7,11 +7,13 @@ import unittest
 from hamcrest import (
     assert_that,
     contains,
+    contains_inanyorder,
     empty,
     equal_to,
     none,
 )
 
+from ..pjsip_registration import Registration
 from ..pjsip_conf import (
     AsteriskConfFileGenerator,
     Section,
@@ -211,3 +213,31 @@ class TestSipDBExtractor(unittest.TestCase):
 
         result = SipDBExtractor._convert_progressinband({'progressinband': 'never'})
         assert_that(result, contains('inband_progress', 'no'))
+
+    def test_convert_register(self):
+        register_url = 'udp://dev_370:dev_370:dev_370@wazo-dev-gateway.lan.wazo.io'
+        register = Registration(register_url)
+
+        result = list(SipDBExtractor._convert_register(register_url))
+        assert_that(
+            result,
+            contains_inanyorder(
+                Section(
+                    name=register.section,
+                    type_='section',
+                    templates=['wazo-general-registration'],
+                    fields=register.registration_fields + [
+                        ('type', 'registration'),
+                        ('outbound_auth', register.auth_section),
+                    ]
+                ),
+                Section(
+                    name=register.auth_section,
+                    type_='section',
+                    templates=None,
+                    fields=register.auth_fields + [
+                        ('type', 'auth'),
+                    ]
+                ),
+            )
+        )

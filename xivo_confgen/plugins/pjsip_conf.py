@@ -64,6 +64,7 @@ class SipDBExtractor(object):
     sip_general_to_register_tpl = [
         ('registertimeout', 'retry_interval'),
         ('registerattempts', 'max_retries'),
+        ('outboundproxy', 'outbound_proxy'),
     ]
     sip_to_aor = [
         ('qualifyfreq', 'qualify_frequency'),
@@ -402,13 +403,12 @@ class SipDBExtractor(object):
     def _get_general_registration_template(self):
         fields = [
             ('type', 'registration'),
-            # ('transport', 'transport-udp'),
         ]
 
         self._add_from_mapping(fields, self.sip_general_to_register_tpl, self._general_settings_dict)
         outbound_proxy = self._general_settings_dict.get('outboundproxy')
         if outbound_proxy:
-            self._add_option(fields, ('outboundproxy', outbound_proxy))
+            self._add_option(fields, ('outbound_proxy', outbound_proxy))
 
         return Section(
             name='wazo-general-registration',

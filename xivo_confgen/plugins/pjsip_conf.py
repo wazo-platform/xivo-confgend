@@ -368,6 +368,7 @@ class SipDBExtractor(object):
         fields = [
             ('type', 'endpoint'),
             ('allow', '!all,ulaw'),
+            ('transport', 'transport-udp'),
         ]
 
         self._add_from_mapping(fields, self.sip_to_endpoint, self._general_settings_dict)

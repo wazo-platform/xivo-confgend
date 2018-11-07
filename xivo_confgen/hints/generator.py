@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014-2015 Avencall
+# Copyright 2014-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from xivo_confgen.hints import adaptor as hint_adaptor
@@ -27,6 +27,9 @@ class HintGenerator(object):
         existing = set()
         for adaptor in self.adaptors:
             for extension, hint in adaptor.generate(context):
+                # TODO clean after pjsip migration
+                if hint.startswith('SIP'):
+                    hint = hint.replace('SIP', 'PJSIP')
                 if extension not in existing:
                     yield self.DIALPLAN.format(extension=extension,
                                                hint=hint)

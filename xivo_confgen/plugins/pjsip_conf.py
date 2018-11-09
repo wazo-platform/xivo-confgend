@@ -305,6 +305,8 @@ class SipDBExtractor(object):
 
         if user_dict.get('transport') == 'wss':
             self._add_option(fields, ('transport', 'transport-wss'))
+        if user_dict.get('transport') == 'tcp':
+            self._add_option(fields, ('transport', 'transport-tcp'))
 
         return Section(
             name=user_sip[0].name,

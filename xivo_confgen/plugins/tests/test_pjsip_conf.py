@@ -196,6 +196,13 @@ class TestSipDBExtractor(unittest.TestCase):
         result = SipDBExtractor._convert_sendrpid({'sendrpid': 'pai'})
         assert_that(result, contains('send_pai', 'yes'))
 
+    def test_convert_tcpbindaddr(self):
+        result = SipDBExtractor._convert_tcpbindaddr({})
+        assert_that(result, none())
+
+        result = SipDBExtractor._convert_tcpbindaddr({'tcpbindaddr': '0.0.0.0:1234'})
+        assert_that(result, contains('bind', '0.0.0.0'))
+
     def test_convert_encryption(self):
         result = SipDBExtractor._convert_encryption({})
         assert_that(result, none())
@@ -215,6 +222,16 @@ class TestSipDBExtractor(unittest.TestCase):
 
         result = SipDBExtractor._convert_progressinband({'progressinband': 'never'})
         assert_that(result, contains('inband_progress', 'no'))
+
+    def test_convert_externtcpport(self):
+        result = SipDBExtractor._convert_externtcpport({})
+        assert_that(result, none())
+
+        result = SipDBExtractor._convert_externtcpport({'externtcpport': ''})
+        assert_that(result, none())
+
+        result = SipDBExtractor._convert_externtcpport({'externtcpport': 1234})
+        assert_that(result, contains('external_signaling_port', 1234))
 
     def test_convert_register(self):
         register_url = 'udp://dev_370:dev_370:dev_370@wazo-dev-gateway.lan.wazo.io'

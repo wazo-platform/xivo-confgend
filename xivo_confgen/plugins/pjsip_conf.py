@@ -131,6 +131,8 @@ class SipDBExtractor(object):
             return self._get_global()
         elif section == 'system':
             return self._get_system()
+        elif section == 'transport-tcp':
+            return self._get_transport_tcp()
         elif section == 'transport-udp':
             return self._get_transport_udp()
         elif section == 'transport-wss':
@@ -446,18 +448,16 @@ class SipDBExtractor(object):
             fields=fields,
         )
 
-    def _get_transport(self, protocol):
+    def _get_base_transport_fields(self, protocol):
         fields = [
             ('type', 'transport'),
             ('protocol', protocol),
         ]
 
-        bind = self._general_settings_dict.get('udpbindaddr')
-        port = self._general_settings_dict.get('bindport')
-        if port:
-            bind += ':{}'.format(port)
-
-        fields.append(('bind', bind))
+        for row in self._static_sip:
+            if row['var_name'] != 'localnet':
+                continue
+            fields.append(('local_net', row['var_val']))
 
         extern_ip = self._general_settings_dict.get('externip')
         extern_host = self._general_settings_dict.get('externhost')
@@ -465,10 +465,16 @@ class SipDBExtractor(object):
         if extern_signaling_address:
             fields.append(('external_signaling_address', extern_signaling_address))
 
-        for row in self._static_sip:
-            if row['var_name'] != 'localnet':
-                continue
-            fields.append(('local_net', row['var_val']))
+        return fields
+
+    def _get_base_udp_transport(self, protocol):
+        fields = self._get_base_transport_fields(protocol)
+        bind = self._general_settings_dict.get('udpbindaddr')
+        port = self._general_settings_dict.get('bindport')
+        if port:
+            bind += ':{}'.format(port)
+
+        fields.append(('bind', bind))
 
         return Section(
             name='transport-{}'.format(protocol),
@@ -477,14 +483,30 @@ class SipDBExtractor(object):
             fields=fields,
         )
 
+    def _get_transport_tcp(self):
+        tcp_enabled = self._general_settings_dict.get('tcpenable')
+        if tcp_enabled != 'yes':
+            return
+
+        fields = self._get_base_transport_fields('tcp')
+        self._add_option(fields, self._convert_externtcpport(self._general_settings_dict))
+        self._add_option(fields, self._convert_tcpbindaddr(self._general_settings_dict))
+
+        return Section(
+            name='transport-tcp',
+            type_='section',
+            templates=None,
+            fields=fields,
+        )
+
     def _get_transport_udp(self):
-        return self._get_transport('udp')
+        return self._get_base_udp_transport('udp')
 
     def _get_transport_wss(self):
         if not self._general_settings_dict.get('websocket_enabled'):
             return
 
-        return self._get_transport('wss')
+        return self._get_base_udp_transport('wss')
 
     def _add_from_mapping(self, fields, mapping, config):
         for sip_key, pjsip_key in mapping:
@@ -546,6 +568,12 @@ class SipDBExtractor(object):
         val = sip_config.get('encryption_taglen')
         if val == 32:
             return 'srtp_tag_32', 'yes'
+
+    @staticmethod
+    def _convert_externtcpport(sip_config):
+        val = sip_config.get('externtcpport')
+        if val:
+            return 'external_signaling_port', val
 
     @staticmethod
     def _convert_host(sip):
@@ -654,6 +682,15 @@ class SipDBExtractor(object):
 
         return 'timers', new_val
 
+    @staticmethod
+    def _convert_tcpbindaddr(sip_config):
+        val = sip_config.get('tcpbindaddr')
+        if not val:
+            return
+
+        host = val.rsplit(':', 1)[0] if ':' in val else val
+        return 'bind', host
+
 
 class PJSIPConfGenerator(object):
 
@@ -668,6 +705,7 @@ class PJSIPConfGenerator(object):
             extractor.get('system'),
             extractor.get('transport-udp'),
             extractor.get('transport-wss'),
+            extractor.get('transport-tcp'),
             extractor.get('wazo-general-aor'),
             extractor.get('wazo-general-endpoint'),
             extractor.get('wazo-general-registration'),

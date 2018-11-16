@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012-2014 Avencall
+# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -55,7 +55,7 @@ class TestQueuesConf(unittest.TestCase):
 
             [queue1]
             wrapuptime = 0
-            member => SIP/abc,1
+            member => PJSIP/abc,1
         ''')
         find_queue_settings.assert_called_once_with()
         find_queue_members_settings.assert_called_once_with('queue1')

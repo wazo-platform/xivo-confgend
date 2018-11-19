@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014 Avencall
+# Copyright 2014-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -56,6 +56,6 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([first_adaptor, second_adaptor])
 
-        assert_that(generator.generate(CONTEXT), contains('exten = 1000,hint,SIP/abcdef'))
+        assert_that(generator.generate(CONTEXT), contains('exten = 1000,hint,PJSIP/abcdef'))
         first_adaptor.generate.assert_called_once_with(CONTEXT)
         second_adaptor.generate.assert_called_once_with(CONTEXT)

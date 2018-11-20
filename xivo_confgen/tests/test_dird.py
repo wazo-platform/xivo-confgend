@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -50,7 +50,7 @@ class TestNoContextSeparationDirdFrontendViewsGenerators(unittest.TestCase):
                 '10': ['Firstname', 'name', '', 'firstname'],
                 '20': ['Lastname', '', '', 'lastname'],
                 '30': ['Number', 'number', '', 'number'],
-                '40': ['Favorite', 'favorite', '', 'favorite'],
+                '110': ['Favorite', 'favorite', '', 'favorite'],
             },
             'second': {
                 '10': ['Nom', 'name', 'Unknown', 'name'],

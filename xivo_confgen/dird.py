@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import yaml
@@ -47,6 +47,7 @@ class _DisplayGenerator(object):
                 for name, column in raw.iteritems()}
 
     def _format_columns(self, column_configs):
+        column_configs = {int(rank): column for rank, column in column_configs.iteritems()}
         keys = sorted(column_configs.iterkeys())
         return [self._format_line(column_configs[key]) for key in keys]
 

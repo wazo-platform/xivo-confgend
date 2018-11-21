@@ -99,6 +99,7 @@ class SipDBExtractor(object):
         ('mohsuggest', 'moh_suggest'),
         ('mwifrom', 'mwi_from_user'),
         ('outboundproxy', 'outbound_proxy'),
+        ('rtcp_mux', 'rtcp_mux'),
         ('rtp_engine', 'rtp_engine'),
         ('rtptimeout', 'rtp_timeout'),
         ('sdpowner', 'sdp_owner'),

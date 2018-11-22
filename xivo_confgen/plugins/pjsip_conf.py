@@ -96,6 +96,8 @@ class SipDBExtractor(object):
         ('fromuser', 'from_user'),
         ('icesupport', 'ice_support'),
         ('language', 'language'),
+        ('max_audio_streams', 'max_audio_streams'),
+        ('max_video_streams', 'max_video_streams'),
         ('mohsuggest', 'moh_suggest'),
         ('mwifrom', 'mwi_from_user'),
         ('outboundproxy', 'outbound_proxy'),

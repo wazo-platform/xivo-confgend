@@ -167,7 +167,7 @@ class SipDBExtractor(object):
         yield self._get_trunk_aor(trunk_sip)
         yield self._get_trunk_identify(trunk_sip)
         yield self._get_trunk_auth(trunk_sip)
-        yield self._get_trunk_endpoint(trunk_sip, twillio_incoming)
+        yield self._get_trunk_endpoint(trunk_sip)
 
     def _get_registration_sections(self, sip_general):
         for row in sip_general:
@@ -316,7 +316,7 @@ class SipDBExtractor(object):
             fields=fields,
         )
 
-    def _get_trunk_endpoint(self, trunk_sip, twillio_incoming):
+    def _get_trunk_endpoint(self, trunk_sip):
         trunk_dict = trunk_sip.__dict__
         all_options = trunk_sip.all_options()
 

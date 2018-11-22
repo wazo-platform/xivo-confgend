@@ -149,8 +149,8 @@ class SipDBExtractor(object):
         for registration_section in self._get_registration_sections(self._static_sip):
             yield registration_section
 
-        for trunk_sip, twillio_incoming in self._trunk:
-            for section in self._get_trunk(trunk_sip, twillio_incoming):
+        for trunk_sip, twilio_incoming in self._trunk:
+            for section in self._get_trunk(trunk_sip, twilio_incoming):
                 yield section
 
     def get_user_sections(self):
@@ -163,7 +163,7 @@ class SipDBExtractor(object):
         yield self._get_user_aor(user_sip)
         yield self._get_user_auth(user_sip)
 
-    def _get_trunk(self, trunk_sip, twillio_incoming):
+    def _get_trunk(self, trunk_sip, twilio_incoming):
         yield self._get_trunk_aor(trunk_sip)
         yield self._get_trunk_identify(trunk_sip)
         yield self._get_trunk_auth(trunk_sip)

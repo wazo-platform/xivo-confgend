@@ -138,6 +138,8 @@ class SipDBExtractor(object):
             return self._get_transport_udp()
         elif section == 'transport-wss':
             return self._get_transport_wss()
+        elif section == 'twilio-identify-template':
+            return self._get_twilio_ident_template()
         elif section == 'wazo-general-aor':
             return self._get_general_aor_template()
         elif section == 'wazo-general-endpoint':
@@ -352,6 +354,50 @@ class SipDBExtractor(object):
             name=trunk_sip.name,
             type_='section',
             templates=['wazo-general-endpoint'],
+            fields=fields,
+        )
+
+    def _get_twilio_ident_template(self):
+        fields = [
+            ('type', 'identify'),
+            ('match', '54.172.60.0'),
+            ('match', '54.172.60.1'),
+            ('match', '54.172.60.2'),
+            ('match', '54.172.60.3'),
+            ('match', '54.244.51.0'),
+            ('match', '54.244.51.1'),
+            ('match', '54.244.51.2'),
+            ('match', '54.244.51.3'),
+            ('match', '54.171.127.192'),
+            ('match', '54.171.127.193'),
+            ('match', '54.171.127.194'),
+            ('match', '54.171.127.195'),
+            ('match', '35.156.191.128'),
+            ('match', '35.156.191.129'),
+            ('match', '35.156.191.130'),
+            ('match', '35.156.191.131'),
+            ('match', '54.65.63.192'),
+            ('match', '54.65.63.193'),
+            ('match', '54.65.63.194'),
+            ('match', '54.65.63.195'),
+            ('match', '54.169.127.128'),
+            ('match', '54.169.127.129'),
+            ('match', '54.169.127.130'),
+            ('match', '54.169.127.131'),
+            ('match', '54.252.254.64'),
+            ('match', '54.252.254.65'),
+            ('match', '54.252.254.66'),
+            ('match', '54.252.254.67'),
+            ('match', '177.71.206.192'),
+            ('match', '177.71.206.193'),
+            ('match', '177.71.206.194'),
+            ('match', '177.71.206.195'),
+        ]
+
+        return Section(
+            name='twilio_identify_template',
+            type_='template',
+            templates=None,
             fields=fields,
         )
 
@@ -712,6 +758,7 @@ class PJSIPConfGenerator(object):
             extractor.get('wazo-general-aor'),
             extractor.get('wazo-general-endpoint'),
             extractor.get('wazo-general-registration'),
+            extractor.get('twilio-identify-template'),
         ]
         user_sections = list(extractor.get_user_sections())
         trunk_sections = list(extractor.get_trunk_sections())

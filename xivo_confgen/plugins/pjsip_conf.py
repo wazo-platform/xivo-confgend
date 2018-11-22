@@ -167,7 +167,7 @@ class SipDBExtractor(object):
 
     def _get_trunk(self, trunk_sip, twilio_incoming):
         yield self._get_trunk_aor(trunk_sip)
-        yield self._get_trunk_identify(trunk_sip)
+        yield self._get_trunk_identify(trunk_sip, twilio_incoming)
         yield self._get_trunk_auth(trunk_sip)
         yield self._get_trunk_endpoint(trunk_sip)
 
@@ -194,17 +194,22 @@ class SipDBExtractor(object):
             fields=fields,
         )
 
-    def _get_trunk_identify(self, trunk_sip):
+    def _get_trunk_identify(self, trunk_sip, twilio_incoming):
         fields = [
             ('type', 'identify'),
             ('endpoint', trunk_sip.name),
             ('match', trunk_sip.host),
         ]
 
+        if twilio_incoming:
+            templates = ['twilio_identify_template']
+        else:
+            templates = None
+
         return Section(
             name=trunk_sip.name,
             type_='section',
-            templates=None,
+            templates=templates,
             fields=fields,
         )
 

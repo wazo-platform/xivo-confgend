@@ -21,7 +21,6 @@ sources = [
      'uri': 'https://localhost:9486',
      'auth_host': 'localhost',
      'auth_port': 9497,
-     'auth_backend': 'wazo_user',
      'xivo_username': 'foo',
      'xivo_password': 'bar',
      'auth_verify_certificate': True,
@@ -37,7 +36,6 @@ sources = [
      'uri': 'https://montreal.lan.example.com:9486',
      'auth_host': 'montreal.lan.example.com',
      'auth_port': 9497,
-     'auth_backend': 'xivo_service',
      'xivo_username': 'test',
      'xivo_password': 'test',
      'auth_verify_certificate': True,
@@ -104,7 +102,6 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                         'port': 9497,
                         'username': 'foo',
                         'password': 'bar',
-                        'backend': 'wazo_user',
                         'verify_certificate': '/usr/share/xivo-certs/server.crt',
                     },
                     confd={
@@ -121,7 +118,6 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                     auth={
                         'host': 'montreal.lan.example.com',
                         'port': 9497,
-                        'backend': 'xivo_service',
                         'username': 'test',
                         'password': 'test',
                         'verify_certificate': True,

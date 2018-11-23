@@ -102,7 +102,6 @@ class _NoContextSeparationSourceGenerator(object):
         config = {
             'host': source['auth_host'],
             'port': source['auth_port'],
-            'backend': source['auth_backend'],
             'username': source['xivo_username'],
             'password': source['xivo_password'],
         }

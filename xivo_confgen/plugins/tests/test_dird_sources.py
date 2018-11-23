@@ -35,8 +35,6 @@ sources = [
     {'type': 'xivo',
      'name': 'mtl',
      'uri': 'https://montreal.lan.example.com:9486',
-     'xivo_username': 'foo',
-     'xivo_password': 'passwd',
      'auth_host': 'montreal.lan.example.com',
      'auth_port': 9497,
      'auth_backend': 'xivo_service',

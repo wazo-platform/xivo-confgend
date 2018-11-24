@@ -92,6 +92,16 @@ class TestSipDBExtractor(unittest.TestCase):
         result = SipDBExtractor._convert_dtmfmode({'dtmfmode': 'info'})
         assert_that(result, contains('dtmf_mode', 'info'))
 
+    def test_convert_insecure(self):
+        result = SipDBExtractor._convert_insecure({'name': 'name'})
+        assert_that(result, contains('auth', 'name'))
+
+        result = SipDBExtractor._convert_insecure({'name': 'name', 'insecure': 'invite'})
+        assert_that(result, none())
+
+        result = SipDBExtractor._convert_insecure({'name': 'name', 'insecure': 'port,invite'})
+        assert_that(result, none())
+
     def test_convert_nat(self):
         result = SipDBExtractor._convert_nat({})
         assert_that(list(result), empty())

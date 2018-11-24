@@ -336,7 +336,6 @@ class SipDBExtractor(object):
             ('type', 'endpoint'),
             ('context', trunk_dict['context']),
             ('aors', trunk_sip.name),
-            ('auth', trunk_sip.name),
             ('outbound_auth', trunk_sip.name),
         ]
 
@@ -345,6 +344,7 @@ class SipDBExtractor(object):
                 self._add_option(fields, (key, value))
 
         self._add_from_mapping(fields, self.sip_to_endpoint, trunk_dict)
+        self._add_option(fields, self._convert_insecure(trunk_dict))
         self._add_option(fields, self._convert_dtmfmode(trunk_dict))
         self._add_option(fields, self._convert_session_timers(trunk_dict))
         self._add_option(fields, self._convert_sendrpid(trunk_dict))
@@ -656,6 +656,14 @@ class SipDBExtractor(object):
         result += host_port
 
         yield ('contact', result)
+
+    @staticmethod
+    def _convert_insecure(sip_config):
+        val = sip_config.get('insecure')
+        if val and 'invite' in val:
+            return
+
+        return 'auth', sip_config['name']
 
     @staticmethod
     def _convert_nat(sip_config):

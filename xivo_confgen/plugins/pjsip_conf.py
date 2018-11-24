@@ -610,7 +610,7 @@ class SipDBExtractor(object):
         key = 'dtmf_mode'
         if val == 'rfc2833':
             return key, 'rfc4733'
-        else:
+        elif val in ('inband', 'info'):
             return key, val
 
     @staticmethod

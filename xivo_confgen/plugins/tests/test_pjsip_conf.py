@@ -81,10 +81,16 @@ class TestSipDBExtractor(unittest.TestCase):
         assert_that(result, none())
 
         result = SipDBExtractor._convert_dtmfmode({'dtmfmode': 'foobar'})
-        assert_that(result, contains('dtmf_mode', 'foobar'))
+        assert_that(result, none())
 
         result = SipDBExtractor._convert_dtmfmode({'dtmfmode': 'rfc2833'})
         assert_that(result, contains('dtmf_mode', 'rfc4733'))
+
+        result = SipDBExtractor._convert_dtmfmode({'dtmfmode': 'inband'})
+        assert_that(result, contains('dtmf_mode', 'inband'))
+
+        result = SipDBExtractor._convert_dtmfmode({'dtmfmode': 'info'})
+        assert_that(result, contains('dtmf_mode', 'info'))
 
     def test_convert_nat(self):
         result = SipDBExtractor._convert_nat({})

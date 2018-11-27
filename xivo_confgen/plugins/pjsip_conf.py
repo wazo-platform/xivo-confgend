@@ -644,7 +644,11 @@ class SipDBExtractor(object):
         # IP address and may or may not have a port specified. pjsip.conf
         # expects the contact to be a SIP URI.
 
-        user = sip.username
+        if sip.category == 'user':
+            user = sip.name
+        else:
+            user = sip.username
+
         if user:
             result += user + '@'
 

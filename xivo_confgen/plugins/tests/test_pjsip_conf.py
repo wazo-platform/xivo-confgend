@@ -304,3 +304,13 @@ class TestSipDBExtractor(unittest.TestCase):
                 ('contact', 'sip:abcdef@localhost:5060'),
             )
         )
+
+        sip = Mock(host='localhost', port=None, category='user')
+        sip.name = 'abcdef'
+        result = list(SipDBExtractor._convert_host(sip))
+        assert_that(
+            result,
+            contains_inanyorder(
+                ('contact', 'sip:abcdef@localhost:5060'),
+            )
+        )

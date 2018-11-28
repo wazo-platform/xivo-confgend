@@ -273,6 +273,7 @@ class SipDBExtractor(object):
             ('type', 'endpoint'),
             ('context', user_dict['context']),
             ('aors', user_sip[0].name),
+            ('auth', user_sip[0].name),
             ('set_var', 'XIVO_ORIGINAL_CALLER_ID={callerid}'.format(**user_dict)),
             ('set_var', 'TRANSFER_CONTEXT={}'.format(user_sip.context)),
             ('set_var', 'PICKUPMARK={}%{}'.format(user_sip.number, user_sip.context)),

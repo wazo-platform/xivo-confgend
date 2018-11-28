@@ -321,6 +321,7 @@ class TestSipDBExtractor(unittest.TestCase):
         assert_that(
             result,
             contains_inanyorder(
+                ('qualify_frequency', 0),
                 ('contact', 'sip:abcdef@localhost:5060'),
             )
         )

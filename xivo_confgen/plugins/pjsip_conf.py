@@ -647,6 +647,7 @@ class SipDBExtractor(object):
 
         if sip.category == 'user':
             user = sip.name
+            yield ('qualify_frequency', 0)
         else:
             user = sip.username
 

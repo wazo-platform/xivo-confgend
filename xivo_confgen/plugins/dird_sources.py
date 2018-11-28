@@ -104,6 +104,7 @@ class _NoContextSeparationSourceGenerator(object):
             'port': source['auth_port'],
             'username': source['xivo_username'],
             'password': source['xivo_password'],
+            'key_file': source['auth_key_file']
         }
         if not source['auth_verify_certificate']:
             verify = False

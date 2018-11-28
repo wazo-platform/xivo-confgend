@@ -23,6 +23,7 @@ sources = [
      'auth_port': 9497,
      'xivo_username': 'foo',
      'xivo_password': 'bar',
+     'auth_key_file': '/path/to/the/auth/key',
      'auth_verify_certificate': True,
      'auth_custom_ca_path': '/usr/share/xivo-certs/server.crt',
      'xivo_verify_certificate': False,
@@ -38,6 +39,7 @@ sources = [
      'auth_port': 9497,
      'xivo_username': 'test',
      'xivo_password': 'test',
+     'auth_key_file': '/path/to/the/auth/key',
      'auth_verify_certificate': True,
      'auth_custom_ca_path': None,
      'xivo_verify_certificate': True,
@@ -102,6 +104,7 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                         'port': 9497,
                         'username': 'foo',
                         'password': 'bar',
+                        'key_file': '/path/to/the/auth/key',
                         'verify_certificate': '/usr/share/xivo-certs/server.crt',
                     },
                     confd={
@@ -120,6 +123,7 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                         'port': 9497,
                         'username': 'test',
                         'password': 'test',
+                        'key_file': '/path/to/the/auth/key',
                         'verify_certificate': True,
                     },
                     confd={

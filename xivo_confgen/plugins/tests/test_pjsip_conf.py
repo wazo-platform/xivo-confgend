@@ -278,7 +278,7 @@ class TestSipDBExtractor(unittest.TestCase):
         )
 
     def test_convert_host(self):
-        sip = Mock(host='dynamic')
+        sip = Mock(host='dynamic', _options=[])
         result = list(SipDBExtractor._convert_host(sip))
         assert_that(
             result,
@@ -288,7 +288,16 @@ class TestSipDBExtractor(unittest.TestCase):
             )
         )
 
-        sip = Mock(host='localhost', port=None, username=None)
+        sip = Mock(host='dynamic', _options=[['webrtc', 'yes']])
+        result = list(SipDBExtractor._convert_host(sip))
+        assert_that(
+            result,
+            contains_inanyorder(
+                ('max_contacts', 10),
+            )
+        )
+
+        sip = Mock(host='localhost', port=None, username=None, _options=[])
         result = list(SipDBExtractor._convert_host(sip))
         assert_that(
             result,
@@ -297,7 +306,7 @@ class TestSipDBExtractor(unittest.TestCase):
             )
         )
 
-        sip = Mock(host='localhost', port=6000, username=None)
+        sip = Mock(host='localhost', port=6000, username=None, _options=[])
         result = list(SipDBExtractor._convert_host(sip))
         assert_that(
             result,
@@ -306,7 +315,7 @@ class TestSipDBExtractor(unittest.TestCase):
             )
         )
 
-        sip = Mock(host='localhost', port=None, username='abcdef')
+        sip = Mock(host='localhost', port=None, username='abcdef', _options=[])
         result = list(SipDBExtractor._convert_host(sip))
         assert_that(
             result,
@@ -315,7 +324,7 @@ class TestSipDBExtractor(unittest.TestCase):
             )
         )
 
-        sip = Mock(host='localhost', port=None, category='user')
+        sip = Mock(host='localhost', port=None, category='user', _options=[])
         sip.name = 'abcdef'
         result = list(SipDBExtractor._convert_host(sip))
         assert_that(

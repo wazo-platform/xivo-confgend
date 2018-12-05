@@ -13,10 +13,10 @@ class Registration(object):
     def __init__(self, line):
         self.parse(line)
 
-        self.section = 'reg_' + self.host
+        self.section = 'reg_' + self.user + '@' + self.host
         self.registration_fields = []
 
-        self.auth_section = 'auth_reg_' + self.host
+        self.auth_section = 'auth_reg_' + self.user + '@' + self.host
         self.auth_fields = []
 
         self._generate()

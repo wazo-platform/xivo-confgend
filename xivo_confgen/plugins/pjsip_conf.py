@@ -338,6 +338,7 @@ class SipDBExtractor(object):
             ('context', trunk_dict['context']),
             ('aors', trunk_sip.name),
             ('outbound_auth', trunk_sip.name),
+            ('identify_by', 'auth_username,username'),
         ]
 
         for key, value in all_options:

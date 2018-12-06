@@ -480,6 +480,7 @@ class SipDBExtractor(object):
     def _get_global(self):
         fields = [
             ('type', 'global'),
+            ('endpoint_identifier_order', 'auth_username,username,ip'),
         ]
 
         self._add_from_mapping(fields, self.sip_general_to_global, self._general_settings_dict)

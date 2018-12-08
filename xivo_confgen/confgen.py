@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011-2016 Avencall
-# Copyright (C) 2016 Proformatique Inc.
+# Copyright 2011-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -11,11 +10,13 @@ from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo import XivoFrontend
 from xivo_confgen.dird import DirdFrontend
 from xivo_confgen.dird_phoned import DirdPhonedFrontend
-from xivo_confgen.handler import CachedHandlerFactoryDecorator
-from xivo_confgen.handler import MultiHandlerFactory
-from xivo_confgen.handler import PluginHandlerFactory
-from xivo_confgen.handler import FrontendHandlerFactory
-from xivo_confgen.handler import NullHandlerFactory
+from xivo_confgen.handler import (
+    CachedHandlerFactoryDecorator,
+    MultiHandlerFactory,
+    PluginHandlerFactory,
+    FrontendHandlerFactory,
+    NullHandlerFactory,
+)
 from xivo_confgen.template import new_template_helper
 from xivo_dao.helpers.db_utils import session_scope
 from twisted.internet.protocol import Protocol, ServerFactory
@@ -61,9 +62,11 @@ class ConfgendFactory(ServerFactory):
             'xivo': XivoFrontend(),
         }
         self._cache = cache.FileCache(cachedir)
-        self._handler_factory = MultiHandlerFactory([CachedHandlerFactoryDecorator(PluginHandlerFactory(config, dependencies)),
-                                                     FrontendHandlerFactory(frontends),
-                                                     NullHandlerFactory()])
+        self._handler_factory = MultiHandlerFactory([
+            CachedHandlerFactoryDecorator(PluginHandlerFactory(config, dependencies)),
+            FrontendHandlerFactory(frontends),
+            NullHandlerFactory(),
+        ])
 
     def generate(self, resource, filename):
         cache_key = '{}/{}'.format(resource, filename)

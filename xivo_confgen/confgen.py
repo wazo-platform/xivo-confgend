@@ -101,7 +101,6 @@ class ConfgendFactory(ServerFactory):
                 logger.error('unexpected error raised by handler', exc_info=True)
 
     def _get_cached_content(self, cache_key):
-        logger.info("cache hit on '%s'", cache_key)
         try:
             return self._cache.get(cache_key)
         except AttributeError:

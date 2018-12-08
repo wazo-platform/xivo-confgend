@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010-2014 Avencall
+# Copyright 2010-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import os.path
 
 
 class Cache(object):
+
     def get(self, key):
         raise NotImplementedError()
 
@@ -14,6 +15,7 @@ class Cache(object):
 
 
 class FileCache(Cache):
+
     def __init__(self, basedir):
         super(FileCache, self).__init__()
         self.basedir = basedir
@@ -26,9 +28,6 @@ class FileCache(Cache):
             content = f.read()
         return content
 
-    def _get_path_from_key(self, key):
-        return os.path.join(self.basedir, key)
-
     def put(self, key, value):
         path = self._get_path_from_key(key)
         dir = os.path.dirname(path)
@@ -40,3 +39,6 @@ class FileCache(Cache):
         with open(path, 'w') as f:
             f.write(value)
         return True
+
+    def _get_path_from_key(self, key):
+        return os.path.join(self.basedir, key)

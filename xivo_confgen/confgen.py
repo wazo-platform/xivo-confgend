@@ -78,7 +78,9 @@ class ConfgendFactory(ServerFactory):
 
     def generate(self, resource, filename, *args):
         cache_key = '{}/{}'.format(resource, filename)
-        if 'cached' in args:
+        if 'invalidate' in args:
+            self._cache.invalidate(cache_key)
+        elif 'cached' in args:
             return (
                 self._get_cached_content(cache_key)
                 or self._generate_and_cache(cache_key, resource, filename)
@@ -99,9 +101,9 @@ class ConfgendFactory(ServerFactory):
                 logger.error('unexpected error raised by handler', exc_info=True)
 
     def _get_cached_content(self, cache_key):
-        logger.info("cache hit on %s", cache_key)
+        logger.info("cache hit on '%s'", cache_key)
         try:
-            return self._cache.get(cache_key).decode('utf-8')
+            return self._cache.get(cache_key)
         except AttributeError:
             logger.warning("No cached content for %s", cache_key)
 

@@ -65,6 +65,7 @@ class TestConfgendFactory(unittest.TestCase):
         self.factory._handler_factory = self.handler_factory = Mock()
         self.handler = self.handler_factory.get.return_value
         self.get_cached_content = self.factory._get_cached_content = Mock()
+        self.cache = self.factory._cache = Mock()
 
     def test_generate_from_handler(self):
         self.handler.return_value = 'some content'
@@ -96,3 +97,9 @@ class TestConfgendFactory(unittest.TestCase):
         result = self.factory.generate('test', 'myfile.yml', 'cached')
 
         assert_that(result, equal_to(self.handler.return_value))
+
+    def test_the_invalidate_command(self):
+        result = self.factory.generate('test', 'myfile.yml', 'invalidate')
+
+        assert_that(result, equal_to(None))
+        self.cache.invalidate.assert_called_once_with('test/myfile.yml')

@@ -10,6 +10,9 @@ class Cache(object):
     def get(self, key):
         raise NotImplementedError()
 
+    def invalidate(self, key):
+        raise NotImplementedError()
+
     def put(self, key, value):
         raise NotImplementedError()
 
@@ -27,6 +30,13 @@ class FileCache(Cache):
         with open(path) as f:
             content = f.read()
         return content
+
+    def invalidate(self, key):
+        path = self._get_path_from_key(key)
+        try:
+            os.unlink(path)
+        except OSError:
+            return
 
     def put(self, key, value):
         path = self._get_path_from_key(key)

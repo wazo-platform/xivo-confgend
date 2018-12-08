@@ -5,3 +5,4 @@ pyyaml==3.12
 psycopg2-binary
 sqlalchemy==1.0.15
 stevedore==1.17.1
+twisted==16.6.0

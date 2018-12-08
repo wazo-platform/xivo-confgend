@@ -78,14 +78,25 @@ class ConfgendFactory(ServerFactory):
 
     def generate(self, resource, filename, *args):
         cache_key = '{}/{}'.format(resource, filename)
+        if 'cached' in args:
+            return (
+                self._get_cached_content(cache_key)
+                or self._generate_and_cache(cache_key, resource, filename)
+            )
+        else:
+            return (
+                self._generate_and_cache(cache_key, resource, filename)
+                or self._get_cached_content(cache_key)
+            )
+
+    def _generate_and_cache(self, cache_key, resource, filename):
         handler = self._handler_factory.get(resource, filename)
         with session_scope():
             try:
                 content = handler()
+                return self._encode_and_cache(cache_key, content)
             except Exception:
                 logger.error('unexpected error raised by handler', exc_info=True)
-                content = self._get_cached_content(cache_key)
-        return self._encode_and_cache(cache_key, content)
 
     def _get_cached_content(self, cache_key):
         logger.info("cache hit on %s", cache_key)

@@ -80,3 +80,19 @@ class TestConfgendFactory(unittest.TestCase):
         result = self.factory.generate('test', 'myfile.yml')
 
         assert_that(result, equal_to(self.get_cached_content.return_value))
+
+    def test_that_the_cached_argument_returns_the_cached_value(self):
+        self.handler.return_value = 'some content'
+        self.get_cached_content.return_value = 'cached content'
+
+        result = self.factory.generate('test', 'myfile.yml', 'cached')
+
+        assert_that(result, equal_to(self.get_cached_content.return_value))
+
+    def test_that_the_cached_argument_returns_the_a_generated_value_when_no_cache(self):
+        self.handler.return_value = 'some content'
+        self.get_cached_content.return_value = None
+
+        result = self.factory.generate('test', 'myfile.yml', 'cached')
+
+        assert_that(result, equal_to(self.handler.return_value))

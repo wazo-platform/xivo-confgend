@@ -29,13 +29,21 @@ class Confgen(Protocol):
     def dataReceived(self, data):
         try:
             t1 = time.time()
+            line = data.replace('\n', '')
+
+            if ' ' in line:
+                cmd, trailing = line.split(' ', 1)
+                args = [arg for arg in trailing.split(' ') if arg]
+            else:
+                cmd, args = line, []
+
             try:
-                resource, filename = data.replace('\n', '').split('/')
+                resource, filename = cmd.split('/')
             except ValueError:
                 logger.error("cannot split %s", data)
                 return
 
-            content = self.factory.generate(resource, filename)
+            content = self.factory.generate(resource, filename, *args)
             if content:
                 self.transport.write(content)
             t2 = time.time()
@@ -68,7 +76,7 @@ class ConfgendFactory(ServerFactory):
             NullHandlerFactory(),
         ])
 
-    def generate(self, resource, filename):
+    def generate(self, resource, filename, *args):
         cache_key = '{}/{}'.format(resource, filename)
         handler = self._handler_factory.get(resource, filename)
         with session_scope():

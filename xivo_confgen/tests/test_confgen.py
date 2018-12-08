@@ -34,3 +34,11 @@ class TestConfgen(unittest.TestCase):
 
         self.factory.generate.assert_called_once_with('resource', 'filename.conf')
         self.transport.write.assert_not_called()
+
+    def test_receive_with_arguments(self):
+        cmd = 'resource/filename.conf  arg1    arg2\n'
+
+        self.protocol.dataReceived(cmd)
+
+        self.factory.generate.assert_called_once_with('resource', 'filename.conf', 'arg1', 'arg2')
+        self.transport.write.assert_called_once_with(self.factory.generate.return_value)

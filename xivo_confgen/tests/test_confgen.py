@@ -3,10 +3,18 @@
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
+import tempfile
 
+from hamcrest import (
+    assert_that,
+    equal_to,
+)
 from mock import Mock
 
-from ..confgen import Confgen
+from ..confgen import (
+    Confgen,
+    ConfgendFactory,
+)
 
 
 class TestConfgen(unittest.TestCase):
@@ -42,3 +50,33 @@ class TestConfgen(unittest.TestCase):
 
         self.factory.generate.assert_called_once_with('resource', 'filename.conf', 'arg1', 'arg2')
         self.transport.write.assert_called_once_with(self.factory.generate.return_value)
+
+
+class TestConfgendFactory(unittest.TestCase):
+
+    def setUp(self):
+        config = {
+            'templates': {'contextsconf': ''},
+            'plugins': {},
+        }
+        cachedir = tempfile.gettempdir()
+
+        self.factory = ConfgendFactory(cachedir, config)
+        self.factory._handler_factory = self.handler_factory = Mock()
+        self.handler = self.handler_factory.get.return_value
+        self.get_cached_content = self.factory._get_cached_content = Mock()
+
+    def test_generate_from_handler(self):
+        self.handler.return_value = 'some content'
+
+        result = self.factory.generate('test', 'myfile.yml')
+
+        assert_that(result, equal_to(self.handler.return_value))
+
+    def test_that_error_on_generate_returns_cached_value(self):
+        self.handler.side_effect = Exception
+        self.get_cached_content.return_value = 'cached content'
+
+        result = self.factory.generate('test', 'myfile.yml')
+
+        assert_that(result, equal_to(self.get_cached_content.return_value))

@@ -655,11 +655,23 @@ class SipDBExtractor(object):
     def _convert_host(sip):
         host = sip.host
         if host == 'dynamic':
+            max_contacts = 1
+            max_contacts_defined = False
+
+            for key, value in sip._options:
+                if key == 'max_contacts':
+                    max_contacts_defined = True
+                    max_contacts = value
+                    break
+
             if ['webrtc', 'yes'] in sip._options:
-                yield ('max_contacts', 10)
-            else:
+                if not max_contacts_defined:
+                    max_contacts = 10
+
+            if max_contacts == 1:
                 yield ('remove_existing', 'yes')
-                yield ('max_contacts', 1)
+
+            yield ('max_contacts', max_contacts)
             return
 
         result = 'sip:'

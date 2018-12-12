@@ -278,6 +278,15 @@ class TestSipDBExtractor(unittest.TestCase):
         )
 
     def test_convert_host(self):
+        sip = Mock(host='dynamic', _options=[['max_contacts', 3]])
+        result = list(SipDBExtractor._convert_host(sip))
+        assert_that(
+            result,
+            contains_inanyorder(
+                ('max_contacts', 3)
+            ),
+        )
+
         sip = Mock(host='dynamic', _options=[])
         result = list(SipDBExtractor._convert_host(sip))
         assert_that(
@@ -294,6 +303,15 @@ class TestSipDBExtractor(unittest.TestCase):
             result,
             contains_inanyorder(
                 ('max_contacts', 10),
+            )
+        )
+
+        sip = Mock(host='dynamic', _options=[['webrtc', 'yes'], ['max_contacts', 42]])
+        result = list(SipDBExtractor._convert_host(sip))
+        assert_that(
+            result,
+            contains_inanyorder(
+                ('max_contacts', 42),
             )
         )
 

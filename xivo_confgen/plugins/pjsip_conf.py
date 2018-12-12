@@ -513,6 +513,7 @@ class SipDBExtractor(object):
             ('protocol', protocol),
         ]
 
+        self._add_from_mapping(fields, self.sip_general_to_transport, self._general_settings_dict)
         for row in self._static_sip:
             if row['var_name'] != 'localnet':
                 continue

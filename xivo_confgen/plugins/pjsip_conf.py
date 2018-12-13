@@ -60,6 +60,7 @@ class SipDBExtractor(object):
     ]
     sip_general_to_transport = [
         ('media_address', 'external_media_address'),
+        ('external_signaling_port', 'external_signaling_port'),
     ]
     sip_general_to_register_tpl = [
         ('registertimeout', 'retry_interval'),
@@ -200,8 +201,14 @@ class SipDBExtractor(object):
         fields = [
             ('type', 'identify'),
             ('endpoint', trunk_sip.name),
-            ('match', trunk_sip.host),
         ]
+
+        for option, value in trunk_sip._options:
+            if option == 'match_header':
+                fields.append((option, value))
+                break
+        else:
+            fields.append(('match', trunk_sip.host))
 
         if twilio_incoming:
             templates = ['twilio_identify_template']
@@ -338,12 +345,16 @@ class SipDBExtractor(object):
             ('context', trunk_dict['context']),
             ('aors', trunk_sip.name),
             ('outbound_auth', trunk_sip.name),
-            ('identify_by', 'auth_username,username'),
         ]
 
+        identify_by = 'auth_username,username'
         for key, value in all_options:
             if key in ('allow', 'disallow'):
                 self._add_option(fields, (key, value))
+            if key == 'identify_by':
+                identify_by = value
+
+        fields.append(('identify_by', identify_by))
 
         self._add_from_mapping(fields, self.sip_to_endpoint, trunk_dict)
         self._add_option(fields, self._convert_insecure(trunk_dict))
@@ -479,9 +490,14 @@ class SipDBExtractor(object):
         )
 
     def _get_global(self):
+        endpoint_identifier_order = self._general_settings_dict.get(
+            'endpoint_identifier_order',
+            'auth_username,username,ip',
+        )
+
         fields = [
             ('type', 'global'),
-            ('endpoint_identifier_order', 'auth_username,username,ip'),
+            ('endpoint_identifier_order', endpoint_identifier_order),
         ]
 
         self._add_from_mapping(fields, self.sip_general_to_global, self._general_settings_dict)

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011-2016 Avencall
-# Copyright (C) 2016 Proformatique Inc.
+# Copyright 2011-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -11,11 +10,13 @@ from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo import XivoFrontend
 from xivo_confgen.dird import DirdFrontend
 from xivo_confgen.dird_phoned import DirdPhonedFrontend
-from xivo_confgen.handler import CachedHandlerFactoryDecorator
-from xivo_confgen.handler import MultiHandlerFactory
-from xivo_confgen.handler import PluginHandlerFactory
-from xivo_confgen.handler import FrontendHandlerFactory
-from xivo_confgen.handler import NullHandlerFactory
+from xivo_confgen.handler import (
+    CachedHandlerFactoryDecorator,
+    MultiHandlerFactory,
+    PluginHandlerFactory,
+    FrontendHandlerFactory,
+    NullHandlerFactory,
+)
 from xivo_confgen.template import new_template_helper
 from xivo_dao.helpers.db_utils import session_scope
 from twisted.internet.protocol import Protocol, ServerFactory
@@ -28,13 +29,21 @@ class Confgen(Protocol):
     def dataReceived(self, data):
         try:
             t1 = time.time()
+            line = data.replace('\n', '')
+
+            if ' ' in line:
+                cmd, trailing = line.split(' ', 1)
+                args = [arg for arg in trailing.split(' ') if arg]
+            else:
+                cmd, args = line, []
+
             try:
-                resource, filename = data.replace('\n', '').split('/')
+                resource, filename = cmd.split('/')
             except ValueError:
                 logger.error("cannot split %s", data)
                 return
 
-            content = self.factory.generate(resource, filename)
+            content = self.factory.generate(resource, filename, *args)
             if content:
                 self.transport.write(content)
             t2 = time.time()
@@ -61,25 +70,39 @@ class ConfgendFactory(ServerFactory):
             'xivo': XivoFrontend(),
         }
         self._cache = cache.FileCache(cachedir)
-        self._handler_factory = MultiHandlerFactory([CachedHandlerFactoryDecorator(PluginHandlerFactory(config, dependencies)),
-                                                     FrontendHandlerFactory(frontends),
-                                                     NullHandlerFactory()])
+        self._handler_factory = MultiHandlerFactory([
+            CachedHandlerFactoryDecorator(PluginHandlerFactory(config, dependencies)),
+            FrontendHandlerFactory(frontends),
+            NullHandlerFactory(),
+        ])
 
-    def generate(self, resource, filename):
+    def generate(self, resource, filename, *args):
         cache_key = '{}/{}'.format(resource, filename)
+        if 'invalidate' in args:
+            self._cache.invalidate(cache_key)
+        elif 'cached' in args:
+            return (
+                self._get_cached_content(cache_key)
+                or self._generate_and_cache(cache_key, resource, filename)
+            )
+        else:
+            return (
+                self._generate_and_cache(cache_key, resource, filename)
+                or self._get_cached_content(cache_key)
+            )
+
+    def _generate_and_cache(self, cache_key, resource, filename):
         handler = self._handler_factory.get(resource, filename)
         with session_scope():
             try:
                 content = handler()
+                return self._encode_and_cache(cache_key, content)
             except Exception:
                 logger.error('unexpected error raised by handler', exc_info=True)
-                content = self._get_cached_content(cache_key)
-        return self._encode_and_cache(cache_key, content)
 
     def _get_cached_content(self, cache_key):
-        logger.info("cache hit on %s", cache_key)
         try:
-            return self._cache.get(cache_key).decode('utf-8')
+            return self._cache.get(cache_key)
         except AttributeError:
             logger.warning("No cached content for %s", cache_key)
 

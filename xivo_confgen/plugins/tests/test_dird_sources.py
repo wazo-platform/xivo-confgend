@@ -16,7 +16,7 @@ from ..dird_sources import _NoContextSeparationSourceGenerator
 
 
 sources = [
-    {'type': 'xivo',
+    {'type': 'wazo',
      'name': 'Internal',
      'uri': 'https://localhost:9486',
      'auth_host': 'localhost',
@@ -32,7 +32,7 @@ sources = [
      'first_matched_columns': ['exten'],
      'format_columns': {'number': '{exten}',
                         'mobile': '{mobile_phone_number}'}},
-    {'type': 'xivo',
+    {'type': 'wazo',
      'name': 'mtl',
      'uri': 'https://montreal.lan.example.com:9486',
      'auth_host': 'montreal.lan.example.com',
@@ -98,7 +98,7 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
             result,
             has_entries(
                 Internal=has_entries(
-                    type='xivo',
+                    type='wazo',
                     auth={
                         'host': 'localhost',
                         'port': 9497,
@@ -117,7 +117,7 @@ class TestNoContextSeparationSourceGenerator(unittest.TestCase):
                     }
                 ),
                 mtl=has_entries(
-                    type='xivo',
+                    type='wazo',
                     auth={
                         'host': 'montreal.lan.example.com',
                         'port': 9497,

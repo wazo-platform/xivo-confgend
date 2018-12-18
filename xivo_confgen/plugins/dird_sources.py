@@ -28,7 +28,7 @@ class SourceGenerator(object):
 
 class _ContextSeparatedMixin(object):
 
-    _context_separated_types = ['xivo']
+    _context_separated_types = ['wazo']
 
     def source_name(self, profile, name, type_):
         if type_ in self._context_separated_types:
@@ -41,7 +41,7 @@ class _NoContextSeparationSourceGenerator(object):
     confd_api_version = '1.1'
     confd_default_timeout = 4
     phonebook_default_timeout = 4
-    supported_types = ['csv', 'csv_ws', 'ldap', 'xivo', 'dird_phonebook']
+    supported_types = ['csv', 'csv_ws', 'ldap', 'wazo', 'dird_phonebook']
 
     def __init__(self, raw_sources):
         self._raw_sources = raw_sources
@@ -60,8 +60,8 @@ class _NoContextSeparationSourceGenerator(object):
                   'first_matched_columns': source['first_matched_columns'],
                   'format_columns': source['format_columns']}
 
-        if type_ == 'xivo':
-            config.update(self._format_xivo_source(source))
+        if type_ == 'wazo':
+            config.update(self._format_wazo_source(source))
         elif type_ == 'csv':
             config.update(self._format_csv_source(source))
         elif type_ == 'csv_ws':
@@ -91,7 +91,7 @@ class _NoContextSeparationSourceGenerator(object):
             'ldap_custom_filter': source['ldap_custom_filter'],
         }
 
-    def _format_xivo_source(self, source):
+    def _format_wazo_source(self, source):
         return {
             'unique_column': 'id',
             'confd': self._format_confd_config(source),

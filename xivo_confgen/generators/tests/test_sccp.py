@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import itertools
@@ -396,19 +396,19 @@ class TestSccpLineConf(unittest.TestCase):
 
     def test_call_and_pickup_groups(self):
         uuid = str(uuid4())
-        sccpline = [
-            {'category': u'lines',
-             'name': u'100',
-             'cid_name': u'jimmy',
-             'cid_num': u'100',
-             'user_id': u'1',
-             'uuid': uuid,
-             'language': None,
-             'number': u'100',
-             'context': u'a_context',
-             'callgroup': [1, 2, 3, 4],
-             'pickupgroup': [3, 4]},
-        ]
+        sccpline = [{
+            'category': u'lines',
+            'name': u'100',
+            'cid_name': u'jimmy',
+            'cid_num': u'100',
+            'user_id': u'1',
+            'uuid': uuid,
+            'language': None,
+            'number': u'100',
+            'context': u'a_context',
+            'callgroup': [1, 2, 3, 4],
+            'pickupgroup': [3, 4],
+        }]
 
         self._line_conf._generate_lines(sccpline, self._output)
 

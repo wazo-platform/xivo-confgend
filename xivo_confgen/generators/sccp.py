@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from operator import itemgetter
@@ -161,6 +161,7 @@ class _SccpLineConf(object):
             print >> output, format_ast_option('setvar', u'XIVO_ORIGINAL_CALLER_ID="{cid_name}" <{cid_num}>'.format(**item))
             print >> output, format_ast_option('setvar', 'XIVO_USERID=%s' % item['user_id'])
             print >> output, format_ast_option('setvar', 'XIVO_USERUUID=%s' % item['uuid'])
+            print >> output, format_ast_option('setvar', 'WAZO_TENANT_UUID=%s' % item['tenant_uuid'])
             print >> output, format_ast_option('setvar', 'PICKUPMARK=%(number)s%%%(context)s' % item)
             print >> output, format_ast_option('setvar', 'TRANSFER_CONTEXT=%s' % item['context'])
             print >> output, format_ast_option('setvar', 'WAZO_CHANNEL_DIRECTION=from-wazo')

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from __future__ import unicode_literals
@@ -24,6 +24,7 @@ Row = namedtuple('Row', ['UserSIP',
                          'mohsuggest',
                          'user_id',
                          'uuid',
+                         'tenant_uuid',
                          'mailbox'])
 
 
@@ -53,6 +54,7 @@ class TestSipUserGenerator(unittest.TestCase):
         params.setdefault('number', None)
         params.setdefault('mohsuggest', None)
         params.setdefault('uuid', None)
+        params.setdefault('tenant_uuid', None)
         params.setdefault('mailbox', None)
         row = Row(UserSIP=sip, **params)
         pickup_groups = pickup_groups or {}
@@ -288,6 +290,7 @@ class TestSipUserGenerator(unittest.TestCase):
                               mohsuggest='musiconhold',
                               user_id=42,
                               uuid='user-uuid',
+                              tenant_uuid='tenant-uuid',
                               mailbox='1001@default',
                               pickup_groups={'pickupgroup': [1, 2],
                                              'callgroup': [3, 4]})
@@ -302,6 +305,7 @@ class TestSipUserGenerator(unittest.TestCase):
                 'setvar = TRANSFER_CONTEXT=default',
                 'setvar = XIVO_USERID=42',
                 'setvar = XIVO_USERUUID=user-uuid',
+                'setvar = WAZO_TENANT_UUID=tenant-uuid',
                 'setvar = WAZO_CHANNEL_DIRECTION=from-wazo',
                 'namedpickupgroup = 1,2',
                 'namedcallgroup = 3,4',

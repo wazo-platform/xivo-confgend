@@ -279,6 +279,7 @@ class TestSccpLineConf(unittest.TestCase):
             'language': u'fr_FR',
             'number': u'100',
             'context': u'a_context',
+            'tenant_uuid': u'tenant-uuid',
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)
@@ -291,6 +292,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
+            setvar = WAZO_TENANT_UUID=tenant-uuid
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
@@ -310,6 +312,7 @@ class TestSccpLineConf(unittest.TestCase):
             'language': None,
             'number': u'100',
             'context': u'a_context',
+            'tenant_uuid': u'tenant-uuid',
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)
@@ -322,6 +325,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
+            setvar = WAZO_TENANT_UUID=tenant-uuid
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
@@ -341,6 +345,7 @@ class TestSccpLineConf(unittest.TestCase):
             'context': u'a_context',
             'allow': u'g729,ulaw',
             'uuid': uuid,
+            'tenant_uuid': u'tenant-uuid',
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)
@@ -353,6 +358,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
+            setvar = WAZO_TENANT_UUID=tenant-uuid
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
@@ -374,6 +380,7 @@ class TestSccpLineConf(unittest.TestCase):
             'context': u'a_context',
             'allow': u'g729,ulaw',
             'disallow': u'all',
+            'tenant_uuid': u'tenant-uuid',
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)
@@ -386,6 +393,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
+            setvar = WAZO_TENANT_UUID=tenant-uuid
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
@@ -408,6 +416,7 @@ class TestSccpLineConf(unittest.TestCase):
             'context': u'a_context',
             'callgroup': [1, 2, 3, 4],
             'pickupgroup': [3, 4],
+            'tenant_uuid': u'tenant-uuid',
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)
@@ -420,6 +429,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_ORIGINAL_CALLER_ID="jimmy" <100>
             setvar = XIVO_USERID=1
             setvar = XIVO_USERUUID={uuid}
+            setvar = WAZO_TENANT_UUID=tenant-uuid
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo

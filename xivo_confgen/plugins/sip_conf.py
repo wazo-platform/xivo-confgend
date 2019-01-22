@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from __future__ import unicode_literals
@@ -82,6 +82,8 @@ class _SipUserGenerator(object):
             yield 'setvar = XIVO_USERID={}'.format(row.user_id)
         if row.uuid:
             yield 'setvar = XIVO_USERUUID={}'.format(row.uuid)
+        if row.tenant_uuid:
+            yield 'setvar = WAZO_TENANT_UUID={}'.format(row.tenant_uuid)
 
         named_pickup_groups = ','.join(str(id) for id in pickup_groups.get('pickupgroup', []))
         if named_pickup_groups:

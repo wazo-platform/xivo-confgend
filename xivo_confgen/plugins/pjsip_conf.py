@@ -286,7 +286,7 @@ class SipDBExtractor(object):
             ('set_var', 'PICKUPMARK={}%{}'.format(user_sip.number, user_sip.context)),
             ('set_var', 'XIVO_USERID={}'.format(user_sip.user_id)),
             ('set_var', 'XIVO_USERUUID={}'.format(user_sip.uuid)),
-            ('set_var', 'WAZO_TENANT_UUID={}'.format(user_sip.tenant_uuid)),
+            ('set_var', 'WAZO_TENANT_UUID={}'.format(user_sip.UserSIP.tenant_uuid)),
             ('set_var', 'WAZO_CHANNEL_DIRECTION=from-wazo'),
         ]
 

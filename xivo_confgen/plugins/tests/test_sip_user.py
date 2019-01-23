@@ -283,14 +283,13 @@ class TestSipUserGenerator(unittest.TestCase):
         )
 
     def test_given_sip_account_associated_to_resources_then_resources_generated_in_section(self):
-        self.prepare_response(sip=SIP(name='user', _options=[]),
+        self.prepare_response(sip=SIP(name='user', _options=[], tenant_uuid='tenant-uuid'),
                               number='1000',
                               context='default',
                               protocol='sip',
                               mohsuggest='musiconhold',
                               user_id=42,
                               uuid='user-uuid',
-                              tenant_uuid='tenant-uuid',
                               mailbox='1001@default',
                               pickup_groups={'pickupgroup': [1, 2],
                                              'callgroup': [3, 4]})

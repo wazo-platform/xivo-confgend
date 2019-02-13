@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016 Proformatique Inc.
-# SPDX-License-Identifier: GPL-3.0+
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from jinja2 import Environment
 from jinja2 import ChoiceLoader, PackageLoader, FileSystemLoader

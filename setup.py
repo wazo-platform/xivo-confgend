@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from setuptools import setup
@@ -36,6 +36,9 @@ setup(
         ],
         'xivo_confgend.asterisk.pjsip.conf': [
             'wazo = xivo_confgen.plugins.pjsip_conf:PJSIPConfGenerator',
+        ],
+        'xivo_confgend.provd.network.yml': [
+            'wazo = xivo_confgen.plugins.provd_conf:ProvdNetworkConfGenerator',
         ],
     },
 )

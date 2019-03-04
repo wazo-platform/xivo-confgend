@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from StringIO import StringIO
@@ -66,6 +66,7 @@ class IncallExtensionGenerator(ExtensionGenerator):
 
     def generate(self):
         return {
+            'tenant_uuid': self._exten_row['tenant_uuid'],
             'context': self._exten_row['context'],
             'exten': self._exten_row['exten'],
             'priority': '1',
@@ -225,6 +226,7 @@ class ExtensionsConf(object):
             line = line.replace('%%EXTEN%%', str(exten.get('exten', '')))
             line = line.replace('%%PRIORITY%%', str(exten.get('priority', '')))
             line = line.replace('%%ACTION%%', str(exten.get('action', '')))
+            line = line.replace('%%TENANT_UUID%%', str(exten.get('tenant_uuid', '')))
 
             print >> output, prefix, line
         print >> output

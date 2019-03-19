@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo_confgen.generators.util import (
@@ -35,10 +35,5 @@ class QueuesConf(object):
                 print >> output, format_ast_option(k, v)
 
             queuemember_settings = asterisk_conf_dao.find_queue_members_settings(q['name'])
-            for m in queuemember_settings:
-                interface = m['interface']
-                # TODO clean after pjsip migration
-                if interface.startswith('SIP/'):
-                    interface = interface.replace('SIP', 'PJSIP')
-                member_value = '%s,%d' % (interface, m['penalty'])
-                print >> output, format_ast_object_option('member', member_value)
+            for values in queuemember_settings:
+                print >> output, format_ast_object_option('member', ','.join(values))

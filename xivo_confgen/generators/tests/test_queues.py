@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -47,7 +47,8 @@ class TestQueuesConf(unittest.TestCase):
             {'name': 'queue1', 'wrapuptime': 0, 'commented': False, 'joinempty': '', 'leaveempty': u''}
         ]
         find_queue_members_settings.return_value = [
-            {'interface': 'SIP/abc', 'penalty': 1, 'state_interface': '', 'skills': 'user-1'},
+            ('PJSIP/abc', '1', '', ''),
+            ('iface', '2', 'name', 'state_iface'),
         ]
 
         assert_generates_config(self.queues_conf, '''
@@ -55,7 +56,8 @@ class TestQueuesConf(unittest.TestCase):
 
             [queue1]
             wrapuptime = 0
-            member => PJSIP/abc,1
+            member => PJSIP/abc,1,,
+            member => iface,2,name,state_iface
         ''')
         find_queue_settings.assert_called_once_with()
         find_queue_members_settings.assert_called_once_with('queue1')

@@ -43,6 +43,9 @@ DEFAULT_EXTENFEATURES = {
     'fwdbusy': 'GoSub(feature_forward,s,1(busy,${EXTEN:3}))',
     'fwdrna': 'GoSub(feature_forward,s,1(rna,${EXTEN:3}))',
     'fwdunc': 'GoSub(feature_forward,s,1(unc,${EXTEN:3}))',
+    'groupmembertoggle': 'GoSub(group-member-toggle,s,1(${EXTEN:3}))',
+    'groupmemberjoin': 'GoSub(group-member-join,s,1(${EXTEN:3}))',
+    'groupmemberleave': 'GoSub(group-member-leave,s,1(${EXTEN:3}))',
 }
 
 

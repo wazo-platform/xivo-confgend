@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014 Avencall
+# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo.xivo_helpers import fkey_extension
@@ -28,6 +28,14 @@ class UserAdaptor(HintAdaptor):
 
     def generate(self, context):
         for hint in self.dao.user_hints(context):
+            yield (hint.extension, hint.argument)
+
+
+class UserSharedHintAdaptor(HintAdaptor):
+
+    def generate(self):
+        for hint in self.dao.user_shared_hints():
+            print(hint)
             yield (hint.extension, hint.argument)
 
 

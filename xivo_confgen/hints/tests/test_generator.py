@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -19,7 +19,7 @@ class TestGenerator(unittest.TestCase):
         adaptor = Mock(HintAdaptor)
         adaptor.generate.return_value = []
 
-        generator = HintGenerator([adaptor])
+        generator = HintGenerator([adaptor], [])
 
         assert_that(generator.generate(CONTEXT), contains())
 
@@ -27,7 +27,7 @@ class TestGenerator(unittest.TestCase):
         adaptor = Mock(HintAdaptor)
         adaptor.generate.return_value = [('4000', 'Meetme:4000')]
 
-        generator = HintGenerator([adaptor])
+        generator = HintGenerator([adaptor], [])
 
         assert_that(generator.generate(CONTEXT), contains('exten = 4000,hint,Meetme:4000'))
         adaptor.generate.assert_called_once_with(CONTEXT)
@@ -39,7 +39,7 @@ class TestGenerator(unittest.TestCase):
         second_adaptor = Mock(HintAdaptor)
         second_adaptor.generate.return_value = [('4000', 'Meetme:4000')]
 
-        generator = HintGenerator([first_adaptor, second_adaptor])
+        generator = HintGenerator([first_adaptor, second_adaptor], [])
 
         assert_that(generator.generate(CONTEXT),
                     contains('exten = 1000,hint,1000',
@@ -54,8 +54,18 @@ class TestGenerator(unittest.TestCase):
         second_adaptor = Mock(HintAdaptor)
         second_adaptor.generate.return_value = [('1000', 'Custom:1000')]
 
-        generator = HintGenerator([first_adaptor, second_adaptor])
+        generator = HintGenerator([first_adaptor, second_adaptor], [])
 
         assert_that(generator.generate(CONTEXT), contains('exten = 1000,hint,PJSIP/abcdef'))
         first_adaptor.generate.assert_called_once_with(CONTEXT)
         second_adaptor.generate.assert_called_once_with(CONTEXT)
+
+    def test_that_global_adaptors_are_called(self):
+        first_adaptor = Mock(HintAdaptor)
+        first_adaptor.generate.return_value = [('1001', 'PJSIP/abc&SCCP/1042')]
+
+        generator = HintGenerator([], [first_adaptor])
+
+        assert_that(generator.generate_global_hints(), contains(
+            'exten = 1001,hint,PJSIP/abc&SCCP/1042',
+        ))

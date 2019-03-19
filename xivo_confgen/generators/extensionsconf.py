@@ -111,6 +111,7 @@ class ExtensionsConf(object):
                 raise ValueError("Template section doesn't exist in %s" % self.contextsconf)
 
         # hints & features (init)
+        self._generate_global_hints(output)
         extenfeature_names = (
             'bsfilter',
             'callmeetme',
@@ -230,6 +231,11 @@ class ExtensionsConf(object):
 
             print >> output, prefix, line
         print >> output
+
+    def _generate_global_hints(self, output):
+        print >> output, '[usersharedlines]'
+        for line in self.hint_generator.generate_global_hints():
+            print >> output, line
 
     def _generate_hints(self, context, output):
         for line in self.hint_generator.generate(context):

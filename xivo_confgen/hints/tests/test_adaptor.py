@@ -14,6 +14,7 @@ from xivo_confgen.hints.adaptor import (
     ConferenceAdaptor,
     CustomAdaptor,
     ForwardAdaptor,
+    GroupMemberAdaptor,
     ServiceAdaptor,
     UserAdaptor,
 )
@@ -144,3 +145,19 @@ class TestBSFilterAdaptor(TestAdaptor):
         assert_that(adaptor.generate(CONTEXT),
                     contains(('*3712', 'Custom:*3712')))
         dao.bsfilter_hints.assert_called_once_with(CONTEXT)
+
+
+class TestGroupMemberAdaptor(TestAdaptor):
+
+    def test_adaptor_generates_groupmember_hint(self):
+        dao = Mock()
+        dao.progfunckey_extension.return_value = '*735'
+        dao.groupmember_hints.return_value = [Hint(user_id=42,
+                                                   extension='*50',
+                                                   argument='18')]
+
+        adaptor = GroupMemberAdaptor(dao)
+
+        assert_that(adaptor.generate(CONTEXT),
+                    contains(('*73542***250*18', 'Custom:*73542***250*18')))
+        dao.groupmember_hints.assert_called_once_with(CONTEXT)

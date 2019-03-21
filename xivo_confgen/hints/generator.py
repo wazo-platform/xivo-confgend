@@ -18,6 +18,7 @@ class HintGenerator(object):
             hint_adaptor.ConferenceAdaptor(hint_dao),
             hint_adaptor.CustomAdaptor(hint_dao),
             hint_adaptor.ForwardAdaptor(hint_dao),
+            hint_adaptor.GroupMemberAdaptor(hint_dao),
             hint_adaptor.ServiceAdaptor(hint_dao),
             hint_adaptor.UserAdaptor(hint_dao),
         ])

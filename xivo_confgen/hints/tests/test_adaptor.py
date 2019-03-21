@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014 Avencall
+# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -8,13 +8,15 @@ import unittest
 from mock import Mock
 from hamcrest import assert_that, contains, has_item
 
-from xivo_confgen.hints.adaptor import UserAdaptor
-from xivo_confgen.hints.adaptor import ConferenceAdaptor
-from xivo_confgen.hints.adaptor import ForwardAdaptor
-from xivo_confgen.hints.adaptor import ServiceAdaptor
-from xivo_confgen.hints.adaptor import AgentAdaptor
-from xivo_confgen.hints.adaptor import CustomAdaptor
-from xivo_confgen.hints.adaptor import BSFilterAdaptor
+from xivo_confgen.hints.adaptor import (
+    AgentAdaptor,
+    BSFilterAdaptor,
+    ConferenceAdaptor,
+    CustomAdaptor,
+    ForwardAdaptor,
+    ServiceAdaptor,
+    UserAdaptor,
+)
 
 from xivo_dao.resources.func_key.model import Hint
 

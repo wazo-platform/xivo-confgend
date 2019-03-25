@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014 Avencall
+# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -8,13 +8,16 @@ import unittest
 from mock import Mock
 from hamcrest import assert_that, contains, has_item
 
-from xivo_confgen.hints.adaptor import UserAdaptor
-from xivo_confgen.hints.adaptor import ConferenceAdaptor
-from xivo_confgen.hints.adaptor import ForwardAdaptor
-from xivo_confgen.hints.adaptor import ServiceAdaptor
-from xivo_confgen.hints.adaptor import AgentAdaptor
-from xivo_confgen.hints.adaptor import CustomAdaptor
-from xivo_confgen.hints.adaptor import BSFilterAdaptor
+from xivo_confgen.hints.adaptor import (
+    AgentAdaptor,
+    BSFilterAdaptor,
+    ConferenceAdaptor,
+    CustomAdaptor,
+    ForwardAdaptor,
+    GroupMemberAdaptor,
+    ServiceAdaptor,
+    UserAdaptor,
+)
 
 from xivo_dao.resources.func_key.model import Hint
 
@@ -142,3 +145,19 @@ class TestBSFilterAdaptor(TestAdaptor):
         assert_that(adaptor.generate(CONTEXT),
                     contains(('*3712', 'Custom:*3712')))
         dao.bsfilter_hints.assert_called_once_with(CONTEXT)
+
+
+class TestGroupMemberAdaptor(TestAdaptor):
+
+    def test_adaptor_generates_groupmember_hint(self):
+        dao = Mock()
+        dao.progfunckey_extension.return_value = '*735'
+        dao.groupmember_hints.return_value = [Hint(user_id=42,
+                                                   extension='*50',
+                                                   argument='18')]
+
+        adaptor = GroupMemberAdaptor(dao)
+
+        assert_that(adaptor.generate(CONTEXT),
+                    contains(('*73542***250*18', 'Custom:*73542***250*18')))
+        dao.groupmember_hints.assert_called_once_with(CONTEXT)

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo_confgen.hints import adaptor as hint_adaptor
@@ -12,13 +12,16 @@ class HintGenerator(object):
 
     @classmethod
     def build(cls):
-        return cls([hint_adaptor.UserAdaptor(hint_dao),
-                    hint_adaptor.ConferenceAdaptor(hint_dao),
-                    hint_adaptor.ServiceAdaptor(hint_dao),
-                    hint_adaptor.ForwardAdaptor(hint_dao),
-                    hint_adaptor.AgentAdaptor(hint_dao),
-                    hint_adaptor.BSFilterAdaptor(hint_dao),
-                    hint_adaptor.CustomAdaptor(hint_dao)])
+        return cls([
+            hint_adaptor.AgentAdaptor(hint_dao),
+            hint_adaptor.BSFilterAdaptor(hint_dao),
+            hint_adaptor.ConferenceAdaptor(hint_dao),
+            hint_adaptor.CustomAdaptor(hint_dao),
+            hint_adaptor.ForwardAdaptor(hint_dao),
+            hint_adaptor.GroupMemberAdaptor(hint_dao),
+            hint_adaptor.ServiceAdaptor(hint_dao),
+            hint_adaptor.UserAdaptor(hint_dao),
+        ])
 
     def __init__(self, adaptors):
         self.adaptors = adaptors

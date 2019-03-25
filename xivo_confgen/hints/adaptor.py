@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014 Avencall
+# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo.xivo_helpers import fkey_extension
@@ -42,6 +42,15 @@ class ForwardAdaptor(ProgfunckeyAdaptor):
 
     def find_hints(self, context):
         return self.dao.forward_hints(context)
+
+    def progfunckey_arguments(self, hint):
+        return [hint.user_id, hint.extension, hint.argument]
+
+
+class GroupMemberAdaptor(ProgfunckeyAdaptor):
+
+    def find_hints(self, context):
+        return self.dao.groupmember_hints(context)
 
     def progfunckey_arguments(self, hint):
         return [hint.user_id, hint.extension, hint.argument]

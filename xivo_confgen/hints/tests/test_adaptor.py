@@ -6,7 +6,7 @@
 import unittest
 
 from mock import Mock
-from hamcrest import assert_that, contains, has_item
+from hamcrest import assert_that, contains, contains_inanyorder, has_item
 
 from xivo_confgen.hints.adaptor import (
     AgentAdaptor,
@@ -17,6 +17,7 @@ from xivo_confgen.hints.adaptor import (
     GroupMemberAdaptor,
     ServiceAdaptor,
     UserAdaptor,
+    UserSharedHintAdaptor,
 )
 
 from xivo_dao.resources.func_key.model import Hint
@@ -42,6 +43,25 @@ class TestUserAdaptor(TestAdaptor):
     def test_adaptor_generates_user_hint(self):
         assert_that(self.adaptor.generate(CONTEXT), has_item(('1000', 'SIP/abcdef')))
         self.dao.user_hints.assert_called_once_with(CONTEXT)
+
+
+class TestUserSharedHintsAdaptor(TestAdaptor):
+
+    def setUp(self):
+        super(TestUserSharedHintsAdaptor, self).setUp()
+        self.dao = Mock()
+        hints = [
+            Hint(extension='83f38716-27d8-45c5-8fa6-5c7cb18acb26', argument='PJSIP/abc&SCCP/1001'),
+            Hint(extension='0486beeb-4e3d-415b-b32d-660f44f6bab8', argument='PJSIP/def&SCCP/1002'),
+        ]
+        self.dao.user_shared_hints.return_value = hints
+        self.adaptor = UserSharedHintAdaptor(self.dao)
+
+    def test_adaptor_generate_shared_user_hints(self):
+        assert_that(self.adaptor.generate(), contains_inanyorder(
+            contains('83f38716-27d8-45c5-8fa6-5c7cb18acb26', 'PJSIP/abc&SCCP/1001'),
+            contains('0486beeb-4e3d-415b-b32d-660f44f6bab8', 'PJSIP/def&SCCP/1002'),
+        ))
 
 
 class TestConferenceAdaptor(TestAdaptor):

@@ -31,6 +31,13 @@ class UserAdaptor(HintAdaptor):
             yield (hint.extension, hint.argument)
 
 
+class UserSharedHintAdaptor(HintAdaptor):
+
+    def generate(self):
+        for hint in self.dao.user_shared_hints():
+            yield (hint.extension, hint.argument)
+
+
 class ConferenceAdaptor(HintAdaptor):
 
     def generate(self, context):

@@ -12,7 +12,7 @@ class HintGenerator(object):
 
     @classmethod
     def build(cls):
-        return cls([
+        context_resource_adaptors = [
             hint_adaptor.AgentAdaptor(hint_dao),
             hint_adaptor.BSFilterAdaptor(hint_dao),
             hint_adaptor.ConferenceAdaptor(hint_dao),
@@ -21,14 +21,28 @@ class HintGenerator(object):
             hint_adaptor.GroupMemberAdaptor(hint_dao),
             hint_adaptor.ServiceAdaptor(hint_dao),
             hint_adaptor.UserAdaptor(hint_dao),
-        ])
+        ]
+        global_resource_adaptors = [
+            hint_adaptor.UserSharedHintAdaptor(hint_dao),
+        ]
 
-    def __init__(self, adaptors):
-        self.adaptors = adaptors
+        return cls(
+            context_resource_adaptors,
+            global_resource_adaptors,
+        )
+
+    def __init__(self, context_resource_adaptors, global_resource_adaptors):
+        self.context_resource_adaptors = context_resource_adaptors
+        self.global_resource_adaptors = global_resource_adaptors
+
+    def generate_global_hints(self):
+        for adaptor in self.global_resource_adaptors:
+            for extension, hint in adaptor.generate():
+                yield self.DIALPLAN.format(extension=extension, hint=hint)
 
     def generate(self, context):
         existing = set()
-        for adaptor in self.adaptors:
+        for adaptor in self.context_resource_adaptors:
             for extension, hint in adaptor.generate(context):
                 # TODO clean after pjsip migration
                 if hint.startswith('SIP'):

@@ -29,6 +29,7 @@ templates:
 # Plugins to use to generate the configuration files
 plugins:
   asterisk.confbridge.conf: xivo
+  asterisk.hep.conf: wazo
   asterisk.musiconhold.conf: xivo
   asterisk.rtp.conf: xivo
   asterisk.sip.conf: xivo

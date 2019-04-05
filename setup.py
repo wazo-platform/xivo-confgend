@@ -22,6 +22,9 @@ setup(
         'xivo_confgend.asterisk.confbridge.conf': [
             'xivo = xivo_confgen.plugins.confbridge_conf:ConfBridgeConfGenerator',
         ],
+        'xivo_confgend.asterisk.hep.conf': [
+            'wazo = xivo_confgen.plugins.hep_conf:HEPConfGenerator',
+        ],
         'xivo_confgend.asterisk.musiconhold.conf': [
             'xivo = xivo_confgen.plugins.musiconhold_conf:MOHConfGenerator',
         ],

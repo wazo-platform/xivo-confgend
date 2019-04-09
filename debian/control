@@ -29,7 +29,7 @@ Description: Wazo telephony systems configurations generator
 Package: xivo-libconfgend
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, xivo-libdao, python-jinja2, python-yaml, python-stevedore
-Suggests: xivo-confgen, xivo-web-interface
+Suggests: xivo-confgen
 Provides: pf-xivo-libconfgend
 Replaces: pf-xivo-libconfgend
 Conflicts: pf-xivo-libconfgend

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -38,7 +38,7 @@ class TestDirdFrontEndViews(unittest.TestCase):
                               'profile_to_display': 'associations',
                               'profile_to_display_phone': 'phone_associations'}}
 
-        assert_that(yaml.load(result), equal_to(expected))
+        assert_that(yaml.safe_load(result), equal_to(expected))
 
 
 class TestNoContextSeparationDirdFrontendViewsGenerators(unittest.TestCase):
@@ -197,4 +197,4 @@ class TestNoContextSeparationDirdFrontendServices(unittest.TestCase):
                                  'favorites': 'favorites',
                                  'reverse': 'reverses'}}
 
-        assert_that(yaml.load(result), equal_to(expected))
+        assert_that(yaml.safe_load(result), equal_to(expected))

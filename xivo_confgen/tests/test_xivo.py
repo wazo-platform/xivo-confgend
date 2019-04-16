@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Avencall
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import yaml
@@ -29,4 +29,4 @@ class TestUUIDyml(unittest.TestCase):
             'uuid': 'sentinel-uuid',
         }
 
-        assert_that(yaml.load(result), equal_to(expected))
+        assert_that(yaml.safe_load(result), equal_to(expected))

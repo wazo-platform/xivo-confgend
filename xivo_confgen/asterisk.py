@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2010-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from StringIO import StringIO
@@ -148,7 +148,7 @@ class AsteriskFrontend(object):
         options = StringIO()
 
         for r in asterisk_conf_dao.find_queue_skillrule_settings():
-            print >> options, "\n[%s]" % r['name']
+            print >> options, "\n[skillrule-%s]" % r['id']
 
             if 'rule' in r and r['rule'] is not None:
                 for rule in r['rule'].split(';'):

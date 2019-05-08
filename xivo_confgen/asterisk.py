@@ -148,7 +148,7 @@ class AsteriskFrontend(object):
         options = StringIO()
 
         for r in asterisk_conf_dao.find_queue_skillrule_settings():
-            print >> options, "\n[%s-%s]" % (r['id'], r['name'])
+            print >> options, "\n[skillrule-%s]" % r['id']
 
             if 'rule' in r and r['rule'] is not None:
                 for rule in r['rule'].split(';'):

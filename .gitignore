@@ -1,7 +1,8 @@
+*.egg-info
 *.pyc
-.tox
 .coverage
+.tox
 coverage.xml
 nosetests.xml
-pylint.txt
 pycodestyle.txt
+pylint.txt

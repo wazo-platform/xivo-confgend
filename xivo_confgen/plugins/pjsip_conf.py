@@ -276,6 +276,9 @@ class SipDBExtractor(object):
         for key, value in all_options:
             user_dict[key] = value
 
+        if user_sip.application_uuid:
+            user_dict['context'] = 'stasis-wazo-app-{}'.format(user_sip.application_uuid)
+
         fields = [
             ('type', 'endpoint'),
             ('context', user_dict['context']),

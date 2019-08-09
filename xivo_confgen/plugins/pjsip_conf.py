@@ -541,16 +541,18 @@ class SipDBExtractor(object):
         ]
 
         self._add_from_mapping(fields, self.sip_general_to_transport, self._general_settings_dict)
+        self._add_pjsip_options(fields, transport_options, self._general_settings_dict)
         for row in self._static_sip:
             if row['var_name'] != 'localnet':
                 continue
             fields.append(('local_net', row['var_val']))
 
-        extern_ip = self._general_settings_dict.get('externip')
-        extern_host = self._general_settings_dict.get('externhost')
-        extern_signaling_address = extern_host or extern_ip
-        if extern_signaling_address:
-            fields.append(('external_signaling_address', extern_signaling_address))
+        if 'external_signaling_address' not in [field[0] for field in fields]:
+            extern_ip = self._general_settings_dict.get('externip')
+            extern_host = self._general_settings_dict.get('externhost')
+            extern_signaling_address = extern_host or extern_ip
+            if extern_signaling_address:
+                fields.append(('external_signaling_address', extern_signaling_address))
 
         return fields
 

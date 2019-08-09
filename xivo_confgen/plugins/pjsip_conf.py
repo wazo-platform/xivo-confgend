@@ -251,6 +251,8 @@ class SipDBExtractor(object):
             ('password', user_sip[0].secret),
         ]
 
+        self._add_pjsip_options(fields, auth_options, user_sip[0].__dict__)
+
         return Section(
             name=user_sip[0].name,
             type_='section',
@@ -264,6 +266,9 @@ class SipDBExtractor(object):
             ('username', trunk_sip.name),
             ('password', trunk_sip.secret),
         ]
+
+        self._add_pjsip_options(fields, auth_options, trunk_sip.__dict__)
+        self._add_pjsip_options(fields, auth_options, trunk_sip._options, from_list=True)
 
         return Section(
             name=trunk_sip.name,

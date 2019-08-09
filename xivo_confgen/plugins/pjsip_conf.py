@@ -530,6 +530,11 @@ class SipDBExtractor(object):
 
         self._add_from_mapping(fields, self.sip_general_to_system, self._general_settings_dict)
 
+        for option in system_options:
+            value = self._general_settings_dict.get(option)
+            if value is not None:
+                fields.append((option, value))
+
         return Section(
             name='system',
             type_='section',

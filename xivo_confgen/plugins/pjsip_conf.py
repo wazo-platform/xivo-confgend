@@ -510,11 +510,7 @@ class SipDBExtractor(object):
         ]
 
         self._add_from_mapping(fields, self.sip_general_to_global, self._general_settings_dict)
-
-        for option in global_options:
-            value = self._general_settings_dict.get(option)
-            if value is not None:
-                fields.append((option, value))
+        self._add_pjsip_options(fields, global_options, self._general_settings_dict)
 
         return Section(
             name='global',
@@ -529,11 +525,7 @@ class SipDBExtractor(object):
         ]
 
         self._add_from_mapping(fields, self.sip_general_to_system, self._general_settings_dict)
-
-        for option in system_options:
-            value = self._general_settings_dict.get(option)
-            if value is not None:
-                fields.append((option, value))
+        self._add_pjsip_options(fields, system_options, self._general_settings_dict)
 
         return Section(
             name='system',
@@ -603,7 +595,15 @@ class SipDBExtractor(object):
 
         return self._get_base_udp_transport('wss')
 
-    def _add_from_mapping(self, fields, mapping, config):
+    @staticmethod
+    def _add_pjsip_options(fields, options, config):
+        for option in options:
+            value = config.get(option)
+            if value is not None:
+                fields.append((option, value))
+
+    @staticmethod
+    def _add_from_mapping(fields, mapping, config):
         for sip_key, pjsip_key in mapping:
             value = config.get(sip_key)
             if not value:

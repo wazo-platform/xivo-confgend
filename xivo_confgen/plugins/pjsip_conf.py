@@ -88,11 +88,8 @@ class SipDBExtractor(object):
         ('autoframing', 'use_ptime'),
         ('avpf', 'use_avpf'),
         ('busylevel', 'device_state_busy_at'),
-        ('callerid', 'callerid'),
         ('callingpres', 'callerid_privacy'),
         ('cid_tag', 'callerid_tag'),
-        ('cos_audio', 'cos_audio'),
-        ('cos_video', 'cos_video'),
         ('dtlscafile', 'dtls_ca_file'),
         ('dtlscapath', 'dtls_ca_path'),
         ('dtlscertfile', 'dtls_cert_file'),
@@ -105,28 +102,19 @@ class SipDBExtractor(object):
         ('fromdomain', 'from_domain'),
         ('fromuser', 'from_user'),
         ('icesupport', 'ice_support'),
-        ('language', 'language'),
-        ('max_audio_streams', 'max_audio_streams'),
-        ('max_video_streams', 'max_video_streams'),
         ('mohsuggest', 'moh_suggest'),
         ('mwifrom', 'mwi_from_user'),
         ('outboundproxy', 'outbound_proxy'),
-        ('rtcp_mux', 'rtcp_mux'),
-        ('rtp_engine', 'rtp_engine'),
         ('rtptimeout', 'rtp_timeout'),
         ('sdpowner', 'sdp_owner'),
         ('sdpowner', 'sdp_owner'),
         ('sdpsession', 'sdp_session'),
         ('sdpsession', 'sdp_session'),
-        ('send_diversion', 'send_diversion'),
         ('session-expires', 'timers_sess_expires'),
         ('session-minse', 'timers_min_se'),
         ('subminexpiry', 'sub_min_expiry'),
         ('tonezone', 'tone_zone'),
-        ('tos_audio', 'tos_audio'),
-        ('tos_video', 'tos_video'),
         ('trustpid', 'trust_id_inbound'),
-        ('webrtc', 'webrtc'),
     ]
 
     def __init__(self):
@@ -344,6 +332,7 @@ class SipDBExtractor(object):
             self._add_option(fields, ('transport', 'transport-wss'))
         if user_dict.get('transport') == 'tcp':
             self._add_option(fields, ('transport', 'transport-tcp'))
+        self._add_pjsip_options(fields, endpoint_options, user_dict)
 
         return Section(
             name=user_sip[0].name,
@@ -388,6 +377,8 @@ class SipDBExtractor(object):
             self._add_option(fields, pair)
         for pair in self._convert_directmedia(trunk_dict):
             self._add_option(fields, pair)
+
+        self._add_pjsip_options(fields, endpoint_options, trunk_dict)
 
         return Section(
             name=trunk_sip.name,
@@ -484,6 +475,8 @@ class SipDBExtractor(object):
             key = row['var_name']
             if key in ('allow', 'disallow'):
                 self._add_option(fields, (key, row['var_val']))
+
+        self._add_pjsip_options(fields, endpoint_options, self._general_settings_dict)
 
         return Section(
             name='wazo-general-endpoint',

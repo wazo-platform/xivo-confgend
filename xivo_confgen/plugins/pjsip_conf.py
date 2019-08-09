@@ -10,7 +10,6 @@ from .pjsip_registration import Registration
 from .pjsip_options import (
     aor_options,
     auth_options,
-    contact_options,
     endpoint_options,
     global_options,
     system_options,

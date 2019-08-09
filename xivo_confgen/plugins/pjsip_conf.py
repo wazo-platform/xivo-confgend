@@ -7,6 +7,15 @@ from collections import namedtuple
 from xivo_dao import asterisk_conf_dao
 
 from .pjsip_registration import Registration
+from .pjsip_options import (
+    aor_options,
+    auth_options,
+    contact_options,
+    endpoint_options,
+    global_options,
+    system_options,
+    transport_options,
+)
 
 Section = namedtuple('Section', ['name', 'type_', 'templates', 'fields'])
 

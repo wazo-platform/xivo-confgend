@@ -503,17 +503,18 @@ class SipDBExtractor(object):
         )
 
     def _get_global(self):
-        endpoint_identifier_order = self._general_settings_dict.get(
-            'endpoint_identifier_order',
-            'auth_username,username,ip',
-        )
+        self._general_settings_dict.setdefault('endpoint_identifier_order', 'auth_username,username,ip')
 
         fields = [
             ('type', 'global'),
-            ('endpoint_identifier_order', endpoint_identifier_order),
         ]
 
         self._add_from_mapping(fields, self.sip_general_to_global, self._general_settings_dict)
+
+        for option in global_options:
+            value = self._general_settings_dict.get(option)
+            if value is not None:
+                fields.append((option, value))
 
         return Section(
             name='global',

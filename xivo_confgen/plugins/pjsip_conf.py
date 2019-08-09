@@ -195,9 +195,12 @@ class SipDBExtractor(object):
             ('type', 'aor'),
         ]
 
-        self._add_from_mapping(fields, self.sip_to_aor, trunk_sip.__dict__)
+        config = trunk_sip.__dict__
+        self._add_from_mapping(fields, self.sip_to_aor, config)
         for field in self._convert_host(trunk_sip):
             self._add_option(fields, field)
+        self._add_pjsip_options(fields, aor_options, config)
+        self._add_pjsip_options(fields, aor_options, trunk_sip._options, from_list=True)
 
         return Section(
             name=trunk_sip.name,
@@ -236,12 +239,15 @@ class SipDBExtractor(object):
             ('type', 'aor'),
         ]
 
-        self._add_from_mapping(fields, self.sip_to_aor, user_sip[0].__dict__)
+        config = user_sip[0].__dict__
+        self._add_from_mapping(fields, self.sip_to_aor, config)
         for field in self._convert_host(user_sip[0]):
             self._add_option(fields, field)
 
         if user_sip.mailbox and user_sip[0].subscribemwi == 'yes':
             self._add_option(fields, ('mailboxes', user_sip.mailbox))
+
+        self._add_pjsip_options(fields, aor_options, config)
 
         return Section(
             name=user_sip[0].name,
@@ -440,6 +446,7 @@ class SipDBExtractor(object):
         ]
 
         self._add_from_mapping(fields, self.sip_to_aor, self._general_settings_dict)
+        self._add_pjsip_options(fields, aor_options, self._general_settings_dict)
 
         return Section(
             name='wazo-general-aor',
@@ -598,11 +605,16 @@ class SipDBExtractor(object):
         return self._get_base_udp_transport('wss')
 
     @staticmethod
-    def _add_pjsip_options(fields, options, config):
+    def _add_pjsip_options(fields, options, config, from_list=False):
         for option in options:
-            value = config.get(option)
-            if value is not None:
-                fields.append((option, value))
+            if from_list:
+                for key, value in config:
+                    if key == option and value is not None:
+                        fields.append((option, value))
+            else:
+                value = config.get(option)
+                if value is not None:
+                    fields.append((option, value))
 
     @staticmethod
     def _add_from_mapping(fields, mapping, config):

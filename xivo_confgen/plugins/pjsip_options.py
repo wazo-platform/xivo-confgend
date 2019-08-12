@@ -57,7 +57,7 @@ endpoint_options = [
     'dtmf_mode',
     'fax_detect',
     'fax_detect_timeout',
-    # 'follow_early_media_fork',
+    'follow_early_media_fork',
     'force_avp',
     'force_rport',
     'from_domain',
@@ -213,7 +213,7 @@ system_options = [
     'threadpool_idle_timeout',
     'threadpool_max_size',
     'disable_tcp_switch',
-    # 'follow_early_media_fork',
+    'follow_early_media_fork',
     'accept_multiple_sdp_answers',
 ]
 

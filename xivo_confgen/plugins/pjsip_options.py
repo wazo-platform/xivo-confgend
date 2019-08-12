@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 endpoint_options = [
     '100rel',
-    # 'accept_multiple_sdp_answers',
+    'accept_multiple_sdp_answers',
     'accountcode',
     'acl',
     'aggregate_mwi',
@@ -214,7 +214,7 @@ system_options = [
     'threadpool_max_size',
     'disable_tcp_switch',
     # 'follow_early_media_fork',
-    # 'accept_multiple_sdp_answers',
+    'accept_multiple_sdp_answers',
 ]
 
 global_options = [
@@ -243,27 +243,3 @@ global_options = [
     'use_callerid_contact',
     # 'user_agent',
 ]
-
-visited_options = set()
-ambiguous_options = set()
-for option_list in [
-    aor_options,
-    auth_options,
-    contact_options,
-    endpoint_options,
-    global_options,
-    system_options,
-    transport_options,
-]:
-    for option in option_list:
-        if option in visited_options:
-            ambiguous_options.add(option)
-        else:
-            visited_options.add(option)
-
-logger.debug(
-    'Found %s pjsip options %s ambiguous',
-    len(visited_options) + len(ambiguous_options), len(ambiguous_options),
-)
-# No duplicate allowed at the moment, will re-add them one by one.
-assert len(ambiguous_options) == 0, ambiguous_options

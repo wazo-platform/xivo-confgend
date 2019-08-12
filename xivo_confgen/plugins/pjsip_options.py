@@ -140,7 +140,7 @@ auth_options = [
     'auth_type',
     'nonce_lifetime',
     'md5_cred',
-    # 'password',
+    'password',
     'realm',
     'username',
 ]
@@ -160,7 +160,7 @@ transport_options = [
     'external_signaling_port',
     'local_net',
     'method',
-    # 'password',
+    'password',
     'priv_key_file',
     'protocol',
     'require_client_cert',

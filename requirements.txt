@@ -1,5 +1,5 @@
-git+https://github.com/wazo-pbx/xivo-dao.git
-git+https://github.com/wazo-pbx/xivo-lib-python.git
+https://github.com/wazo-pbx/xivo-dao/archive/buster.zip
+https://github.com/wazo-pbx/xivo-lib-python/archive/buster.zip
 jinja2==2.10
 pyyaml==3.13
 psycopg2-binary

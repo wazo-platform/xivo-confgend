@@ -183,7 +183,7 @@ contact_options = [
     # 'qualify_timeout',
     'reg_server',
     'uri',
-    # 'user_agent',
+    'user_agent',
     'via_addr',
     'via_port',
 ]
@@ -241,5 +241,5 @@ global_options = [
     'unidentified_request_period',
     'unidentified_request_prune_interval',
     'use_callerid_contact',
-    # 'user_agent',
+    'user_agent',
 ]

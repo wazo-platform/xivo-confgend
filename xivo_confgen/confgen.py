@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -9,7 +9,7 @@ from xivo_confgen import cache
 from xivo_confgen.asterisk import AsteriskFrontend
 from xivo_confgen.xivo import XivoFrontend
 from xivo_confgen.dird import DirdFrontend
-from xivo_confgen.dird_phoned import DirdPhonedFrontend
+from xivo_confgen.phoned import PhonedFrontend
 from xivo_confgen.handler import (
     CachedHandlerFactoryDecorator,
     MultiHandlerFactory,
@@ -66,7 +66,7 @@ class ConfgendFactory(ServerFactory):
         frontends = {
             'asterisk': AsteriskFrontend(config, tpl_helper),
             'dird': DirdFrontend(),
-            'dird-phoned': DirdPhonedFrontend(),
+            'phoned': PhonedFrontend(),
             'xivo': XivoFrontend(),
         }
         self._cache = cache.FileCache(cachedir)

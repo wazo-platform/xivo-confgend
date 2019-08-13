@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Avencall
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import yaml
@@ -7,7 +7,7 @@ import yaml
 from xivo_dao import phone_access_dao
 
 
-class DirdPhonedFrontend(object):
+class PhonedFrontend(object):
 
     def config_yml(self):
         authorized_subnets = phone_access_dao.get_authorized_subnets()

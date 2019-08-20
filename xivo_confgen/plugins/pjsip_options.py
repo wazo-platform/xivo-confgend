@@ -123,7 +123,6 @@ endpoint_options = [
     'tone_zone',
     'tos_audio',
     'tos_video',
-    'transport',
     'trust_connected_line',
     'trust_id_inbound',
     'trust_id_outbound',

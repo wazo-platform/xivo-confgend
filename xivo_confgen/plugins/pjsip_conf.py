@@ -7,6 +7,14 @@ from collections import namedtuple
 from xivo_dao import asterisk_conf_dao
 
 from .pjsip_registration import Registration
+from .pjsip_options import (
+    aor_options,
+    auth_options,
+    endpoint_options,
+    global_options,
+    system_options,
+    transport_options,
+)
 
 Section = namedtuple('Section', ['name', 'type_', 'templates', 'fields'])
 
@@ -79,11 +87,8 @@ class SipDBExtractor(object):
         ('autoframing', 'use_ptime'),
         ('avpf', 'use_avpf'),
         ('busylevel', 'device_state_busy_at'),
-        ('callerid', 'callerid'),
         ('callingpres', 'callerid_privacy'),
         ('cid_tag', 'callerid_tag'),
-        ('cos_audio', 'cos_audio'),
-        ('cos_video', 'cos_video'),
         ('dtlscafile', 'dtls_ca_file'),
         ('dtlscapath', 'dtls_ca_path'),
         ('dtlscertfile', 'dtls_cert_file'),
@@ -96,28 +101,19 @@ class SipDBExtractor(object):
         ('fromdomain', 'from_domain'),
         ('fromuser', 'from_user'),
         ('icesupport', 'ice_support'),
-        ('language', 'language'),
-        ('max_audio_streams', 'max_audio_streams'),
-        ('max_video_streams', 'max_video_streams'),
         ('mohsuggest', 'moh_suggest'),
         ('mwifrom', 'mwi_from_user'),
         ('outboundproxy', 'outbound_proxy'),
-        ('rtcp_mux', 'rtcp_mux'),
-        ('rtp_engine', 'rtp_engine'),
         ('rtptimeout', 'rtp_timeout'),
         ('sdpowner', 'sdp_owner'),
         ('sdpowner', 'sdp_owner'),
         ('sdpsession', 'sdp_session'),
         ('sdpsession', 'sdp_session'),
-        ('send_diversion', 'send_diversion'),
         ('session-expires', 'timers_sess_expires'),
         ('session-minse', 'timers_min_se'),
         ('subminexpiry', 'sub_min_expiry'),
         ('tonezone', 'tone_zone'),
-        ('tos_audio', 'tos_audio'),
-        ('tos_video', 'tos_video'),
         ('trustpid', 'trust_id_inbound'),
-        ('webrtc', 'webrtc'),
     ]
 
     def __init__(self):
@@ -186,9 +182,12 @@ class SipDBExtractor(object):
             ('type', 'aor'),
         ]
 
-        self._add_from_mapping(fields, self.sip_to_aor, trunk_sip.__dict__)
+        config = trunk_sip.__dict__
+        self._add_from_mapping(fields, self.sip_to_aor, config)
         for field in self._convert_host(trunk_sip):
             self._add_option(fields, field)
+        self._add_pjsip_options(fields, aor_options, config)
+        self._add_pjsip_options(fields, aor_options, trunk_sip._options, from_list=True)
 
         return Section(
             name=trunk_sip.name,
@@ -227,12 +226,15 @@ class SipDBExtractor(object):
             ('type', 'aor'),
         ]
 
-        self._add_from_mapping(fields, self.sip_to_aor, user_sip[0].__dict__)
+        config = user_sip[0].__dict__
+        self._add_from_mapping(fields, self.sip_to_aor, config)
         for field in self._convert_host(user_sip[0]):
             self._add_option(fields, field)
 
         if user_sip.mailbox and user_sip[0].subscribemwi == 'yes':
             self._add_option(fields, ('mailboxes', user_sip.mailbox))
+
+        self._add_pjsip_options(fields, aor_options, config)
 
         return Section(
             name=user_sip[0].name,
@@ -248,6 +250,8 @@ class SipDBExtractor(object):
             ('password', user_sip[0].secret),
         ]
 
+        self._add_pjsip_options(fields, auth_options, user_sip[0].__dict__)
+
         return Section(
             name=user_sip[0].name,
             type_='section',
@@ -261,6 +265,9 @@ class SipDBExtractor(object):
             ('username', trunk_sip.name),
             ('password', trunk_sip.secret),
         ]
+
+        self._add_pjsip_options(fields, auth_options, trunk_sip.__dict__)
+        self._add_pjsip_options(fields, auth_options, trunk_sip._options, from_list=True)
 
         return Section(
             name=trunk_sip.name,
@@ -329,6 +336,7 @@ class SipDBExtractor(object):
             self._add_option(fields, ('transport', 'transport-wss'))
         if user_dict.get('transport') == 'tcp':
             self._add_option(fields, ('transport', 'transport-tcp'))
+        self._add_pjsip_options(fields, endpoint_options, user_dict)
 
         return Section(
             name=user_sip[0].name,
@@ -373,6 +381,8 @@ class SipDBExtractor(object):
             self._add_option(fields, pair)
         for pair in self._convert_directmedia(trunk_dict):
             self._add_option(fields, pair)
+
+        self._add_pjsip_options(fields, endpoint_options, trunk_dict)
 
         return Section(
             name=trunk_sip.name,
@@ -431,6 +441,7 @@ class SipDBExtractor(object):
         ]
 
         self._add_from_mapping(fields, self.sip_to_aor, self._general_settings_dict)
+        self._add_pjsip_options(fields, aor_options, self._general_settings_dict)
 
         return Section(
             name='wazo-general-aor',
@@ -469,6 +480,8 @@ class SipDBExtractor(object):
             if key in ('allow', 'disallow'):
                 self._add_option(fields, (key, row['var_val']))
 
+        self._add_pjsip_options(fields, endpoint_options, self._general_settings_dict)
+
         return Section(
             name='wazo-general-endpoint',
             type_='template',
@@ -494,17 +507,14 @@ class SipDBExtractor(object):
         )
 
     def _get_global(self):
-        endpoint_identifier_order = self._general_settings_dict.get(
-            'endpoint_identifier_order',
-            'auth_username,username,ip',
-        )
+        self._general_settings_dict.setdefault('endpoint_identifier_order', 'auth_username,username,ip')
 
         fields = [
             ('type', 'global'),
-            ('endpoint_identifier_order', endpoint_identifier_order),
         ]
 
         self._add_from_mapping(fields, self.sip_general_to_global, self._general_settings_dict)
+        self._add_pjsip_options(fields, global_options, self._general_settings_dict)
 
         return Section(
             name='global',
@@ -519,6 +529,7 @@ class SipDBExtractor(object):
         ]
 
         self._add_from_mapping(fields, self.sip_general_to_system, self._general_settings_dict)
+        self._add_pjsip_options(fields, system_options, self._general_settings_dict)
 
         return Section(
             name='system',
@@ -534,16 +545,18 @@ class SipDBExtractor(object):
         ]
 
         self._add_from_mapping(fields, self.sip_general_to_transport, self._general_settings_dict)
+        self._add_pjsip_options(fields, transport_options, self._general_settings_dict)
         for row in self._static_sip:
             if row['var_name'] != 'localnet':
                 continue
             fields.append(('local_net', row['var_val']))
 
-        extern_ip = self._general_settings_dict.get('externip')
-        extern_host = self._general_settings_dict.get('externhost')
-        extern_signaling_address = extern_host or extern_ip
-        if extern_signaling_address:
-            fields.append(('external_signaling_address', extern_signaling_address))
+        if 'external_signaling_address' not in [field[0] for field in fields]:
+            extern_ip = self._general_settings_dict.get('externip')
+            extern_host = self._general_settings_dict.get('externhost')
+            extern_signaling_address = extern_host or extern_ip
+            if extern_signaling_address:
+                fields.append(('external_signaling_address', extern_signaling_address))
 
         return fields
 
@@ -588,7 +601,20 @@ class SipDBExtractor(object):
 
         return self._get_base_udp_transport('wss')
 
-    def _add_from_mapping(self, fields, mapping, config):
+    @staticmethod
+    def _add_pjsip_options(fields, options, config, from_list=False):
+        for option in options:
+            if from_list:
+                for key, value in config:
+                    if key == option and value is not None:
+                        fields.append((option, value))
+            else:
+                value = config.get(option)
+                if value is not None:
+                    fields.append((option, value))
+
+    @staticmethod
+    def _add_from_mapping(fields, mapping, config):
         for sip_key, pjsip_key in mapping:
             value = config.get(sip_key)
             if not value:

@@ -1,8 +1,8 @@
-git+https://github.com/wazo-pbx/xivo-dao.git
-git+https://github.com/wazo-pbx/xivo-lib-python.git
-jinja2==2.10.1
-pyyaml==3.12
+https://github.com/wazo-pbx/xivo-dao/archive/buster.zip
+https://github.com/wazo-pbx/xivo-lib-python/archive/buster.zip
+jinja2==2.10
+pyyaml==3.13
 psycopg2-binary
-sqlalchemy==1.0.15
-stevedore==1.17.1
-twisted==16.6.0
+sqlalchemy==1.2.18
+stevedore==1.29.0
+twisted==18.9.0

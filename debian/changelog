@@ -1,3 +1,9 @@
+wazo-confgend (19.14~20190917) wazo-dev-buster; urgency=medium
+
+  * rename xivo-confgend to wazo-confgend
+
+ -- Wazo Maintainers <dev+pkg@wazo.community>  Tue, 17 Sep 2019 15:17:35 -0400
+
 xivo-confgend (1:15.03~20150210.164916.a49ee01) xivo-dev; urgency=low
 
   * rename xivo-confgen to xivo-confgend

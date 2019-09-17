@@ -28,7 +28,7 @@ Description: Wazo telephony systems configurations generator
 
 Package: wazo-libconfgend
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, xivo-libdao, python-jinja2, python-yaml, python-stevedore
+Depends: ${python:Depends}, ${misc:Depends}, xivo-libdao, python-jinja2, python-yaml, python-stevedore, rename
 Suggests: wazo-confgen
 Provides: xivo-libconfgend
 Replaces: xivo-libconfgend

@@ -8,31 +8,21 @@ X-Python-Version: >= 2.7
 
 Package: wazo-confgend
 Architecture: all
-Pre-Depends: wazo-libconfgend
-Depends: ${python:Depends}, ${misc:Depends}, adduser, python-twisted, xivo-lib-python
-Provides: xivo-confgend
-Replaces: xivo-confgend
-Conflicts: xivo-confgend
+Depends:
+  ${python:Depends},
+  ${misc:Depends},
+  adduser,
+  python-jinja2,
+  python-stevedore,
+  python-twisted,
+  python-yaml,
+  rename,
+  xivo-lib-python,
+  xivo-libdao
+Provides: xivo-confgend, xivo-libconfgend
+Replaces: xivo-confgend, xivo-libconfgend
+Conflicts: xivo-confgend, xivo-libconfgend
 Suggests: wazo-confgen
-Description: Wazo telephony systems configurations generator
- Wazo is a system based on a powerful IPBX, to bring an easy to
- install solution for telephony and related services.
- .
- Confgen generate asterisk/freeswitch or any other telephony system 
- configuration from a Wazo configuration.
- Confgen is build on a flexible architecture of frontends (targeted systems) 
- and backends (data source).
- .
- confgend is the server part of the generator
- .
-
-Package: wazo-libconfgend
-Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, xivo-libdao, python-jinja2, python-yaml, python-stevedore, rename
-Suggests: wazo-confgen
-Provides: xivo-libconfgend
-Replaces: xivo-libconfgend
-Conflicts: xivo-libconfgend
 Description: Wazo telephony systems configurations generator
  Wazo is a system based on a powerful IPBX, to bring an easy to
  install solution for telephony and related services.

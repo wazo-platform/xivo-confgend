@@ -16,7 +16,7 @@ RUN apt-get -qq -y install \
     libpq-dev \
     python-twisted
 
-# Install xivo-confgend
+# Install wazo-confgend
 WORKDIR /root
 ADD . /root/confgend
 WORKDIR confgend
@@ -24,8 +24,8 @@ RUN pip install -r requirements.txt
 RUN python setup.py install
 
 # Configure environment
-RUN touch /var/log/xivo-confgend.log
-RUN mkdir /var/lib/xivo-confgend
+RUN touch /var/log/wazo-confgend.log
+RUN mkdir /var/cache/wazo-confgend
 RUN cp -a etc/* /etc
 WORKDIR /root
 
@@ -35,4 +35,4 @@ RUN rm -rf /root/confgend
 
 EXPOSE 8669
 
-CMD /usr/local/bin/xivo-confgend
+CMD /usr/local/bin/wazo-confgend

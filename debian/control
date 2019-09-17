@@ -1,19 +1,19 @@
-Source: xivo-confgend
+Source: wazo-confgend
 Section: python
 Priority: extra
-Maintainer: Wazo Maintainers <dev.wazo@gmail.com>
+Maintainer: Wazo Maintainers <dev@wazo.community>
 Build-Depends: debhelper (>= 9), dh-python, dh-systemd (>= 1.5), python-all (>= 2.7), python-setuptools
 Standards-Version: 3.9.6
 X-Python-Version: >= 2.7
 
-Package: xivo-confgend
+Package: wazo-confgend
 Architecture: all
-Pre-Depends: xivo-libconfgend
+Pre-Depends: wazo-libconfgend
 Depends: ${python:Depends}, ${misc:Depends}, adduser, python-twisted, xivo-lib-python
-Provides: pf-xivo-confgend
-Replaces: pf-xivo-confgend
-Conflicts: pf-xivo-confgend
-Suggests: xivo-confgen
+Provides: xivo-confgend
+Replaces: xivo-confgend
+Conflicts: xivo-confgend
+Suggests: wazo-confgen
 Description: Wazo telephony systems configurations generator
  Wazo is a system based on a powerful IPBX, to bring an easy to
  install solution for telephony and related services.
@@ -26,13 +26,13 @@ Description: Wazo telephony systems configurations generator
  confgend is the server part of the generator
  .
 
-Package: xivo-libconfgend
+Package: wazo-libconfgend
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, xivo-libdao, python-jinja2, python-yaml, python-stevedore
-Suggests: xivo-confgen
-Provides: pf-xivo-libconfgend
-Replaces: pf-xivo-libconfgend
-Conflicts: pf-xivo-libconfgend
+Suggests: wazo-confgen
+Provides: xivo-libconfgend
+Replaces: xivo-libconfgend
+Conflicts: xivo-libconfgend
 Description: Wazo telephony systems configurations generator
  Wazo is a system based on a powerful IPBX, to bring an easy to
  install solution for telephony and related services.

@@ -8,7 +8,7 @@ from setuptools import find_packages
 
 
 setup(
-    name='xivo-confgend',
+    name='wazo-confgend',
     version='0.2',
     description='Wazo configurations generator',
     author='Wazo Authors',
@@ -17,31 +17,31 @@ setup(
     license='GPLv3',
     include_package_data=True,
     packages=find_packages(),
-    scripts=['bin/xivo-confgend'],
+    scripts=['bin/wazo-confgend'],
     entry_points={
-        'xivo_confgend.asterisk.confbridge.conf': [
-            'xivo = xivo_confgen.plugins.confbridge_conf:ConfBridgeConfGenerator',
+        'wazo_confgendd.asterisk.confbridge.conf': [
+            'wazo = wazo_confgend.plugins.confbridge_conf:ConfBridgeConfGenerator',
         ],
-        'xivo_confgend.asterisk.hep.conf': [
-            'wazo = xivo_confgen.plugins.hep_conf:HEPConfGenerator',
+        'wazo_confgendd.asterisk.hep.conf': [
+            'wazo = wazo_confgend.plugins.hep_conf:HEPConfGenerator',
         ],
-        'xivo_confgend.asterisk.musiconhold.conf': [
-            'xivo = xivo_confgen.plugins.musiconhold_conf:MOHConfGenerator',
+        'wazo_confgendd.asterisk.musiconhold.conf': [
+            'wazo = wazo_confgend.plugins.musiconhold_conf:MOHConfGenerator',
         ],
-        'xivo_confgend.asterisk.rtp.conf': [
-            'xivo = xivo_confgen.plugins.rtp_conf:RTPConfGenerator',
+        'wazo_confgendd.asterisk.rtp.conf': [
+            'wazo = wazo_confgend.plugins.rtp_conf:RTPConfGenerator',
         ],
-        'xivo_confgend.asterisk.sip.conf': [
-            'xivo = xivo_confgen.plugins.sip_conf:SIPConfGenerator',
+        'wazo_confgendd.asterisk.sip.conf': [
+            'wazo = wazo_confgend.plugins.sip_conf:SIPConfGenerator',
         ],
-        'xivo_confgend.dird.sources.yml': [
-            'xivo = xivo_confgen.plugins.dird_sources:SourceGenerator',
+        'wazo_confgendd.dird.sources.yml': [
+            'wazo = wazo_confgend.plugins.dird_sources:SourceGenerator',
         ],
-        'xivo_confgend.asterisk.pjsip.conf': [
-            'wazo = xivo_confgen.plugins.pjsip_conf:PJSIPConfGenerator',
+        'wazo_confgendd.asterisk.pjsip.conf': [
+            'wazo = wazo_confgend.plugins.pjsip_conf:PJSIPConfGenerator',
         ],
-        'xivo_confgend.provd.network.yml': [
-            'wazo = xivo_confgen.plugins.provd_conf:ProvdNetworkConfGenerator',
+        'wazo_confgendd.provd.network.yml': [
+            'wazo = wazo_confgend.plugins.provd_conf:ProvdNetworkConfGenerator',
         ],
     },
 )

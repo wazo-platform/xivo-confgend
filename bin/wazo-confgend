@@ -1,0 +1,11 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Copyright (C) 2016 Avencall
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+from wazo_confgend.bin.daemon import main, twisted_application
+
+if __name__ == '__main__':
+    main()
+else:
+    application = twisted_application()

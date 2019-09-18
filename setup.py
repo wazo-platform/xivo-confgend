@@ -13,7 +13,7 @@ setup(
     description='Wazo configurations generator',
     author='Wazo Authors',
     author_email='dev@wazo.community',
-    url='http://wazo.community',
+    url='http://wazo-platform.org',
     license='GPLv3',
     include_package_data=True,
     packages=find_packages(),

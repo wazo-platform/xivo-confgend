@@ -1,38 +1,21 @@
-## Image to build from sources
-
-FROM debian:buster
+FROM python:2.7-buster
 MAINTAINER Wazo Maintainers <dev@wazo.community>
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV HOME /root
 
-# Add dependencies
-RUN apt-get -qq update
-RUN apt-get -qq -y install \
-    git \
-    apt-utils \
-    python-pip \
-    python-dev \
-    libpq-dev \
-    python-twisted
-
-# Install wazo-confgend
-WORKDIR /root
-ADD . /root/confgend
-WORKDIR confgend
-RUN pip install -r requirements.txt
-RUN python setup.py install
-
-# Configure environment
-RUN touch /var/log/wazo-confgend.log
-RUN mkdir /var/cache/wazo-confgend
-RUN cp -a etc/* /etc
-WORKDIR /root
-
-# Clean
-RUN apt-get clean
-RUN rm -rf /root/confgend
+ADD . /usr/src/wazo-confgend
+WORKDIR /usr/src/wazo-confgend
+RUN apt-get -qq update \
+    && apt-get -qq -y install apt-utils libpq-dev python-twisted \
+    && pip install -r requirements.txt \
+    && python setup.py install \
+    && adduser --quiet --system --group --no-create-home wazo-confgend \
+    && install -o wazo-confgend -g wazo-confgend /dev/null /var/log/wazo-confgend.log \
+    && install -d -o wazo-confgend -g wazo-confgend /var/run/wazo-confgend \
+    && mkdir -p /var/cache/wazo-confgend \
+    && cp -a etc/* /etc \
+    && apt-get clean
 
 EXPOSE 8669
 
-CMD /usr/local/bin/wazo-confgend
+CMD ["/usr/local/bin/wazo-confgend"]

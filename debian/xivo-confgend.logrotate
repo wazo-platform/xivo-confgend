@@ -1,8 +1,0 @@
-/var/log/xivo-confgend.log {
-    daily
-    rotate 15
-    compress
-    copytruncate
-    missingok
-}
-

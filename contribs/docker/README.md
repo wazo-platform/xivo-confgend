@@ -1,4 +1,4 @@
-Dockerfile for XiVO confgend
+Dockerfile for wazo-confgend
 
 ## Install Docker
 
@@ -14,25 +14,25 @@ To install docker on Linux :
 
 To build the image, simply invoke
 
-    docker build -t xivo-confgend github.com/wazo-pbx/xivo-confgen
+    docker build -t wazo-confgend github.com/wazo-platform/wazo-confgen
 
 Or directly in the sources in contribs/docker
 
-    docker build -t xivo-confgend .
+    docker build -t wazo-confgend .
   
 ## Usage
 
 To run the container, do the following:
 
-    docker run -v /conf/confgend:/etc/xivo/ -p 8669:8669 -t xivo-confgend
+    docker run -v /conf/confgend:/etc/xivo/ -p 8669:8669 -t wazo-confgend
 
 On interactive mode :
 
-    docker run -v /conf/confgend:/etc/xivo/ -p 8669:8669 -it xivo-confgend bash
+    docker run -v /conf/confgend:/etc/xivo/ -p 8669:8669 -it wazo-confgend bash
 
-After launch xivo-confgend-service in /root directory.
+After launch wazo-confgend-service in /root directory.
 
-    twistd -no -y /usr/local/bin/xivo-confgend
+    twistd -no -y /usr/local/bin/wazo-confgend
 
 ## Infos
 

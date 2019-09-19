@@ -1,1 +1,1 @@
-recursive-include xivo_confgen/templates *.jinja
+recursive-include wazo_confgend/templates *.jinja

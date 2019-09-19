@@ -29,8 +29,7 @@ case "$1" in
     fi
 
     if [ -d /var/lib/xivo-confgend ] ; then
-       find /var/lib/xivo-confgend/ -mindepth 1 -exec mv {} "${CACHE}/" \;
-       rmdir --ignore-fail-on-non-empty -p /var/lib/xivo-confgend
+       mv -Tf /var/lib/xivo-confgend "${CACHE}"
     fi
 
     if getent passwd xivo-amid > /dev/null ; then

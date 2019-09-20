@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2017-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import unicode_literals
+
+from wazo_confgend.generators.util import AsteriskFileWriter
 
 
 class AsteriskFileGenerator(object):
@@ -18,9 +20,9 @@ class AsteriskFileGenerator(object):
         if not file_:
             return
 
+        writer = AsteriskFileWriter(output)
         for section in file_.sections_ordered:
-            print >> output, '[{}]'.format(section.name)
+            writer.write_section(section.name)
             for variable in section.variables:
-                print >> output, '{} = {}'.format(variable.key,
-                                                  variable.value if variable.value else '')
-            print >> output
+                writer.write_option(variable.key, variable.value or '')
+        writer._write_section_separator()

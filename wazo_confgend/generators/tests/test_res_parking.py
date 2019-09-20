@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2016 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -104,7 +104,7 @@ class TestResParkingConf(unittest.TestCase):
             [parkinglot-1]
             parkext = 800
             context = default
-            parkedmusicclass = 
+            parkedmusicclass =
             parkpos = 801-850
             parkingtime = 0
             findslot = next

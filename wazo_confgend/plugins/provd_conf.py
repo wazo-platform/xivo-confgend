@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 import textwrap
 
-from xivo_dao import init_db_from_config, default_config
+from xivo_dao import init_db_from_config
 from xivo_dao.helpers.db_utils import session_scope
 from xivo_dao.alchemy.provisioning import Provisioning
 from xivo_dao.alchemy.netiface import Netiface

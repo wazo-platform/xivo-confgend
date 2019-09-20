@@ -6,10 +6,9 @@ import unittest
 import textwrap
 
 from mock import Mock, patch
-from xivo_dao.alchemy.provisioning import Provisioning
-from xivo_dao.alchemy.netiface import Netiface
 
 from wazo_confgend.generators.tests.util import assert_config_equal
+
 from ..provd_conf import ProvdNetworkConfGenerator
 
 

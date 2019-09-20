@@ -30,7 +30,6 @@ logger = logging.getLogger(__name__)
 class SIPConfGenerator(object):
 
     def __init__(self, dependencies):
-        config = dependencies['config']
         self._tpl_helper = dependencies['tpl_helper']
 
     def generate(self):

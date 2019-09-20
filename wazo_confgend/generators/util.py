@@ -1,31 +1,33 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011-2014 Avencall
+# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
+
+from __future__ import unicode_literals
 
 
 def format_ast_section(name):
-    return u'[%s]' % name
+    return '[{}]'.format(name)
 
 
 def format_ast_section_tpl(name):
-    return u'[%s](!)' % name
+    return '[{}](!)'.format(name)
 
 
 def format_ast_section_using_tpl(name, tpl_name):
-    return u'[%s](%s)' % (name, tpl_name)
+    return '[{}]({})'.format(name, tpl_name)
 
 
 def format_ast_option(name, value):
-    return u'%s = %s' % (name, value)
+    return '{} = {}'.format(name, value).strip()
 
 
 def format_ast_object_option(name, value):
-    return u'%s => %s' % (name, value)
+    return '{} => {}'.format(name, value).strip()
 
 
 def format_none_as_empty(value):
     if value is None:
-        return u''
+        return ''
     else:
         return value
 
@@ -38,15 +40,15 @@ class AsteriskFileWriter(object):
 
     def write_section(self, name):
         self._write_section_separator()
-        self._fobj.write(u'[{}]\n'.format(name))
+        self._write_line(format_ast_section(name))
 
     def write_section_tpl(self, name):
         self._write_section_separator()
-        self._fobj.write(u'[{}](!)\n'.format(name))
+        self._write_line(format_ast_section_tpl(name))
 
     def write_section_using_tpl(self, name, tpl_name):
         self._write_section_separator()
-        self._fobj.write(u'[{}]({})\n'.format(name, tpl_name))
+        self._write_line(format_ast_section_using_tpl(name, tpl_name))
 
     def _write_section_separator(self):
         if self._first_section:
@@ -55,11 +57,14 @@ class AsteriskFileWriter(object):
             self._fobj.write('\n')
 
     def write_option(self, name, value):
-        self._fobj.write(u'{} = {}\n'.format(name, value))
+        self._write_line(format_ast_option(name, value))
 
     def write_options(self, options):
         for name, value in options:
-            self._fobj.write(u'{} = {}\n'.format(name, value))
+            self.write_option(name, value)
 
     def write_object_option(self, name, value):
-        self._fobj.write(u'{} => {}\n'.format(name, value))
+        self._write_line(format_ast_object_option(name, value))
+
+    def _write_line(self, line):
+        self._fobj.write('{}\n'.format(line))

@@ -8,7 +8,6 @@ import time
 from wazo_confgend import cache
 from wazo_confgend.asterisk import AsteriskFrontend
 from wazo_confgend.wazo import WazoFrontend
-from wazo_confgend.dird import DirdFrontend
 from wazo_confgend.phoned import PhonedFrontend
 from wazo_confgend.handler import (
     CachedHandlerFactoryDecorator,
@@ -65,7 +64,6 @@ class ConfgendFactory(ServerFactory):
         }
         frontends = {
             'asterisk': AsteriskFrontend(config, tpl_helper),
-            'dird': DirdFrontend(),
             'phoned': PhonedFrontend(),
             'wazo': WazoFrontend(),
         }

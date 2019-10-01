@@ -1,5 +1,5 @@
-https://github.com/wazo-pbx/xivo-dao/archive/master.zip
-https://github.com/wazo-pbx/xivo-lib-python/archive/master.zip
+https://github.com/wazo-platform/xivo-dao/archive/master.zip
+https://github.com/wazo-platform/xivo-lib-python/archive/master.zip
 jinja2==2.10
 pyyaml==3.13
 psycopg2-binary

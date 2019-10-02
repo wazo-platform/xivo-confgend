@@ -34,9 +34,6 @@ setup(
         'wazo_confgend.asterisk.sip.conf': [
             'wazo = wazo_confgend.plugins.sip_conf:SIPConfGenerator',
         ],
-        'wazo_confgend.dird.sources.yml': [
-            'wazo = wazo_confgend.plugins.dird_sources:SourceGenerator',
-        ],
         'wazo_confgend.asterisk.pjsip.conf': [
             'wazo = wazo_confgend.plugins.pjsip_conf:PJSIPConfGenerator',
         ],

@@ -34,5 +34,4 @@ plugins:
   asterisk.rtp.conf: wazo
   asterisk.sip.conf: wazo
   asterisk.pjsip.conf: wazo
-  dird.sources.yml: wazo
   provd.network.yml: wazo

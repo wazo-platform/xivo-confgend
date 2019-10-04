@@ -32,7 +32,7 @@ case "$1" in
        mv -Tf /var/lib/xivo-confgend "${CACHE}"
     fi
 
-    if getent passwd xivo-amid > /dev/null ; then
+    if getent passwd xivo-confgend > /dev/null ; then
         deluser --quiet --system --remove-home xivo-confgend
     fi
     # End of move files from xivo-confgend

@@ -21,7 +21,7 @@ case "$1" in
         rename 's/xivo-confgend/wazo-confgend/g' /var/log/xivo-confgend.log*
     fi
 
-    rm -rf /var/run/xivo-confgend
+    rm -rf /run/xivo-confgend
 
     if [ -d /etc/xivo-confgend/conf.d ] ; then
         find /etc/xivo-confgend/conf.d/ -mindepth 1 -exec mv {} /etc/wazo-confgend/conf.d/ \;

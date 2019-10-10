@@ -11,7 +11,7 @@ RUN apt-get -qq update \
     && python setup.py install \
     && adduser --quiet --system --group --no-create-home wazo-confgend \
     && install -o wazo-confgend -g wazo-confgend /dev/null /var/log/wazo-confgend.log \
-    && install -d -o wazo-confgend -g wazo-confgend /var/run/wazo-confgend \
+    && install -d -o wazo-confgend -g wazo-confgend /run/wazo-confgend \
     && mkdir -p /var/cache/wazo-confgend \
     && cp -a etc/* /etc \
     && apt-get clean

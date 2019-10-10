@@ -5,9 +5,9 @@ Before=monit.service
 
 [Service]
 Type=forking
-ExecStartPre=/usr/bin/install -d -o wazo-confgend -g wazo-confgend /var/run/wazo-confgend
-ExecStart=/usr/bin/twistd --pidfile=/var/run/wazo-confgend/wazo-confgend.pid --rundir=/ --uid=wazo-confgend --gid=wazo-confgend --python=/usr/bin/wazo-confgend --no_save --logger wazo_confgend.bin.daemon.twistd_logs
-PIDFile=/var/run/wazo-confgend/wazo-confgend.pid
+ExecStartPre=/usr/bin/install -d -o wazo-confgend -g wazo-confgend /run/wazo-confgend
+ExecStart=/usr/bin/twistd --pidfile=/run/wazo-confgend/wazo-confgend.pid --rundir=/ --uid=wazo-confgend --gid=wazo-confgend --python=/usr/bin/wazo-confgend --no_save --logger wazo_confgend.bin.daemon.twistd_logs
+PIDFile=/run/wazo-confgend/wazo-confgend.pid
 
 [Install]
 WantedBy=multi-user.target

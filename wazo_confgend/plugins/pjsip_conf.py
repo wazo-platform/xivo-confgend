@@ -246,7 +246,6 @@ class SipDBExtractor(object):
     def _get_user_auth(self, user_sip):
         fields = [
             ('type', 'auth'),
-            ('username', user_sip[0].name),
             ('password', user_sip[0].secret),
         ]
 
@@ -262,7 +261,6 @@ class SipDBExtractor(object):
     def _get_trunk_auth(self, trunk_sip):
         fields = [
             ('type', 'auth'),
-            ('username', trunk_sip.name),
             ('password', trunk_sip.secret),
         ]
 

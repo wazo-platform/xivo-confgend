@@ -2,6 +2,7 @@
 # Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import ConfigParser
 from StringIO import StringIO
 
 from xivo import xivo_helpers
@@ -109,8 +110,10 @@ class ExtensionsConf(object):
 
         if self.contextsconf is not None:
             # load context templates
-            conf = OrderedConf.OrderedRawConf(filename=self.contextsconf)
-            if conf.has_conflicting_section_names():
+            conf = ConfigParser.RawConfigParser()
+            try:
+                conf.read([self.contextsconf])
+            except ConfigParser.DuplicateSectionError:
                 raise ValueError("%s has conflicting section names" % self.contextsconf)
             if not conf.has_section('template'):
                 raise ValueError("Template section doesn't exist in %s" % self.contextsconf)

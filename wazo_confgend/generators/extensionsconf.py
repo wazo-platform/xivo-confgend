@@ -149,14 +149,14 @@ class ExtensionsConf(object):
                 section = 'template'
 
             tmpl = []
-            for option_name in conf.options(section):
+            for option_name, option_value in conf.items(section):
                 if option_name == 'objtpl':
-                    tmpl.append(conf.get(section, option_name))
+                    tmpl.append(option_value)
                     continue
 
                 print >> options, "%s = %s" % (
                     option_name,
-                    conf.get(section, option_name).replace('%%CONTEXT%%', ctx['name']),
+                    option_value.replace('%%CONTEXT%%', ctx['name']),
                 )
 
             # context includes
@@ -196,14 +196,14 @@ class ExtensionsConf(object):
         tmpl = []
 
         print >> options, "\n[%s]" % context
-        for option_name in conf.options(context):
+        for option_name, option_value in conf.items(context):
             if option_name == 'objtpl':
-                tmpl.append(conf.get(context, option_name))
+                tmpl.append(option_value)
                 continue
 
             print >> options, "%s = %s" % (
                 option_name,
-                conf.get(context, option_name).replace('%%CONTEXT%%', context),
+                option_value.replace('%%CONTEXT%%', context),
             )
             print >> options
 

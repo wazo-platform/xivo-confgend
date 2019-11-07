@@ -149,12 +149,15 @@ class ExtensionsConf(object):
                 section = 'template'
 
             tmpl = []
-            for option in conf.iter_options(section):
-                if option.get_name() == 'objtpl':
-                    tmpl.append(option.get_value())
+            for option_name in conf.options(section):
+                if option_name == 'objtpl':
+                    tmpl.append(conf.get(section, option_name))
                     continue
 
-                print >> options, "%s = %s" % (option.get_name(), option.get_value().replace('%%CONTEXT%%', ctx['name']))
+                print >> options, "%s = %s" % (
+                    option_name,
+                    conf.get(section, option_name).replace('%%CONTEXT%%', ctx['name']),
+                )
 
             # context includes
             for row in asterisk_conf_dao.find_contextincludes_settings(ctx['name']):
@@ -193,12 +196,15 @@ class ExtensionsConf(object):
         tmpl = []
 
         print >> options, "\n[%s]" % context
-        for option in conf.iter_options(context):
-            if option.get_name() == 'objtpl':
-                tmpl.append(option.get_value())
+        for option_name in conf.options(context):
+            if option_name == 'objtpl':
+                tmpl.append(conf.get(context, option_name))
                 continue
 
-            print >> options, "%s = %s" % (option.get_name(), option.get_value().replace('%%CONTEXT%%', context))
+            print >> options, "%s = %s" % (
+                option_name,
+                conf.get(context, option_name).replace('%%CONTEXT%%', context),
+            )
             print >> options
 
         for exten in asterisk_conf_dao.find_exten_xivofeatures_setting():

@@ -105,6 +105,7 @@ class SipDBExtractor(object):
         ('mwifrom', 'mwi_from_user'),
         ('outboundproxy', 'outbound_proxy'),
         ('rtptimeout', 'rtp_timeout'),
+        ('rtpholdtimeout', 'rtp_timeout_hold'),
         ('sdpowner', 'sdp_owner'),
         ('sdpowner', 'sdp_owner'),
         ('sdpsession', 'sdp_session'),

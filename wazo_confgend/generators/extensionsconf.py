@@ -2,8 +2,10 @@
 # Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import copy
 import ConfigParser
 from StringIO import StringIO
+from UserDict import DictMixin
 
 from xivo import xivo_helpers
 from xivo_dao import asterisk_conf_dao
@@ -48,6 +50,51 @@ DEFAULT_EXTENFEATURES = {
     'groupmemberjoin': 'GoSub(group-member-join,s,1(${EXTEN:3}))',
     'groupmemberleave': 'GoSub(group-member-leave,s,1(${EXTEN:3}))',
 }
+
+
+class CustomConfigParserStorage(DictMixin):
+    def __init__(self, init=None):
+        self._data = init if init else []
+
+    def __setitem__(self, key, value):
+        # This reverse the config parser logic of merging option keys
+        if isinstance(value, list):
+            if len(value) != 1:
+                raise RuntimeError("Unexpected value from configparser")
+            value = value[0]
+        self._data.append((key, value))
+
+    def __getitem__(self, key):
+        values = [v for k, v in self._data if k == key]
+        if len(values) > 1:
+            raise RuntimeError("Can't get a key with multiple value")
+        if values:
+            return values[0]
+        else:
+            raise KeyError
+
+    def __delitem__(self, key):
+        n_items = len(self._data)
+        self._data = [(k, v) for k, v in self._data if k != key]
+        if len(self._data) == n_items:
+            raise KeyError
+
+    def keys(self):
+        return [k for k, v in self._data]
+
+    def values(self):
+        return [v for k, v in self._data]
+
+    def __iter__(self):
+        for k, v in self._data:
+            yield k
+
+    def iteritems(self):
+        for k, v in self._data:
+            yield k, v
+
+    def copy(self):
+        return CustomConfigParserStorage(copy.deepcopy(self._data))
 
 
 class ExtensionGenerator(object):
@@ -108,7 +155,7 @@ class ExtensionsConf(object):
 
         if self.contextsconf is not None:
             # load context templates
-            conf = ConfigParser.RawConfigParser()
+            conf = ConfigParser.RawConfigParser(dict_type=CustomConfigParserStorage)
             try:
                 conf.read([self.contextsconf])
             except ConfigParser.DuplicateSectionError:
@@ -149,15 +196,11 @@ class ExtensionsConf(object):
                 section = 'template'
 
             tmpl = []
-            for option_name in conf.options(section):
+            for option_name, option_value in conf.items(section):
                 if option_name == 'objtpl':
-                    tmpl.append(conf.get(section, option_name))
+                    tmpl.append(option_value)
                     continue
-
-                print >> options, "%s = %s" % (
-                    option_name,
-                    conf.get(section, option_name).replace('%%CONTEXT%%', ctx['name']),
-                )
+                print >> options, "%s = %s" % (option_name, option_value.replace('%%CONTEXT%%', ctx['name']))
 
             # context includes
             for row in asterisk_conf_dao.find_contextincludes_settings(ctx['name']):
@@ -196,15 +239,12 @@ class ExtensionsConf(object):
         tmpl = []
 
         print >> options, "\n[%s]" % context
-        for option_name in conf.options(context):
+        for option_name, option_value in conf.items(context):
             if option_name == 'objtpl':
-                tmpl.append(conf.get(context, option_name))
+                tmpl.append(option_value)
                 continue
 
-            print >> options, "%s = %s" % (
-                option_name,
-                conf.get(context, option_name).replace('%%CONTEXT%%', context),
-            )
+            print >> options, "%s = %s" % (option_name, option_value.replace('%%CONTEXT%%', context))
             print >> options
 
         for exten in asterisk_conf_dao.find_exten_xivofeatures_setting():

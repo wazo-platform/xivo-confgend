@@ -4,9 +4,11 @@
 
 from StringIO import StringIO
 
-from xivo import OrderedConf, xivo_helpers
+from xivo import xivo_helpers
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.ivr import dao as ivr_dao
+
+from . import OrderedConf
 
 
 DEFAULT_EXTENFEATURES = {

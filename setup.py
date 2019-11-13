@@ -25,6 +25,9 @@ setup(
         'wazo_confgend.asterisk.hep.conf': [
             'wazo = wazo_confgend.plugins.hep_conf:HEPConfGenerator',
         ],
+        'wazo_confgend.asterisk.modules.conf': [
+            'wazo = wazo_confgend.plugins.modules_conf:ModulesConfGenerator',
+        ],
         'wazo_confgend.asterisk.musiconhold.conf': [
             'wazo = wazo_confgend.plugins.musiconhold_conf:MOHConfGenerator',
         ],

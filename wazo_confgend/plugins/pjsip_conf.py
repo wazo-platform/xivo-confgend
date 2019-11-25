@@ -12,6 +12,7 @@ from .pjsip_options import (
     auth_options,
     endpoint_options,
     global_options,
+    registration_options,
     system_options,
     transport_options,
 )
@@ -493,7 +494,16 @@ class SipDBExtractor(object):
             ('type', 'registration'),
         ]
 
+        # If the pjsip max_retries field is set use it, otherwise fallback to the migration else default
+        max_retries_chan_sip = self._general_settings_dict.pop('registerattempts')
+        if max_retries_chan_sip is not None:
+            self._general_settings_dict.setdefault(
+                'max_retries',
+                max_retries_chan_sip,
+            )
+
         self._add_from_mapping(fields, self.sip_general_to_register_tpl, self._general_settings_dict)
+        self._add_pjsip_options(fields, registration_options, self._general_settings_dict)
         outbound_proxy = self._general_settings_dict.get('outboundproxy')
         if outbound_proxy:
             self._add_option(fields, ('outbound_proxy', outbound_proxy))

@@ -201,6 +201,13 @@ aor_options = [
     # 'voicemail_extension',
 ]
 
+registration_options = [
+    'auth_rejection_permanent',
+    'forbidden_retry_interval',
+    'fatal_retry_interval',
+    'max_retries',
+]
+
 system_options = [
     'timer_t1',
     'timer_b',

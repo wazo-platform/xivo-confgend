@@ -25,12 +25,83 @@ db_uri: postgresql://asterisk:proformatique@localhost/asterisk
 # Templates location
 templates:
   contextsconf: /etc/wazo-confgend/templates/contexts.conf
+  modulesconf: /etc/wazo-confgend/templates/modules.conf.jinja2
+
+enabled_asterisk_modules:
+  app_adsiprog.so: false
+  app_alarmreceiver.so: false
+  app_amd.so: false
+  app_cdr.so: false
+  app_dictate.so: false
+  app_externalivr.so: false
+  app_festival.so: false
+  app_followme.so: false
+  app_forkcdr.so: false
+  app_ices.so: false
+  app_jack.so: false
+  app_minivm.so: false
+  app_morsecode.so: false
+  app_mp3.so: false
+  app_nbscat.so: false
+  app_speech_utils.so: false
+  app_test.so: false
+  cdr_adaptive_odbc.so: false
+  cdr_csv.so: false
+  cdr_custom.so: false
+  cdr_manager.so: false
+  cdr_odbc.so: false
+  cdr_pgsql.so: false
+  cdr_radius.so: false
+  cdr_sqlite3_custom.so: false
+  cdr_syslog.so: false
+  cdr_tds.so: false
+  cel_custom.so: false
+  cel_pgsql.so: false
+  cel_radius.so: false
+  cel_sqlite3_custom.so: false
+  cel_tds.so: false
+  chan_alsa.so: false
+  chan_console.so: false
+  chan_dahdi.so: false
+  chan_mgcp.so: false
+  chan_motif.so: false
+  chan_oss.so: false
+  chan_phone.so: false
+  chan_sip.so: false
+  chan_skinny.so: false
+  chan_unistim.so: false
+  codec_dahdi.so: false
+  func_cdr.so: false
+  func_odbc.so: false
+  pbx_ael.so: false
+  pbx_loopback.so: false
+  pbx_lua.so: false
+  res_ari_mailboxes.so: false
+  res_calendar.so: false
+  res_calendar_caldav.so: false
+  res_calendar_ews.so: false
+  res_calendar_exchange.so: false
+  res_calendar_icalendar.so: false
+  res_clialiases.so: false
+  res_config_ldap.so: false
+  res_config_pgsql.so: false
+  res_config_sqlite.so: false
+  res_config_sqlite3.so: false
+  res_mwi_external.so: false
+  res_phoneprov.so: false
+  res_pjsip_config_wizard.so: false
+  res_snmp.so: false
+  res_stasis_mailbox.so: false
+  res_statsd.so: false
+  res_stun_monitor.so: false
+  res_xmpp.so: false
 
 # Plugins to use to generate the configuration files
 plugins:
   asterisk.confbridge.conf: wazo
   asterisk.hep.conf: wazo
   asterisk.musiconhold.conf: wazo
+  asterisk.modules.conf: wazo
   asterisk.rtp.conf: wazo
   asterisk.sip.conf: wazo
   asterisk.pjsip.conf: wazo

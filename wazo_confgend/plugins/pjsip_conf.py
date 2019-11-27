@@ -495,7 +495,7 @@ class SipDBExtractor(object):
         ]
 
         # If the pjsip max_retries field is set use it, otherwise fallback to the migration else default
-        max_retries_chan_sip = self._general_settings_dict.pop('registerattempts')
+        max_retries_chan_sip = self._general_settings_dict.pop('registerattempts', None)
         if max_retries_chan_sip is not None:
             self._general_settings_dict.setdefault(
                 'max_retries',

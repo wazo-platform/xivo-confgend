@@ -115,7 +115,7 @@ class SipDBExtractor(object):
         ('session-minse', 'timers_min_se'),
         ('subminexpiry', 'sub_min_expiry'),
         ('tonezone', 'tone_zone'),
-        ('trustpid', 'trust_id_inbound'),
+        ('trustrpid', 'trust_id_inbound'),
     ]
 
     def __init__(self):

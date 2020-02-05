@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
 import unittest
+import textwrap
 from StringIO import StringIO
 
 from hamcrest import assert_that, contains_string
@@ -50,13 +51,17 @@ class TestExtensionsConf(unittest.TestCase):
 
     @patch('wazo_confgend.generators.extensionsconf.ivr_dao')
     def test_generate_ivrs(self, mock_ivr_dao):
-        ivr = IVR(id=42, name='foo', menu_sound='hello-world')
+        ivr = IVR(id=42, name='foo', menu_sound=u'héllo-world')
         mock_ivr_dao.find_all_by.return_value = [ivr]
-        self.tpl_mapping['asterisk/extensions/ivr.jinja'] = '{{ ivr.id }}'
+        self.tpl_mapping['asterisk/extensions/ivr.jinja'] = textwrap.dedent('''
+            [xivo-ivr-{{ ivr.id }}]
+            same  =   n,Background({{ ivr.menu_sound }})
+        ''')
 
         self.extensionsconf._generate_ivr(self.output)
 
-        assert_that(self.output.getvalue(), contains_string('42'))
+        assert_that(self.output.getvalue(), contains_string('[xivo-ivr-42]'))
+        assert_that(self.output.getvalue(), contains_string(u'same  =   n,Background(héllo-world)'))
 
     @patch('wazo_confgend.generators.extensionsconf.ivr_dao')
     @patch('wazo_confgend.generators.extensionsconf.asterisk_conf_dao')

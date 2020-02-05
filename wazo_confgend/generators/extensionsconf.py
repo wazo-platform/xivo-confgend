@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import copy
@@ -297,5 +297,4 @@ class ExtensionsConf(object):
         for ivr in ivr_dao.find_all_by():
             template_context = {'ivr': ivr}
             template = self._tpl_helper.get_customizable_template('asterisk/extensions/ivr', ivr.id)
-            template.generate(template_context, output)
-            print >> output
+            print >> output, template.dump(template_context)

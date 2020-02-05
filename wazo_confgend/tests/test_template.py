@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Proformatique Inc.
+# Copyright 2016-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from StringIO import StringIO
 from os.path import basename
 from unittest import TestCase
 
@@ -39,11 +38,3 @@ class TestTemplateHelper(TestCase):
         output = template.dump({'value': 'hello world'})
 
         assert_that(output, contains_string('hello world'))
-
-    def test_generate_template(self):
-        output = StringIO()
-        template = self.tpl_helper.get_template('foo')
-
-        template.generate({'value': 'hello world'}, output)
-
-        assert_that(output.getvalue(), contains_string('hello world'))

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from jinja2 import Environment
@@ -41,6 +41,3 @@ class _Template(object):
     def dump(self, context):
         # XXX do we encode in utf-8 ?
         return self._jinja_template.render(context)
-
-    def generate(self, context, output):
-        self._jinja_template.stream(context).dump(output, encoding='utf-8')

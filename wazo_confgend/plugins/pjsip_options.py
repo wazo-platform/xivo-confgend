@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import unicode_literals
@@ -219,31 +219,4 @@ system_options = [
     'disable_tcp_switch',
     'follow_early_media_fork',
     'accept_multiple_sdp_answers',
-]
-
-global_options = [
-    'contact_expiration_check_interval',
-    'debug',
-    'default_from_user',
-    'default_outbound_endpoint',
-    'default_realm',
-    'default_voicemail_extension',
-    'disable_multi_domain',
-    'endpoint_identifier_order',
-    'ignore_uri_user_options',
-    'keep_alive_interval',
-    'max_forwards',
-    'max_initial_qualify_time',
-    'mwi_disable_initial_unsolicited',
-    'mwi_tps_queue_high',
-    'mwi_tps_queue_low',
-    'norefersub',
-    'regcontext',
-    'send_contact_status_on_update_registration',
-    'taskprocessor_overload_trigger',
-    'unidentified_request_count',
-    'unidentified_request_period',
-    'unidentified_request_prune_interval',
-    'use_callerid_contact',
-    'user_agent',
 ]

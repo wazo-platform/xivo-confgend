@@ -822,7 +822,7 @@ class PJSIPConfGenerator(object):
     def generate(self):
         asterisk_file_generator = AsteriskFileGenerator(asterisk_file_dao)
         output = StringIO()
-        asterisk_file_generator.generate('pjsip.conf', output)
+        asterisk_file_generator.generate('pjsip.conf', output, required_sections=['global'])
 
         extractor = SipDBExtractor()
 

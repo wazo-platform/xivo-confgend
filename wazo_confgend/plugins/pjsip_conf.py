@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
-# Copyright 2018-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2018-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 from __future__ import unicode_literals
 
+from StringIO import StringIO
+
 from collections import namedtuple
 from xivo_dao import asterisk_conf_dao
+from xivo_dao.resources.asterisk_file import dao as asterisk_file_dao
 
+from ..helpers.asterisk import AsteriskFileGenerator
 from .pjsip_registration import Registration
 from .pjsip_options import (
     aor_options,
     auth_options,
     endpoint_options,
-    global_options,
     registration_options,
     system_options,
     transport_options,
@@ -57,11 +60,6 @@ class AsteriskConfFileGenerator(object):
 
 class SipDBExtractor(object):
 
-    sip_general_to_global = [
-        ('useragent', 'user_agent'),
-        ('sipdebug', 'debug'),
-        ('legacy_useroption_parsing', 'ignore_uri_user_options'),
-    ]
     sip_general_to_system = [
         ('timert1', 'timer_t1'),
         ('timerb', 'timer_b'),
@@ -129,9 +127,7 @@ class SipDBExtractor(object):
             self._general_settings_dict[row['var_name']] = row['var_val']
 
     def get(self, section):
-        if section == 'global':
-            return self._get_global()
-        elif section == 'system':
+        if section == 'system':
             return self._get_system()
         elif section == 'transport-tcp':
             return self._get_transport_tcp()
@@ -515,23 +511,6 @@ class SipDBExtractor(object):
             fields=fields,
         )
 
-    def _get_global(self):
-        self._general_settings_dict.setdefault('endpoint_identifier_order', 'auth_username,username,ip')
-
-        fields = [
-            ('type', 'global'),
-        ]
-
-        self._add_from_mapping(fields, self.sip_general_to_global, self._general_settings_dict)
-        self._add_pjsip_options(fields, global_options, self._general_settings_dict)
-
-        return Section(
-            name='global',
-            type_='section',
-            templates=None,
-            fields=fields,
-        )
-
     def _get_system(self):
         fields = [
             ('type', 'system'),
@@ -841,10 +820,13 @@ class PJSIPConfGenerator(object):
         self._config_file_generator = AsteriskConfFileGenerator()
 
     def generate(self):
+        asterisk_file_generator = AsteriskFileGenerator(asterisk_file_dao)
+        output = StringIO()
+        asterisk_file_generator.generate('pjsip.conf', output, required_sections=['global'])
+
         extractor = SipDBExtractor()
 
-        global_sections = [
-            extractor.get('global'),
+        shared_sections = [
             extractor.get('system'),
             extractor.get('transport-udp'),
             extractor.get('transport-wss'),
@@ -857,5 +839,6 @@ class PJSIPConfGenerator(object):
         user_sections = list(extractor.get_user_sections())
         trunk_sections = list(extractor.get_trunk_sections())
 
-        return self._config_file_generator.generate(
-            global_sections + user_sections + trunk_sections)
+        global_section = output.getvalue()
+        other_sections = self._config_file_generator.generate(shared_sections + user_sections + trunk_sections)
+        return global_section + other_sections

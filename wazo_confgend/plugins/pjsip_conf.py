@@ -16,7 +16,6 @@ from .pjsip_options import (
     auth_options,
     endpoint_options,
     registration_options,
-    system_options,
     transport_options,
 )
 
@@ -60,11 +59,6 @@ class AsteriskConfFileGenerator(object):
 
 class SipDBExtractor(object):
 
-    sip_general_to_system = [
-        ('timert1', 'timer_t1'),
-        ('timerb', 'timer_b'),
-        ('compactheaders', 'compact_headers'),
-    ]
     sip_general_to_transport = [
         ('media_address', 'external_media_address'),
         ('external_signaling_port', 'external_signaling_port'),
@@ -127,9 +121,7 @@ class SipDBExtractor(object):
             self._general_settings_dict[row['var_name']] = row['var_val']
 
     def get(self, section):
-        if section == 'system':
-            return self._get_system()
-        elif section == 'transport-tcp':
+        if section == 'transport-tcp':
             return self._get_transport_tcp()
         elif section == 'transport-udp':
             return self._get_transport_udp()
@@ -511,21 +503,6 @@ class SipDBExtractor(object):
             fields=fields,
         )
 
-    def _get_system(self):
-        fields = [
-            ('type', 'system'),
-        ]
-
-        self._add_from_mapping(fields, self.sip_general_to_system, self._general_settings_dict)
-        self._add_pjsip_options(fields, system_options, self._general_settings_dict)
-
-        return Section(
-            name='system',
-            type_='section',
-            templates=None,
-            fields=fields,
-        )
-
     def _get_base_transport_fields(self, protocol):
         fields = [
             ('type', 'transport'),
@@ -822,12 +799,11 @@ class PJSIPConfGenerator(object):
     def generate(self):
         asterisk_file_generator = AsteriskFileGenerator(asterisk_file_dao)
         output = StringIO()
-        asterisk_file_generator.generate('pjsip.conf', output, required_sections=['global'])
+        asterisk_file_generator.generate('pjsip.conf', output, required_sections=['global', 'system'])
 
         extractor = SipDBExtractor()
 
         shared_sections = [
-            extractor.get('system'),
             extractor.get('transport-udp'),
             extractor.get('transport-wss'),
             extractor.get('transport-tcp'),

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-# Copyright 2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2018-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
+from collections import namedtuple
 
-from mock import Mock
+from mock import Mock, patch
 
 from hamcrest import (
     assert_that,
@@ -14,13 +15,61 @@ from hamcrest import (
     equal_to,
     none,
 )
+from StringIO import StringIO
+from xivo_dao.alchemy.pjsip_transport import PJSIPTransport
+from wazo_confgend.generators.tests.util import assert_config_equal
 
 from ..pjsip_registration import Registration
 from ..pjsip_conf import (
     AsteriskConfFileGenerator,
     Section,
     SipDBExtractor,
+    PJSIPConfGenerator,
 )
+
+SearchResult = namedtuple('SearchResult', ['total', 'items'])
+
+
+class TestPJSIPConfGenerator(unittest.TestCase):
+
+    def setUp(self):
+        self.generator = PJSIPConfGenerator(dependencies=None)
+
+    def test_generate_transports(self):
+        output = StringIO()
+        with patch('wazo_confgend.plugins.pjsip_conf.transport_dao') as dao:
+            dao.search.return_value = SearchResult(2, [
+                PJSIPTransport(
+                    name='transport-udp',
+                    options=[
+                        ['protocol', 'udp'],
+                        ['bind', '0.0.0.0:5060'],
+                    ]
+                ),
+                PJSIPTransport(
+                    name='transport-wss',
+                    options=[
+                        ['protocol', 'wss'],
+                        ['bind', '0.0.0.0:5060'],
+                    ]
+                ),
+            ])
+
+            self.generator.generate_transports(output)
+            assert_config_equal(
+                output.getvalue(),
+                '''\
+                [transport-udp]
+                type = transport
+                protocol = udp
+                bind = 0.0.0.0:5060
+
+                [transport-wss]
+                type = transport
+                protocol = wss
+                bind = 0.0.0.0:5060
+                '''
+            )
 
 
 class TestConfFileGenerator(unittest.TestCase):
@@ -212,13 +261,6 @@ class TestSipDBExtractor(unittest.TestCase):
         result = SipDBExtractor._convert_sendrpid({'sendrpid': 'pai'})
         assert_that(result, contains('send_pai', 'yes'))
 
-    def test_convert_tcpbindaddr(self):
-        result = SipDBExtractor._convert_tcpbindaddr({})
-        assert_that(result, none())
-
-        result = SipDBExtractor._convert_tcpbindaddr({'tcpbindaddr': '0.0.0.0:1234'})
-        assert_that(result, contains('bind', '0.0.0.0'))
-
     def test_convert_encryption(self):
         result = SipDBExtractor._convert_encryption({})
         assert_that(result, none())
@@ -238,16 +280,6 @@ class TestSipDBExtractor(unittest.TestCase):
 
         result = SipDBExtractor._convert_progressinband({'progressinband': 'never'})
         assert_that(result, contains('inband_progress', 'no'))
-
-    def test_convert_externtcpport(self):
-        result = SipDBExtractor._convert_externtcpport({})
-        assert_that(result, none())
-
-        result = SipDBExtractor._convert_externtcpport({'externtcpport': ''})
-        assert_that(result, none())
-
-        result = SipDBExtractor._convert_externtcpport({'externtcpport': 1234})
-        assert_that(result, contains('external_signaling_port', 1234))
 
     def test_convert_register(self):
         register_url = 'udp://dev_370:dev_370:dev_370@wazo-dev-gateway.lan.wazo.io'

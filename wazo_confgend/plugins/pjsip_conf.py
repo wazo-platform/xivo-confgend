@@ -710,7 +710,7 @@ class PJSIPConfGenerator(object):
         output = StringIO()
         asterisk_file_generator.generate('pjsip.conf', output, required_sections=['global', 'system'])
         self.generate_transports(output)
-        print >>output, ""
+        output.write('\n')
 
         extractor = SipDBExtractor()
 

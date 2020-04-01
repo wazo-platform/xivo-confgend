@@ -123,6 +123,7 @@ endpoint_options = [
     'tone_zone',
     'tos_audio',
     'tos_video',
+    'transport',
     'trust_connected_line',
     'trust_id_inbound',
     'trust_id_outbound',
@@ -140,32 +141,6 @@ auth_options = [
     'password',
     'realm',
     'username',
-]
-
-transport_options = [
-    'allow_reload',
-    'async_operations',
-    'bind',
-    'ca_list_file',
-    'ca_list_path',
-    'cert_file',
-    'cipher',
-    'cos',
-    'domain',
-    'external_media_address',
-    'external_signaling_address',
-    'external_signaling_port',
-    'local_net',
-    'method',
-    'password',
-    'priv_key_file',
-    'protocol',
-    'require_client_cert',
-    'symmetric_transport',
-    'tos',
-    'verify_client',
-    'verify_server',
-    'websocket_write_timeout',
 ]
 
 contact_options = [

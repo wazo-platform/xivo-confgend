@@ -8,15 +8,16 @@ from StringIO import StringIO
 from collections import namedtuple
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.asterisk_file import dao as asterisk_file_dao
+from xivo_dao.resources.pjsip_transport import dao as transport_dao
 
 from ..helpers.asterisk import AsteriskFileGenerator
+from wazo_confgend.generators.util import AsteriskFileWriter
 from .pjsip_registration import Registration
 from .pjsip_options import (
     aor_options,
     auth_options,
     endpoint_options,
     registration_options,
-    transport_options,
 )
 
 Section = namedtuple('Section', ['name', 'type_', 'templates', 'fields'])
@@ -59,10 +60,6 @@ class AsteriskConfFileGenerator(object):
 
 class SipDBExtractor(object):
 
-    sip_general_to_transport = [
-        ('media_address', 'external_media_address'),
-        ('external_signaling_port', 'external_signaling_port'),
-    ]
     sip_general_to_register_tpl = [
         ('registertimeout', 'retry_interval'),
         ('registerattempts', 'max_retries'),
@@ -116,18 +113,13 @@ class SipDBExtractor(object):
         self._user_sip = list(asterisk_conf_dao.find_sip_user_settings())
         self._trunk = asterisk_conf_dao.find_sip_trunk_settings()
         self._general_settings_dict = {}
+        self._general_settings_dict.setdefault('transport', 'transport-udp')
 
         for row in self._static_sip:
             self._general_settings_dict[row['var_name']] = row['var_val']
 
     def get(self, section):
-        if section == 'transport-tcp':
-            return self._get_transport_tcp()
-        elif section == 'transport-udp':
-            return self._get_transport_udp()
-        elif section == 'transport-wss':
-            return self._get_transport_wss()
-        elif section == 'twilio-identify-template':
+        if section == 'twilio-identify-template':
             return self._get_twilio_ident_template()
         elif section == 'wazo-general-aor':
             return self._get_general_aor_template()
@@ -320,10 +312,6 @@ class SipDBExtractor(object):
         if user_sip.mailbox and user_dict.get('subscribemwi') != 'yes':
             self._add_option(fields, ('mailboxes', user_sip.mailbox))
 
-        if user_dict.get('transport') == 'wss':
-            self._add_option(fields, ('transport', 'transport-wss'))
-        if user_dict.get('transport') == 'tcp':
-            self._add_option(fields, ('transport', 'transport-tcp'))
         self._add_pjsip_options(fields, endpoint_options, user_dict)
 
         return Section(
@@ -442,7 +430,6 @@ class SipDBExtractor(object):
         fields = [
             ('type', 'endpoint'),
             ('allow', '!all,ulaw'),
-            ('transport', 'transport-udp'),
         ]
 
         self._add_from_mapping(fields, self.sip_to_endpoint, self._general_settings_dict)
@@ -502,69 +489,6 @@ class SipDBExtractor(object):
             templates=None,
             fields=fields,
         )
-
-    def _get_base_transport_fields(self, protocol):
-        fields = [
-            ('type', 'transport'),
-            ('protocol', protocol),
-        ]
-
-        self._add_from_mapping(fields, self.sip_general_to_transport, self._general_settings_dict)
-        self._add_pjsip_options(fields, transport_options, self._general_settings_dict)
-        for row in self._static_sip:
-            if row['var_name'] != 'localnet':
-                continue
-            fields.append(('local_net', row['var_val']))
-
-        if 'external_signaling_address' not in [field[0] for field in fields]:
-            extern_ip = self._general_settings_dict.get('externip')
-            extern_host = self._general_settings_dict.get('externhost')
-            extern_signaling_address = extern_host or extern_ip
-            if extern_signaling_address:
-                fields.append(('external_signaling_address', extern_signaling_address))
-
-        return fields
-
-    def _get_base_udp_transport(self, protocol):
-        fields = self._get_base_transport_fields(protocol)
-        bind = self._general_settings_dict.get('udpbindaddr')
-        port = self._general_settings_dict.get('bindport')
-        if port:
-            bind += ':{}'.format(port)
-
-        fields.append(('bind', bind))
-
-        return Section(
-            name='transport-{}'.format(protocol),
-            type_='section',
-            templates=None,
-            fields=fields,
-        )
-
-    def _get_transport_tcp(self):
-        tcp_enabled = self._general_settings_dict.get('tcpenable')
-        if tcp_enabled != 'yes':
-            return
-
-        fields = self._get_base_transport_fields('tcp')
-        self._add_option(fields, self._convert_externtcpport(self._general_settings_dict))
-        self._add_option(fields, self._convert_tcpbindaddr(self._general_settings_dict))
-
-        return Section(
-            name='transport-tcp',
-            type_='section',
-            templates=None,
-            fields=fields,
-        )
-
-    def _get_transport_udp(self):
-        return self._get_base_udp_transport('udp')
-
-    def _get_transport_wss(self):
-        if not self._general_settings_dict.get('websocket_enabled'):
-            return
-
-        return self._get_base_udp_transport('wss')
 
     @staticmethod
     def _add_pjsip_options(fields, options, config, from_list=False):
@@ -639,12 +563,6 @@ class SipDBExtractor(object):
         val = sip_config.get('encryption_taglen')
         if val == 32:
             return 'srtp_tag_32', 'yes'
-
-    @staticmethod
-    def _convert_externtcpport(sip_config):
-        val = sip_config.get('externtcpport')
-        if val:
-            return 'external_signaling_port', val
 
     @staticmethod
     def _convert_host(sip):
@@ -781,15 +699,6 @@ class SipDBExtractor(object):
 
         return 'timers', new_val
 
-    @staticmethod
-    def _convert_tcpbindaddr(sip_config):
-        val = sip_config.get('tcpbindaddr')
-        if not val:
-            return
-
-        host = val.rsplit(':', 1)[0] if ':' in val else val
-        return 'bind', host
-
 
 class PJSIPConfGenerator(object):
 
@@ -800,13 +709,12 @@ class PJSIPConfGenerator(object):
         asterisk_file_generator = AsteriskFileGenerator(asterisk_file_dao)
         output = StringIO()
         asterisk_file_generator.generate('pjsip.conf', output, required_sections=['global', 'system'])
+        self.generate_transports(output)
+        output.write('\n')
 
         extractor = SipDBExtractor()
 
         shared_sections = [
-            extractor.get('transport-udp'),
-            extractor.get('transport-wss'),
-            extractor.get('transport-tcp'),
             extractor.get('wazo-general-aor'),
             extractor.get('wazo-general-endpoint'),
             extractor.get('wazo-general-registration'),
@@ -818,3 +726,11 @@ class PJSIPConfGenerator(object):
         global_section = output.getvalue()
         other_sections = self._config_file_generator.generate(shared_sections + user_sections + trunk_sections)
         return global_section + other_sections
+
+    def generate_transports(self, output):
+        writer = AsteriskFileWriter(output)
+        transports = transport_dao.search()
+        for transport in transports.items:
+            writer.write_section(transport.name)
+            writer.write_option('type', 'transport')
+            writer.write_options(transport.options)

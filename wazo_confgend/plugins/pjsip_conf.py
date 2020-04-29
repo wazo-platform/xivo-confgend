@@ -118,6 +118,8 @@ class SipDBExtractor(object):
         for row in self._static_sip:
             self._general_settings_dict[row['var_name']] = row['var_val']
 
+        self._configured_transports = transport_dao.search()
+
     def get(self, section):
         if section == 'twilio-identify-template':
             return self._get_twilio_ident_template()
@@ -156,7 +158,7 @@ class SipDBExtractor(object):
         for row in sip_general:
             if row['var_name'] != 'register':
                 continue
-            for section in self._convert_register(row['var_val']):
+            for section in self._convert_register(row['var_val'], self._configured_transports):
                 yield section
 
     def _get_trunk_aor(self, trunk_sip):
@@ -653,8 +655,8 @@ class SipDBExtractor(object):
         yield 'record_off_feature', val
 
     @staticmethod
-    def _convert_register(register_url):
-        register = Registration(register_url)
+    def _convert_register(register_url, configured_transports):
+        register = Registration(register_url, configured_transports)
 
         fields = register.registration_fields
         fields.append(('type', 'registration'))

@@ -282,10 +282,14 @@ class TestSipDBExtractor(unittest.TestCase):
         assert_that(result, contains('inband_progress', 'no'))
 
     def test_convert_register(self):
-        register_url = 'udp://dev_370:dev_370:dev_370@wazo-dev-gateway.lan.wazo.io'
-        register = Registration(register_url)
+        transport_udp = Mock()
+        transport_udp.name = 'transport_udp'
+        configured_transports = Mock(items=[transport_udp])
 
-        result = list(SipDBExtractor._convert_register(register_url))
+        register_url = 'transport-udp://dev_370:dev_370:dev_370@wazo-dev-gateway.lan.wazo.io'
+        register = Registration(register_url, configured_transports)
+
+        result = list(SipDBExtractor._convert_register(register_url, configured_transports))
         assert_that(
             result,
             contains_inanyorder(

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright 2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2018-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# class copied from the sip_to_pjsip.py in the Asterisk repository
+# class heavily inspired from the sip_to_pjsip.py in the Asterisk repository
 # https://raw.githubusercontent.com/asterisk/asterisk/master/contrib/scripts/sip_to_pjsip/sip_to_pjsip.py
 
 
@@ -10,7 +10,19 @@ class Registration(object):
     """
     Class for parsing and storing information in a register line in sip.conf.
     """
-    def __init__(self, line):
+    def __init__(self, line, configured_transports):
+        self._transport_names = [t.name for t in configured_transports.items]
+
+        # Find a "default" transport as a fallback
+        for transport_name in self._transport_names:
+            # Start with a udp transport
+            if 'udp' in transport_name:
+                self._transport = transport_name
+                break
+        else:
+            # The first transport as a fallback :(
+            self._transport = self._transport_names[0].name
+
         self.parse(line)
 
         self.section = 'reg_' + self.user + '@' + self.host
@@ -61,37 +73,39 @@ class Registration(object):
         everything to the left of the user.
         """
         self.peer = ''
-        self.protocol = 'udp'
-        protocols = ['udp', 'tcp', 'tls']
-        for protocol in protocols:
-            position = user_part.find(protocol + '://')
-            if -1 < position:
-                post_transport = user_part[position + 6:]
-                self.peer, sep, self.protocol = user_part[:position + 3].rpartition('?')
-                user_part = post_transport
-                break
+        for transport in self._transport_names:
+            begin, _, end = user_part.partition('://')
+            self.peer, _, transport = begin.rpartition('?')
+            if not transport:
+                continue
+            if transport not in self._transport_names:
+                continue
+
+            self._transport = transport
+            user_part = end
+            break
 
         colons = user_part.count(':')
         if (colons == 3):
             # :domainport:secret:authuser
-            pre_auth, sep, port_auth = user_part.partition(':')
-            self.domainport, sep, auth = port_auth.partition(':')
-            self.secret, sep, self.authuser = auth.partition(':')
+            pre_auth, _, port_auth = user_part.partition(':')
+            self.domainport, _, auth = port_auth.partition(':')
+            self.secret, _, self.authuser = auth.partition(':')
         elif (colons == 2):
             # :secret:authuser
-            pre_auth, sep, auth = user_part.partition(':')
-            self.secret, sep, self.authuser = auth.partition(':')
+            pre_auth, _, auth = user_part.partition(':')
+            self.secret, _, self.authuser = auth.partition(':')
         elif (colons == 1):
             # :secret
-            pre_auth, sep, self.secret = user_part.partition(':')
+            pre_auth, _, self.secret = user_part.partition(':')
         elif (colons == 0):
             # No port, secret, or authuser
             pre_auth = user_part
         else:
             # Invalid setting
-            raise
+            raise Exception('Invalid SIP register')
 
-        self.user, sep, self.domain = pre_auth.partition('@')
+        self.user, _, self.domain = pre_auth.partition('@')
 
     def _generate(self):
         """
@@ -107,7 +121,7 @@ class Registration(object):
           client_uri
         self.expiry is expiration
         self.extension is contact_user
-        self.protocol will map to one of the mapped transports
+        self._transport will map to one of the mapped transports
         self.secret and self.authuser will result in a new auth section, and
           outbound_auth will point to that section.
         XXX self.peer really doesn't map to anything :(
@@ -117,7 +131,7 @@ class Registration(object):
             self.registration_fields.append(('contact_user', self.extension))
 
         self.registration_fields.append(('expiration', self.expiry))
-        self.registration_fields.append(('transport', 'transport-{}'.format(self.protocol)))
+        self.registration_fields.append(('transport', self._transport))
 
         if hasattr(self, 'secret') and self.secret:
             self.auth_fields.append(('password', self.secret))

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright (C) 2016 Avencall
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import xivo_dao
@@ -11,13 +11,12 @@ from xivo import xivo_logging
 from wazo_confgend.confgen import ConfgendFactory
 from wazo_confgend.config import load as load_config
 
-FOREGROUND = True  # Always in foreground systemd takes care of daemonizing
-
 
 def main():
     config = load_config()
 
-    xivo_logging.setup_logging(config['log_filename'], FOREGROUND, config['debug'], config['log_level'])
+    foreground = True
+    xivo_logging.setup_logging(config['log_filename'], foreground, config['debug'], config['log_level'])
 
     xivo_dao.init_db(config['db_uri'])
     f = ConfgendFactory(config['cache'], config)
@@ -29,7 +28,8 @@ def main():
 def twisted_application():
     config = load_config()
 
-    xivo_logging.setup_logging(config['log_filename'], FOREGROUND, config['debug'], config['log_level'])
+    foreground = False
+    xivo_logging.setup_logging(config['log_filename'], foreground, config['debug'], config['log_level'])
 
     xivo_dao.init_db(config['db_uri'])
     f = ConfgendFactory(config['cache'], config)

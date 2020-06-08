@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright 2016-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from setuptools import setup
@@ -33,9 +33,6 @@ setup(
         ],
         'wazo_confgend.asterisk.rtp.conf': [
             'wazo = wazo_confgend.plugins.rtp_conf:RTPConfGenerator',
-        ],
-        'wazo_confgend.asterisk.sip.conf': [
-            'wazo = wazo_confgend.plugins.sip_conf:SIPConfGenerator',
         ],
         'wazo_confgend.asterisk.pjsip.conf': [
             'wazo = wazo_confgend.plugins.pjsip_conf:PJSIPConfGenerator',

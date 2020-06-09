@@ -109,7 +109,6 @@ class SipDBExtractor(object):
 
     def __init__(self):
         self._static_sip = asterisk_conf_dao.find_sip_general_settings()
-        self._auth_data = asterisk_conf_dao.find_sip_authentication_settings()
         self._user_sip = list(asterisk_conf_dao.find_sip_user_settings())
         self._trunk = asterisk_conf_dao.find_sip_trunk_settings()
         self._general_settings_dict = {}

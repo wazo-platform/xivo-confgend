@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from wazo_confgend.hints import adaptor as hint_adaptor
@@ -13,14 +13,14 @@ class HintGenerator(object):
     @classmethod
     def build(cls):
         context_resource_adaptors = [
-            hint_adaptor.AgentAdaptor(hint_dao),
-            hint_adaptor.BSFilterAdaptor(hint_dao),
+            hint_adaptor.UserAdaptor(hint_dao),
             hint_adaptor.ConferenceAdaptor(hint_dao),
-            hint_adaptor.CustomAdaptor(hint_dao),
+            hint_adaptor.ServiceAdaptor(hint_dao),
             hint_adaptor.ForwardAdaptor(hint_dao),
             hint_adaptor.GroupMemberAdaptor(hint_dao),
-            hint_adaptor.ServiceAdaptor(hint_dao),
-            hint_adaptor.UserAdaptor(hint_dao),
+            hint_adaptor.AgentAdaptor(hint_dao),
+            hint_adaptor.BSFilterAdaptor(hint_dao),
+            hint_adaptor.CustomAdaptor(hint_dao)
         ]
         global_resource_adaptors = [
             hint_adaptor.UserSharedHintAdaptor(hint_dao),

@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 
-from mock import Mock
+from mock import Mock, patch
 from hamcrest import assert_that, contains
 
-from wazo_confgend.hints.generator import HintGenerator
-from wazo_confgend.hints.adaptor import HintAdaptor
+from ..import adaptor
+from ..generator import HintGenerator
+from ..adaptor import HintAdaptor
 
 CONTEXT = 'context'
 
@@ -69,3 +70,21 @@ class TestGenerator(unittest.TestCase):
         assert_that(generator.generate_global_hints(), contains(
             'exten = 1001,hint,PJSIP/abc&SCCP/1042',
         ))
+
+    def test_that_user_generated_hints_are_not_overridden(self):
+        custom_adaptor = Mock(adaptor.CustomAdaptor)
+        user_adaptor = Mock(adaptor.UserAdaptor)
+        custom_adaptor.generate.return_value = [('1000', 'Custom:1000')]
+        user_adaptor.generate.return_value = [('1000', 'PJSIP/abcdef')]
+
+        with patch('wazo_confgend.hints.generator.hint_adaptor') as adaptors:
+            adaptors.UserAdaptor.return_value = user_adaptor
+            adaptors.CustomAdaptor.return_value = custom_adaptor
+
+            generator = HintGenerator.build()
+
+            result = generator.generate(CONTEXT)
+            assert_that(
+                list(result),
+                contains('exten = 1000,hint,PJSIP/abcdef'),
+            )

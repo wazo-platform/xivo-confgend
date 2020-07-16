@@ -712,21 +712,9 @@ class PJSIPConfGenerator(object):
         asterisk_file_generator.generate('pjsip.conf', output, required_sections=['global', 'system'])
         self.generate_transports(output)
         output.write('\n')
-
-        extractor = SipDBExtractor()
-
-        shared_sections = [
-            extractor.get('wazo-general-aor'),
-            extractor.get('wazo-general-endpoint'),
-            extractor.get('wazo-general-registration'),
-            extractor.get('twilio-identify-template'),
-        ]
-        user_sections = list(extractor.get_user_sections())
-        trunk_sections = list(extractor.get_trunk_sections())
-
-        global_section = output.getvalue()
-        other_sections = self._config_file_generator.generate(shared_sections + user_sections + trunk_sections)
-        return global_section + other_sections
+        self.generate_lines(output)
+        # self.generate_trunks(output)
+        return output.getvalue()
 
     def generate_transports(self, output):
         writer = AsteriskFileWriter(output)
@@ -735,3 +723,23 @@ class PJSIPConfGenerator(object):
             writer.write_section(transport.name)
             writer.write_option('type', 'transport')
             writer.write_options(transport.options)
+
+    def generate_lines(self, output):
+        writer = AsteriskFileWriter(output)
+        endpoints = asterisk_conf_dao.find_sip_user_settings()
+        for endpoint in endpoints:
+            name = endpoint['name']
+            label = endpoint.get('label')
+            endpoint_section_options = endpoint.get('endpoint_section_options', [])
+            writer.write_section(name, comment=label)
+            writer.write_options(endpoint_section_options)
+            sections = {}
+            for key, value in endpoint_section_options:
+                if key == 'auth':
+                    sections['auth_section_options'] = value
+                elif key == 'aors':
+                    sections['aor_section_options'] = value
+
+            for key in sorted(sections):
+                writer.write_section(sections[key])
+                writer.write_options(endpoint.get(key, []))

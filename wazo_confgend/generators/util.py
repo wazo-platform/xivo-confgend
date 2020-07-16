@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import unicode_literals
+
+
+def format_ast_comment(comment):
+    return '; {}'.format(comment)
 
 
 def format_ast_section(name):
@@ -38,8 +42,10 @@ class AsteriskFileWriter(object):
         self._fobj = fobj
         self._first_section = True
 
-    def write_section(self, name):
+    def write_section(self, name, comment=None):
         self._write_section_separator()
+        if comment:
+            self._write_line(format_ast_comment(comment))
         self._write_line(format_ast_section(name))
 
     def write_section_tpl(self, name):

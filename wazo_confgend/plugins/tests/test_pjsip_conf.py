@@ -71,6 +71,94 @@ class TestPJSIPConfGenerator(unittest.TestCase):
                 '''
             )
 
+    def test_generate_users(self):
+        output = StringIO()
+        name_1 = 'abcdef'
+        label_1 = 'my-sip-line'
+        name_2 = 'defbca'
+        label_2 = 'another-sip-line'
+        with patch('wazo_confgend.plugins.pjsip_conf.asterisk_conf_dao') as dao:
+            dao.find_sip_user_settings.return_value = [
+                {
+                    'name': name_1,
+                    'label': label_1,
+                    'aor_section_options': [
+                        ['type', 'aor'],
+                        ['qualify_frequency', '60'],
+                    ],
+                    'auth_section_options': [
+                        ['type', 'auth'],
+                        ['username', 'iddqd'],
+                    ],
+                    'endpoint_section_options': [
+                        ['type', 'endpoint'],
+                        ['aors', name_1],
+                        ['auth', name_1],
+                        ['allow', '!all,ulaw'],
+                    ],
+                },
+                {
+                    'name': name_2,
+                    'label': label_2,
+                    'aor_section_options': [
+                        ['type', 'aor'],
+                        ['qualify_frequency', '42'],
+                    ],
+                    'auth_section_options': [
+                        ['type', 'auth'],
+                        ['username', 'idbehold'],
+                    ],
+                    'endpoint_section_options': [
+                        ['type', 'endpoint'],
+                        ['aors', name_2],
+                        ['auth', name_2],
+                        ['allow', '!all,ulaw,g729'],
+                    ],
+                },
+            ]
+
+            self.generator.generate_lines(output)
+            result = output.getvalue()
+            assert_config_equal(
+                result,
+                '''\
+                ; {label_1}
+                [{name_1}]
+                type = endpoint
+                aors = {name_1}
+                auth = {name_1}
+                allow = !all,ulaw
+
+                [{name_1}]
+                type = aor
+                qualify_frequency = 60
+
+                [{name_1}]
+                type = auth
+                username = iddqd
+
+                ; {label_2}
+                [{name_2}]
+                type = endpoint
+                aors = {name_2}
+                auth = {name_2}
+                allow = !all,ulaw,g729
+
+                [{name_2}]
+                type = aor
+                qualify_frequency = 42
+
+                [{name_2}]
+                type = auth
+                username = idbehold
+                '''.format(
+                    label_1=label_1,
+                    label_2=label_2,
+                    name_1=name_1,
+                    name_2=name_2,
+                )
+            )
+
 
 class TestConfFileGenerator(unittest.TestCase):
 

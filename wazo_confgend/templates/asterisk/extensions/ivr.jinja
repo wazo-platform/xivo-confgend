@@ -13,13 +13,13 @@ same  =   n,Goto(t,1)
 {%- endif %}
 
 {% for choice in ivr.choices %}
-exten = {{ choice.exten }},1,Gosub(forward,s,1({{ choice.destination.gosub_args }}))
+exten = {{ choice.exten }},1,Gosub(forward,s,1({{ choice.destination.gosub_args | replace(";", "\;") }}))
 same  =   n,Hangup()
 {% endfor %}
 
 exten = t,1,NoOp()
 {% if ivr.timeout_destination -%}
-same  =   n,Gosub(forward,s,1({{ ivr.timeout_destination.gosub_args }}))
+same  =   n,Gosub(forward,s,1({{ ivr.timeout_destination.gosub_args | replace(";", "\;") }}))
 {% else -%}
 same  =   n,GotoIf($[${IVR_COUNTER}>={{ ivr.max_tries }}]?abort,1)
 same  =   n,Goto(s,start)
@@ -27,7 +27,7 @@ same  =   n,Goto(s,start)
 
 exten = i,1,NoOp()
 {% if ivr.invalid_destination -%}
-same  =   n,Gosub(forward,s,1({{ ivr.invalid_destination.gosub_args }}))
+same  =   n,Gosub(forward,s,1({{ ivr.invalid_destination.gosub_args | replace(";", "\;") }}))
 {% else -%}
 same  =   n,GotoIf($[${IVR_COUNTER}>={{ ivr.max_tries }}]?abort,1)
 {% if ivr.invalid_sound -%}
@@ -38,7 +38,7 @@ same  =   n,Goto(s,start)
 
 exten = abort,1,NoOp()
 {% if ivr.abort_destination -%}
-same  =   n,Gosub(forward,s,1({{ ivr.abort_destination.gosub_args }}))
+same  =   n,Gosub(forward,s,1({{ ivr.abort_destination.gosub_args | replace(";", "\;") }}))
 {% else -%}
 same  =   n,Playback({{ ivr.abort_sound|d('error-sorry', true) }})
 same  =   n,Hangup()

@@ -743,3 +743,36 @@ class PJSIPConfGenerator(object):
             for key in sorted(sections):
                 writer.write_section(sections[key])
                 writer.write_options(endpoint.get(key, []))
+
+    def generate_trunks(self, output):
+        writer = AsteriskFileWriter(output)
+        endpoints = asterisk_conf_dao.find_sip_trunk_settings()
+        for endpoint in endpoints:
+            name = endpoint['name']
+            label = endpoint.get('label')
+            endpoint_section_options = endpoint.get('endpoint_section_options', [])
+            registration_section_options = endpoint.get('registration_section_options', [])
+            writer.write_section(name, comment=label)
+            writer.write_options(endpoint_section_options)
+            sections = {
+                'identify_section_options': name,
+                'registration_section_options': name,
+            }
+            for key, value in endpoint_section_options:
+                if key == 'auth':
+                    sections['auth_section_options'] = value
+                elif key == 'aors':
+                    sections['aor_section_options'] = value
+                elif key == 'outbound_auth':
+                    sections['outbound_auth_section_options'] = value
+            for key, value in registration_section_options:
+                if key == 'outbound_auth':
+                    sections['registration_outbound_auth_section_options'] = value
+
+            for key in sorted(sections):
+                options = endpoint.get(key)
+                if not options:
+                    continue
+
+                writer.write_section(sections[key])
+                writer.write_options(options)

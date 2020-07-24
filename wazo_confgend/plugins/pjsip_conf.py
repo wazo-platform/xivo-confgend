@@ -713,7 +713,8 @@ class PJSIPConfGenerator(object):
         self.generate_transports(output)
         output.write('\n')
         self.generate_lines(output)
-        # self.generate_trunks(output)
+        output.write('\n')
+        self.generate_trunks(output)
         return output.getvalue()
 
     def generate_transports(self, output):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2016 Avencall
+# Copyright 2016-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import xivo_dao
@@ -15,8 +15,7 @@ from wazo_confgend.config import load as load_config
 def main():
     config = load_config()
 
-    foreground = True
-    xivo_logging.setup_logging(config['log_filename'], foreground, config['debug'], config['log_level'])
+    xivo_logging.setup_logging(config['log_filename'], debug=config['debug'], log_level=config['log_level'])
 
     xivo_dao.init_db(config['db_uri'])
     f = ConfgendFactory(config['cache'], config)
@@ -28,8 +27,7 @@ def main():
 def twisted_application():
     config = load_config()
 
-    foreground = False
-    xivo_logging.setup_logging(config['log_filename'], foreground, config['debug'], config['log_level'])
+    xivo_logging.setup_logging(config['log_filename'], debug=config['debug'], log_level=config['log_level'])
 
     xivo_dao.init_db(config['db_uri'])
     f = ConfgendFactory(config['cache'], config)

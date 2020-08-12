@@ -16,6 +16,9 @@ case "$1" in
 			adduser --quiet --system --group --no-create-home --home "${HOME}" "${USER}"
 		fi
 
+    # fix directories cache owner 20.12
+    chown --recursive wazo-confgend:wazo-confgend "${CACHE}"
+
     # move files from xivo-confgend 19.14
     if [ -f /var/log/xivo-confgend.log ] ; then
         rename 's/xivo-confgend/wazo-confgend/g' /var/log/xivo-confgend.log*

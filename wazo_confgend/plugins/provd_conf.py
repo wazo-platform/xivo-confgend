@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import unicode_literals
@@ -30,7 +30,7 @@ class ProvdNetworkConfGenerator(object):
         return result.address
 
     def generate(self):
-        with session_scope() as session:
+        with session_scope(read_only=True) as session:
             address = self.get_provd_net4_ip(session) or self.get_netiface_net4_ip(session)
 
         if not address:

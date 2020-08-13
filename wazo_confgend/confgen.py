@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -91,7 +91,7 @@ class ConfgendFactory(ServerFactory):
 
     def _generate_and_cache(self, cache_key, resource, filename):
         handler = self._handler_factory.get(resource, filename)
-        with session_scope():
+        with session_scope(read_only=True):
             try:
                 content = handler()
                 return self._encode_and_cache(cache_key, content)

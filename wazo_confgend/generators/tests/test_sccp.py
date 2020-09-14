@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import itertools
@@ -270,6 +270,7 @@ class TestSccpLineConf(unittest.TestCase):
     def test_one_element_lines_section(self):
         uuid = str(uuid4())
         sccpline = [{
+            'id': 13423,
             'category': u'lines',
             'name': u'100',
             'cid_name': u'jimmy',
@@ -296,6 +297,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
+            setvar = WAZO_LINE_ID=13423
             language = fr_FR
             context = a_context
         '''.format(uuid=uuid))
@@ -303,6 +305,7 @@ class TestSccpLineConf(unittest.TestCase):
     def test_one_element_lines_section_no_language(self):
         uuid = str(uuid4())
         sccpline = [{
+            'id': 13423,
             'category': u'lines',
             'name': u'100',
             'cid_name': u'jimmy',
@@ -329,12 +332,14 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
+            setvar = WAZO_LINE_ID=13423
             context = a_context
         '''.format(uuid=uuid))
 
     def test_allow_no_disallow(self):
         uuid = str(uuid4())
         sccpline = [{
+            'id': 13423,
             'category': u'lines',
             'name': u'100',
             'cid_name': u'jimmy',
@@ -362,6 +367,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
+            setvar = WAZO_LINE_ID=13423
             context = a_context
             allow = g729,ulaw
         '''.format(uuid=uuid))
@@ -369,6 +375,7 @@ class TestSccpLineConf(unittest.TestCase):
     def test_disallow_all_allow_order(self):
         uuid = str(uuid4())
         sccpline = [{
+            'id': 13423,
             'category': u'lines',
             'name': u'100',
             'cid_name': u'jimmy',
@@ -397,6 +404,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
+            setvar = WAZO_LINE_ID=13423
             context = a_context
             disallow = all
             allow = g729,ulaw
@@ -405,6 +413,7 @@ class TestSccpLineConf(unittest.TestCase):
     def test_call_and_pickup_groups(self):
         uuid = str(uuid4())
         sccpline = [{
+            'id': 13423,
             'category': u'lines',
             'name': u'100',
             'cid_name': u'jimmy',
@@ -433,6 +442,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
+            setvar = WAZO_LINE_ID=13423
             context = a_context
             namedcallgroup = 1,2,3,4
             namedpickupgroup = 3,4

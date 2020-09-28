@@ -1,4 +1,4 @@
-pyhamcrest
 mock
-nose
+pyhamcrest
+pytest
 unidecode==1.0.23

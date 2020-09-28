@@ -16,7 +16,7 @@ from ..template import TemplateHelper
 class TestTemplateHelper(TestCase):
 
     def setUp(self):
-        self.loader = PackageLoader(__name__, 'templates')
+        self.loader = PackageLoader('wazo_confgend', 'tests/templates')
         self.tpl_helper = TemplateHelper(self.loader)
 
     def test_get_template(self):

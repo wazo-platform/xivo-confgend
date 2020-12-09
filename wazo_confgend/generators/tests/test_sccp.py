@@ -281,6 +281,7 @@ class TestSccpLineConf(unittest.TestCase):
             'number': u'100',
             'context': u'a_context',
             'tenant_uuid': u'tenant-uuid',
+            'enable_online_recording': 1,
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)
@@ -298,6 +299,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             setvar = WAZO_LINE_ID=13423
+            setvar = DYNAMIC_FEATURES=togglerecord
             language = fr_FR
             context = a_context
         '''.format(uuid=uuid))
@@ -316,6 +318,7 @@ class TestSccpLineConf(unittest.TestCase):
             'number': u'100',
             'context': u'a_context',
             'tenant_uuid': u'tenant-uuid',
+            'enable_online_recording': 0,
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)
@@ -351,6 +354,7 @@ class TestSccpLineConf(unittest.TestCase):
             'allow': u'g729,ulaw',
             'uuid': uuid,
             'tenant_uuid': u'tenant-uuid',
+            'enable_online_recording': 0,
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)
@@ -388,6 +392,7 @@ class TestSccpLineConf(unittest.TestCase):
             'allow': u'g729,ulaw',
             'disallow': u'all',
             'tenant_uuid': u'tenant-uuid',
+            'enable_online_recording': 0,
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)
@@ -426,6 +431,7 @@ class TestSccpLineConf(unittest.TestCase):
             'callgroup': [1, 2, 3, 4],
             'pickupgroup': [3, 4],
             'tenant_uuid': u'tenant-uuid',
+            'enable_online_recording': 0,
         }]
 
         self._line_conf._generate_lines(sccpline, self._output)

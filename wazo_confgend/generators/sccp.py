@@ -166,6 +166,8 @@ class _SccpLineConf(object):
             print >> output, format_ast_option('setvar', 'TRANSFER_CONTEXT=%s' % item['context'])
             print >> output, format_ast_option('setvar', 'WAZO_CHANNEL_DIRECTION=from-wazo')
             print >> output, format_ast_option('setvar', 'WAZO_LINE_ID=%s' % item['id'])
+            if item['enable_online_recording']:
+                print >> output, format_ast_option('setvar', 'DYNAMIC_FEATURES=togglerecord')
             if item['language']:
                 print >> output, format_ast_option('language', item['language'])
             print >> output, format_ast_option('context', item['context'])

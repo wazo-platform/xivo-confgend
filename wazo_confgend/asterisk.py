@@ -114,19 +114,6 @@ class AsteriskFrontend(object):
 
         return output.getvalue()
 
-    def meetme_conf(self):
-        options = StringIO()
-
-        print >> options, '\n[general]'
-        for c in asterisk_conf_dao.find_meetme_general_settings():
-            print >> options, "%s = %s" % (c['var_name'], c['var_val'])
-
-        print >> options, '\n[rooms]'
-        for r in asterisk_conf_dao.find_meetme_rooms_settings():
-            print >> options, "%s = %s" % (r['var_name'], r['var_val'])
-
-        return options.getvalue()
-
     def queueskills_conf(self):
         """Generate queueskills.conf asterisk configuration file
         """

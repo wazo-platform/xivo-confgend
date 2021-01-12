@@ -34,7 +34,7 @@ DEFAULT_EXTENFEATURES = {
     'cctoggle': 'GoSub(cctoggle,s,1())',
     'callgroup': 'GoSub(group,s,1(${EXTEN:4}) )',
     'calllistening': 'GoSub(calllistening,s,1())',
-    'callmeetme': 'GoSub(meetme,s,1(${EXTEN:4}))',
+    'callconference': 'GoSub(conference,s,1(${EXTEN:4}))',
     'callqueue': 'GoSub(queue,s,1(${EXTEN:4}))',
     'callrecord': 'GoSub(callrecord,s,1() )',
     'calluser': 'GoSub(user,s,1(${EXTEN:4}))',
@@ -167,7 +167,7 @@ class ExtensionsConf(object):
         self._generate_global_hints(output)
         extenfeature_names = (
             'bsfilter',
-            'callmeetme',
+            'callconference',
             'calluser',
             'fwdbusy',
             'fwdrna',

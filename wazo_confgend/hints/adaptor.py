@@ -42,7 +42,7 @@ class ConferenceAdaptor(HintAdaptor):
 
     def generate(self, context):
         for hint in self.dao.conference_hints(context):
-            yield (hint.extension, 'meetme:{}'.format(hint.extension))
+            yield (hint.extension, 'conference:{}'.format(hint.extension))
 
 
 class ForwardAdaptor(ProgfunckeyAdaptor):

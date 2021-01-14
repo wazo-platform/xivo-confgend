@@ -42,7 +42,7 @@ class ConferenceAdaptor(HintAdaptor):
 
     def generate(self, context):
         for hint in self.dao.conference_hints(context):
-            yield (hint.extension, 'conference:{}'.format(hint.extension))
+            yield (hint.extension, 'confbridge:{}'.format(hint.conference_id))
 
 
 class ForwardAdaptor(ProgfunckeyAdaptor):

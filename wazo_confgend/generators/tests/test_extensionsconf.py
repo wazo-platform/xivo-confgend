@@ -37,7 +37,7 @@ class TestExtensionsConf(unittest.TestCase):
     def test_generate_hints(self):
         hints = [
             'exten = 1000,hint,SIP/abcdef',
-            'exten = 4000,hint,conference:4000',
+            'exten = 4000,hint,confbridge:1',
             'exten = *7351***223*1234,hint,Custom:*7351***223*1234',
         ]
 
@@ -68,7 +68,7 @@ class TestExtensionsConf(unittest.TestCase):
     def test_generate(self, mock_asterisk_conf_dao, mock_ivr_dao):
         hints = [
             'exten = 1000,hint,SIP/abcdef',
-            'exten = 4000,hint,conference:4000',
+            'exten = 4000,hint,confbridge:1',
             'exten = *7351***223*1234,hint,Custom:*7351***223*1234',
         ]
         self.hint_generator.generate_global_hints.return_value = hints

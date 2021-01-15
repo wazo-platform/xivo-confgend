@@ -32,12 +32,8 @@ DEFAULT_EXTENFEATURES = {
     'agentstaticlogtoggle': 'GoSub(agentstaticlogtoggle,s,1(${EXTEN:3}))',
     'bsfilter': 'GoSub(bsfilter,s,1(${EXTEN:3}))',
     'cctoggle': 'GoSub(cctoggle,s,1())',
-    'callgroup': 'GoSub(group,s,1(${EXTEN:4}) )',
     'calllistening': 'GoSub(calllistening,s,1())',
-    'callconference': 'GoSub(conference,s,1(${EXTEN:4}))',
-    'callqueue': 'GoSub(queue,s,1(${EXTEN:4}))',
     'callrecord': 'GoSub(callrecord,s,1() )',
-    'calluser': 'GoSub(user,s,1(${EXTEN:4}))',
     'directoryaccess': 'Directory(${CONTEXT})',
     'enablednd': 'GoSub(enablednd,s,1())',
     'enablevm': 'GoSub(enablevm,s,1())',
@@ -167,8 +163,6 @@ class ExtensionsConf(object):
         self._generate_global_hints(output)
         extenfeature_names = (
             'bsfilter',
-            'callconference',
-            'calluser',
             'fwdbusy',
             'fwdrna',
             'fwdunc',

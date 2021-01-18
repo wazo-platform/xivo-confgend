@@ -68,13 +68,11 @@ class TestConferenceAdaptor(TestAdaptor):
 
     def test_adaptor_generates_conference_hint(self):
         dao = Mock()
-        dao.conference_hints.return_value = [Hint(user_id=None,
-                                                  extension='4000',
-                                                  argument=None)]
+        dao.conference_hints.return_value = [Hint(conference_id=1, extension='4000')]
 
         adaptor = ConferenceAdaptor(dao)
 
-        assert_that(adaptor.generate(CONTEXT), contains(('4000', 'conference:4000')))
+        assert_that(adaptor.generate(CONTEXT), contains(('4000', 'confbridge:1')))
         dao.conference_hints.assert_called_once_with(CONTEXT)
 
 

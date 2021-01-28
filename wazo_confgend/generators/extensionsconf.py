@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import copy
@@ -206,17 +206,6 @@ class ExtensionsConf(object):
                 exten_generator = extension_generators.get(exten_row['type'], GenericExtensionGenerator)
                 exten = exten_generator(exten_row).generate()
                 self.gen_dialplan_from_template(tmpl, exten, options)
-
-            # conference supervision
-            conferences = asterisk_conf_dao.find_exten_conferences_settings(context_name=ctx['name'])
-            if len(conferences) > 0:
-                print >> options, "\n; conferences supervision"
-
-            for conference in conferences:
-                if conference['exten'] is not None:
-                    exten = xivo_helpers.clean_extension(conference['exten'])
-                else:
-                    continue
 
             self._generate_hints(ctx['name'], options)
 

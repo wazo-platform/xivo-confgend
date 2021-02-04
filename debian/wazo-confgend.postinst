@@ -44,7 +44,7 @@ case "$1" in
         touch "${LOG_FILENAME}"
     fi
 
-    chown "${USER}:${GROUP}" "${LOG_FILENAME}" "${CACHE}"
+    chown --recursive "${USER}:${GROUP}" "${LOG_FILENAME}" "${CACHE}"
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

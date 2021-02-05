@@ -9,12 +9,12 @@ HOME="/var/lib/wazo-confgend"
 CACHE="/var/cache/wazo-confgend"
 
 case "$1" in
-	configure)
-		# add/update user
-		if ! getent passwd $USER > /dev/null ; then
-			echo "Adding system user ${USER}" 1>&2
-			adduser --quiet --system --group --no-create-home --home "${HOME}" "${USER}"
-		fi
+  configure)
+    # add/update user
+    if ! getent passwd $USER > /dev/null ; then
+      echo "Adding system user ${USER}" 1>&2
+      adduser --quiet --system --group --no-create-home --home "${HOME}" "${USER}"
+    fi
 
     # fix directories cache owner 20.12
     chown --recursive wazo-confgend:wazo-confgend "${CACHE}"
@@ -40,20 +40,20 @@ case "$1" in
     fi
     # End of move files from xivo-confgend
 
-		if [ ! -e "${LOG_FILENAME}" ] ; then
-			touch "${LOG_FILENAME}"
-		fi
+    if [ ! -e "${LOG_FILENAME}" ] ; then
+        touch "${LOG_FILENAME}"
+    fi
 
-		chown "${USER}:${GROUP}" "${LOG_FILENAME}" "${CACHE}"
-	;;
+    chown --recursive "${USER}:${GROUP}" "${LOG_FILENAME}" "${CACHE}"
+    ;;
 
-	abort-upgrade|abort-remove|abort-deconfigure)
-	;;
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
 
-	*)
-		echo "postinst called with unknown argument \`$1'" >&2
-		exit 1
-	;;
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
 esac
 
 # dh_installdeb will replace this with shell code automatically

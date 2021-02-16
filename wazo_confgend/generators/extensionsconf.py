@@ -241,8 +241,8 @@ class ExtensionsConf(object):
             if not xfeatures[fwdtype].get('commented', 1):
                 exten = xivo_helpers.clean_extension(xfeatures[fwdtype]['exten'])
                 cfeatures.extend([
-                    "%s,1,Set(XIVO_BASE_CONTEXT=${CONTEXT})" % exten,
-                    "%s,n,Set(XIVO_BASE_EXTEN=${EXTEN})" % exten,
+                    "%s,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})" % exten,
+                    "%s,n,Set(__XIVO_BASE_EXTEN=${EXTEN})" % exten,
                     "%s,n,Gosub(feature_forward,s,1(%s))\n" % (exten, x),
                 ])
 

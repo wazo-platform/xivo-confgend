@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -28,11 +28,11 @@ class TestExtensionsConf(unittest.TestCase):
         self.output = StringIO()
 
     def test_generate_dialplan_from_template(self):
-        template = ["%%EXTEN%%,%%PRIORITY%%,Set('XIVO_BASE_CONTEXT': ${CONTEXT})"]
+        template = ["%%EXTEN%%,%%PRIORITY%%,Set('__XIVO_BASE_CONTEXT': ${CONTEXT})"]
         exten = {'exten': '*98', 'priority': 1}
         self.extensionsconf.gen_dialplan_from_template(template, exten, self.output)
 
-        self.assertEqual(self.output.getvalue(), "exten = *98,1,Set('XIVO_BASE_CONTEXT': ${CONTEXT})\n\n")
+        self.assertEqual(self.output.getvalue(), "exten = *98,1,Set('__XIVO_BASE_CONTEXT': ${CONTEXT})\n\n")
 
     def test_generate_hints(self):
         hints = [

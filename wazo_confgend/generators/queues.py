@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from wazo_confgend.generators.util import (
@@ -20,10 +20,10 @@ class QueuesConf(object):
             print >> output, format_ast_option(item['var_name'], item['var_val'])
 
         for q in asterisk_conf_dao.find_queue_settings():
-            print >> output, '\n[%s]' % q['name']
+            print >> output, '\n; {label}\n[{name}]'.format(**q)
 
             for k, v in q.iteritems():
-                if k in ('name', 'category', 'commented') or v is None or \
+                if k in ('name', 'label', 'category', 'commented') or v is None or \
                         (isinstance(v, basestring) and not v):
                     continue
 

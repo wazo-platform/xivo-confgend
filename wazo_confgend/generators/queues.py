@@ -2,11 +2,9 @@
 # Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from wazo_confgend.generators.util import (
-    format_ast_option,
-    format_ast_object_option,
-)
 from xivo_dao import asterisk_conf_dao
+
+from wazo_confgend.generators.util import AsteriskFileWriter
 
 
 class QueuesConf(object):
@@ -22,12 +20,14 @@ class QueuesConf(object):
         queue_penalty_settings = asterisk_conf_dao.find_queue_penalty_settings()
         penalties = dict((itm['id'], itm['name']) for itm in queue_penalty_settings)
 
-        print >> output, '[general]'
+        writer = AsteriskFileWriter(output)
+
+        writer.write_section('general')
         for item in asterisk_conf_dao.find_queue_general_settings():
-            print >> output, format_ast_option(item['var_name'], item['var_val'])
+            writer.write_option(item['var_name'], item['var_val'])
 
         for q in asterisk_conf_dao.find_queue_settings():
-            print >> output, '\n; {label}\n[{name}]'.format(**q)
+            writer.write_section(q['name'], comment=q['label'])
 
             for k, v in q.iteritems():
                 if k in self._ignored_keys:
@@ -40,8 +40,8 @@ class QueuesConf(object):
                         continue
                     v = penalties[int(v)]
 
-                print >> output, format_ast_option(k, v)
+                writer.write_option(k, v)
 
             queuemember_settings = asterisk_conf_dao.find_queue_members_settings(q['name'])
             for values in queuemember_settings:
-                print >> output, format_ast_object_option('member', ','.join(values))
+                writer.write_option('member', ','.join(values))

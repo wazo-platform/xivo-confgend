@@ -63,8 +63,8 @@ class TestQueuesConf(unittest.TestCase):
             ; group 1
             [grp-supertenant-42f6b00e-0181-427b-b885-cf0b95893762]
             wrapuptime = 0
-            member => PJSIP/abc,1,,
-            member => iface,2,name,state_iface
+            member = PJSIP/abc,1,,
+            member = iface,2,name,state_iface
         ''')
         find_queue_settings.assert_called_once_with()
         find_queue_members_settings.assert_called_once_with('grp-supertenant-42f6b00e-0181-427b-b885-cf0b95893762')

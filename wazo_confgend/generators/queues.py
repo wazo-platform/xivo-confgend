@@ -11,6 +11,13 @@ from xivo_dao import asterisk_conf_dao
 
 class QueuesConf(object):
 
+    _ignored_keys = [
+        'name',
+        'label',
+        'category',
+        'commented',
+    ]
+
     def generate(self, output):
         queue_penalty_settings = asterisk_conf_dao.find_queue_penalty_settings()
         penalties = dict((itm['id'], itm['name']) for itm in queue_penalty_settings)
@@ -23,8 +30,9 @@ class QueuesConf(object):
             print >> output, '\n; {label}\n[{name}]'.format(**q)
 
             for k, v in q.iteritems():
-                if k in ('name', 'label', 'category', 'commented') or v is None or \
-                        (isinstance(v, basestring) and not v):
+                if k in self._ignored_keys:
+                    continue
+                if v is None or (isinstance(v, basestring) and not v):
                     continue
 
                 if k == 'defaultrule':

@@ -18,7 +18,7 @@ _DEFAULT_CONFIG = {
     'cache': '/var/cache/wazo-confgend',
     'listen_address': '127.0.0.1',
     'listen_port': 8669,
-    'db_uri': 'postgresql://asterisk:proformatique@localhost/asterisk',
+    'db_uri': 'postgresql://asterisk:proformatique@localhost/asterisk?application_name=wazo-confgend',
     'templates': {'contextsconf': '/etc/wazo-confgend/templates/contexts.conf'},
     'plugins': {},
 }

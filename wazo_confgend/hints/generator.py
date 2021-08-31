@@ -44,9 +44,6 @@ class HintGenerator(object):
         existing = set()
         for adaptor in self.context_resource_adaptors:
             for extension, hint in adaptor.generate(context):
-                # TODO clean after pjsip migration
-                if hint.startswith('SIP'):
-                    hint = hint.replace('SIP', 'PJSIP')
                 if extension not in existing:
                     yield self.DIALPLAN.format(extension=extension,
                                                hint=hint)

@@ -1,0 +1,8 @@
+{% for meeting in meetings -%}
+[wazo-meeting-{{ meeting.uuid }}-guest]
+exten = meeting-guest,1,NoOp(New guest participant in the meeting)
+same = n,Set(WAZO_TENANT_UUID={{ meeting.tenant_uuid }})
+same = n,Set(WAZO_MEETING_UUID={{ meeting.uuid }})
+same = n,Goto(wazo-meeting,participant,1)
+
+{% endfor %}

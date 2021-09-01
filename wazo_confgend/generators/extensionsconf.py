@@ -213,6 +213,7 @@ class ExtensionsConf(object):
 
         print >> options, self._extensions_features(conf, xfeatures)
         self._generate_ivr(output)
+        self._generate_meeting_guest(output)
 
         return options.getvalue()
 
@@ -287,4 +288,9 @@ class ExtensionsConf(object):
     def _generate_meeting_user(self, tenant_uuid, output):
         template_context = {'meetings': meeting_dao.find_all_by(tenant_uuid=tenant_uuid)}
         template = self._tpl_helper.get_template('asterisk/extensions/meeting-user')
+        print >> output, template.dump(template_context)
+
+    def _generate_meeting_guest(self, output):
+        template_context = {'meetings': meeting_dao.find_all_by()}
+        template = self._tpl_helper.get_template('asterisk/extensions/meeting-guest')
         print >> output, template.dump(template_context)

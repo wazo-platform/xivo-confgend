@@ -99,6 +99,7 @@ class TestExtensionsConf(unittest.TestCase):
         ]
 
         self.tpl_mapping['asterisk/extensions/meeting-user.jinja'] = "exten = meeting-for-users..."
+        self.tpl_mapping['asterisk/extensions/meeting-guest.jinja'] = "[meeting-for-guests]..."
 
         self.extensionsconf.generate(self.output)
 

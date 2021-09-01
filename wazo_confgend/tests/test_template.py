@@ -136,6 +136,13 @@ class TestMeetingUserTemplate(TestCase):
         with open(self.template_path) as f:
             self.template = Template(f.read())
 
+    def test_empty(self):
+        meetings = []
+
+        output = self.template.render(meetings=meetings)
+
+        assert output == ''
+
     def test_meeting_user_template(self):
         meetings = [
             Mock(tenant_uuid='tenant-uuid', uuid='uuid1'),
@@ -169,6 +176,13 @@ class TestMeetingGuestTemplate(TestCase):
         )
         with open(self.template_path) as f:
             self.template = Template(f.read())
+
+    def test_empty(self):
+        meetings = []
+
+        output = self.template.render(meetings=meetings)
+
+        assert output == ''
 
     def test_meeting_guest_template(self):
         meetings = [

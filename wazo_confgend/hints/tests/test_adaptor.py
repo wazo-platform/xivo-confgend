@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
 import unittest
 
 from mock import Mock
-from hamcrest import assert_that, contains, contains_inanyorder, has_item
+from hamcrest import assert_that, contains_exactly, contains_inanyorder, has_item
 
 from wazo_confgend.hints.adaptor import (
     AgentAdaptor,
@@ -59,8 +59,8 @@ class TestUserSharedHintsAdaptor(TestAdaptor):
 
     def test_adaptor_generate_shared_user_hints(self):
         assert_that(self.adaptor.generate(), contains_inanyorder(
-            contains('83f38716-27d8-45c5-8fa6-5c7cb18acb26', 'PJSIP/abc&SCCP/1001'),
-            contains('0486beeb-4e3d-415b-b32d-660f44f6bab8', 'PJSIP/def&SCCP/1002'),
+            contains_exactly('83f38716-27d8-45c5-8fa6-5c7cb18acb26', 'PJSIP/abc&SCCP/1001'),
+            contains_exactly('0486beeb-4e3d-415b-b32d-660f44f6bab8', 'PJSIP/def&SCCP/1002'),
         ))
 
 
@@ -72,7 +72,7 @@ class TestConferenceAdaptor(TestAdaptor):
 
         adaptor = ConferenceAdaptor(dao)
 
-        assert_that(adaptor.generate(CONTEXT), contains(('4000', 'confbridge:1')))
+        assert_that(adaptor.generate(CONTEXT), contains_exactly(('4000', 'confbridge:1')))
         dao.conference_hints.assert_called_once_with(CONTEXT)
 
 
@@ -91,7 +91,7 @@ class TestForwardAdaptor(TestAdaptor):
                                                argument='1234')]
 
         assert_that(self.adaptor.generate(CONTEXT),
-                    contains(('*73542***223*1234', 'Custom:*73542***223*1234')))
+                    contains_exactly(('*73542***223*1234', 'Custom:*73542***223*1234')))
         self.dao.forward_hints.assert_called_once_with(CONTEXT)
 
     def test_given_hint_without_argument_then_generates_progfunckey_without_argument(self):
@@ -100,7 +100,7 @@ class TestForwardAdaptor(TestAdaptor):
                                                argument=None)]
 
         assert_that(self.adaptor.generate(CONTEXT),
-                    contains(('*73542***223', 'Custom:*73542***223')))
+                    contains_exactly(('*73542***223', 'Custom:*73542***223')))
 
 
 class TestServiceAdaptor(TestAdaptor):
@@ -115,7 +115,7 @@ class TestServiceAdaptor(TestAdaptor):
         adaptor = ServiceAdaptor(dao)
 
         assert_that(adaptor.generate(CONTEXT),
-                    contains(('*73542***226', 'Custom:*73542***226')))
+                    contains_exactly(('*73542***226', 'Custom:*73542***226')))
         dao.service_hints.assert_called_once_with(CONTEXT)
 
 
@@ -131,7 +131,7 @@ class TestAgentAdaptor(TestAdaptor):
         adaptor = AgentAdaptor(dao)
 
         assert_that(adaptor.generate(CONTEXT),
-                    contains(('*73542***231***356', 'Custom:*73542***231***356')))
+                    contains_exactly(('*73542***231***356', 'Custom:*73542***231***356')))
         dao.agent_hints.assert_called_once_with(CONTEXT)
 
 
@@ -146,7 +146,7 @@ class TestCustomAdaptor(TestAdaptor):
         adaptor = CustomAdaptor(dao)
 
         assert_that(adaptor.generate(CONTEXT),
-                    contains(('1234', 'Custom:1234')))
+                    contains_exactly(('1234', 'Custom:1234')))
         dao.custom_hints.assert_called_once_with(CONTEXT)
 
 
@@ -161,7 +161,7 @@ class TestBSFilterAdaptor(TestAdaptor):
         adaptor = BSFilterAdaptor(dao)
 
         assert_that(adaptor.generate(CONTEXT),
-                    contains(('*3712', 'Custom:*3712')))
+                    contains_exactly(('*3712', 'Custom:*3712')))
         dao.bsfilter_hints.assert_called_once_with(CONTEXT)
 
 
@@ -177,5 +177,5 @@ class TestGroupMemberAdaptor(TestAdaptor):
         adaptor = GroupMemberAdaptor(dao)
 
         assert_that(adaptor.generate(CONTEXT),
-                    contains(('*73542***250*18', 'Custom:*73542***250*18')))
+                    contains_exactly(('*73542***250*18', 'Custom:*73542***250*18')))
         dao.groupmember_hints.assert_called_once_with(CONTEXT)

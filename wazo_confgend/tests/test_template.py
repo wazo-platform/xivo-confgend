@@ -195,14 +195,10 @@ class TestMeetingGuestTemplate(TestCase):
         assert output == textwrap.dedent('''\
             [wazo-meeting-uuid1-guest]
             exten = meeting-guest,1,NoOp(New guest participant in the meeting)
-            same = n,Set(WAZO_TENANT_UUID=tenant-uuid)
-            same = n,Set(WAZO_MEETING_UUID=uuid1)
             same = n,Goto(wazo-meeting,participant,1)
 
             [wazo-meeting-uuid2-guest]
             exten = meeting-guest,1,NoOp(New guest participant in the meeting)
-            same = n,Set(WAZO_TENANT_UUID=tenant-uuid)
-            same = n,Set(WAZO_MEETING_UUID=uuid2)
             same = n,Goto(wazo-meeting,participant,1)
 
         ''')

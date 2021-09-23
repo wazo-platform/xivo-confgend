@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import unicode_literals
@@ -40,6 +40,9 @@ class _ConfBridgeConf(object):
         print >> output
 
         self._gen_default_menu(output)
+        print >> output
+
+        self._gen_meeting_config(output)
         print >> output
 
     def _gen_bridge_profile(self, conferences, output):
@@ -125,3 +128,32 @@ class _ConfBridgeConf(object):
         yield '2 = admin_toggle_conference_lock'
         yield '3 = admin_kick_last'
         yield '0 = admin_toggle_mute_participants'
+
+    def _gen_meeting_config(self, output):
+        for line in self._gen_default_meeting_config():
+            print >> output, line
+
+    def _gen_default_meeting_config(self):
+        yield '[wazo-meeting-bridge-profile]'
+        yield 'type = bridge'
+        yield 'video_mode = sfu'
+        yield 'remb_send_interval = 1000'
+        yield 'remb_behavior = lowest_all'
+        yield 'max_members = 50'
+        yield 'record_conference = no'
+        yield 'enable_events = yes'
+        yield ''
+        yield '[wazo-meeting-user-profile]'
+        yield 'dsp_drop_silence = yes'
+        yield 'type = user'
+        yield 'talk_detection_events = yes'
+        yield 'echo_events = yes'
+        yield 'send_events = yes'
+        yield 'announce_join_leave = no'
+        yield 'announce_user_count = no'
+        yield 'announce_only_user = no'
+        yield ''
+        yield '[wazo-meeting-menu]'
+        yield 'type = menu'
+        yield '* = playback_and_continue(dir-multi1&digits/1&confbridge-mute-out)'
+        yield '1 = toggle_mute'

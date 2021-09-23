@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2018-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2018-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 from __future__ import unicode_literals
 
@@ -27,6 +27,8 @@ class PJSIPConfGenerator(object):
         self.generate_lines(output)
         output.write('\n')
         self.generate_trunks(output)
+        output.write('\n')
+        self.generate_meeting_guests(output)
         return output.getvalue()
 
     def generate_transports(self, output):
@@ -41,21 +43,30 @@ class PJSIPConfGenerator(object):
         writer = AsteriskFileWriter(output)
         endpoints = asterisk_conf_dao.find_sip_user_settings()
         for endpoint in endpoints:
-            name = endpoint['name']
-            label = endpoint.get('label')
-            endpoint_section_options = endpoint.get('endpoint_section_options', [])
-            writer.write_section(name, comment=label)
-            writer.write_options(endpoint_section_options)
-            sections = {}
-            for key, value in endpoint_section_options:
-                if key == 'auth':
-                    sections['auth_section_options'] = value
-                elif key == 'aors':
-                    sections['aor_section_options'] = value
+            self._write_simple_endpoint(writer, endpoint)
 
-            for key in sorted(sections):
-                writer.write_section(sections[key])
-                writer.write_options(endpoint.get(key, []))
+    def generate_meeting_guests(self, output):
+        writer = AsteriskFileWriter(output)
+        endpoints = asterisk_conf_dao.find_sip_meeting_guests_settings()
+        for endpoint in endpoints:
+            self._write_simple_endpoint(writer, endpoint)
+
+    def _write_simple_endpoint(self, writer, endpoint):
+        name = endpoint['name']
+        label = endpoint.get('label')
+        endpoint_section_options = endpoint.get('endpoint_section_options', [])
+        writer.write_section(name, comment=label)
+        writer.write_options(endpoint_section_options)
+        sections = {}
+        for key, value in endpoint_section_options:
+            if key == 'auth':
+                sections['auth_section_options'] = value
+            elif key == 'aors':
+                sections['aor_section_options'] = value
+
+        for key in sorted(sections):
+            writer.write_section(sections[key])
+            writer.write_options(endpoint.get(key, []))
 
     def generate_trunks(self, output):
         writer = AsteriskFileWriter(output)

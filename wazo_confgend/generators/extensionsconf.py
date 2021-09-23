@@ -10,6 +10,7 @@ from UserDict import DictMixin
 from xivo import xivo_helpers
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.ivr import dao as ivr_dao
+from xivo_dao.resources.meeting import dao as meeting_dao
 
 
 DEFAULT_EXTENFEATURES = {
@@ -208,9 +209,11 @@ class ExtensionsConf(object):
                 self.gen_dialplan_from_template(tmpl, exten, options)
 
             self._generate_hints(ctx['name'], options)
+            self._generate_meeting_user(ctx['tenant_uuid'], options)
 
         print >> options, self._extensions_features(conf, xfeatures)
         self._generate_ivr(output)
+        self._generate_meeting_guest(output)
 
         return options.getvalue()
 
@@ -281,3 +284,13 @@ class ExtensionsConf(object):
             template_context = {'ivr': ivr}
             template = self._tpl_helper.get_customizable_template('asterisk/extensions/ivr', ivr.id)
             print >> output, template.dump(template_context)
+
+    def _generate_meeting_user(self, tenant_uuid, output):
+        template_context = {'meetings': meeting_dao.find_all_by(tenant_uuid=tenant_uuid)}
+        template = self._tpl_helper.get_template('asterisk/extensions/meeting-user')
+        print >> output, template.dump(template_context)
+
+    def _generate_meeting_guest(self, output):
+        template_context = {'meetings': meeting_dao.find_all_by()}
+        template = self._tpl_helper.get_template('asterisk/extensions/meeting-guest')
+        print >> output, template.dump(template_context)

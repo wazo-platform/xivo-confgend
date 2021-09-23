@@ -63,9 +63,10 @@ class TestExtensionsConf(unittest.TestCase):
         assert_that(self.output.getvalue(), contains_string('[xivo-ivr-42]'))
         assert_that(self.output.getvalue(), contains_string(u'same  =   n,Background(héllo-world)'))
 
+    @patch('wazo_confgend.generators.extensionsconf.meeting_dao')
     @patch('wazo_confgend.generators.extensionsconf.ivr_dao')
     @patch('wazo_confgend.generators.extensionsconf.asterisk_conf_dao')
-    def test_generate(self, mock_asterisk_conf_dao, mock_ivr_dao):
+    def test_generate(self, mock_asterisk_conf_dao, mock_ivr_dao, mock_meeting_dao):
         hints = [
             'exten = 1000,hint,SIP/abcdef',
             'exten = 4000,hint,confbridge:1',
@@ -87,7 +88,7 @@ class TestExtensionsConf(unittest.TestCase):
         ]
 
         mock_asterisk_conf_dao.find_context_settings.return_value = [
-            {"name": "ctx_name", "contexttype": "incall"}
+            {"name": "ctx_name", "contexttype": "incall", "tenant_uuid": "tenant-uuid"}
         ]
         mock_asterisk_conf_dao.find_contextincludes_settings.return_value = [
             {"include": "include-me.conf"}
@@ -96,6 +97,9 @@ class TestExtensionsConf(unittest.TestCase):
             {"type": "incall", "context": "default", "exten": "foo@bar", "typeval":
              "incallfilter", "id": 1234, "tenant_uuid": "2b853b5b-6c19-4123-90da-3ce05fe9aa74"},
         ]
+
+        self.tpl_mapping['asterisk/extensions/meeting-user.jinja'] = "exten = meeting-for-users..."
+        self.tpl_mapping['asterisk/extensions/meeting-guest.jinja'] = "[meeting-for-guests]..."
 
         self.extensionsconf.generate(self.output)
 

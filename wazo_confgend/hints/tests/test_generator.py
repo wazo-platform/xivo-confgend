@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 
 from mock import Mock, patch
-from hamcrest import assert_that, contains
+from hamcrest import assert_that, contains_exactly
 
 from ..import adaptor
 from ..generator import HintGenerator
@@ -22,7 +22,7 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([adaptor], [])
 
-        assert_that(generator.generate(CONTEXT), contains())
+        assert_that(generator.generate(CONTEXT), contains_exactly())
 
     def test_given_an_adaptor_generates_a_hint_then_generator_returns_formatted_hint(self):
         adaptor = Mock(HintAdaptor)
@@ -30,7 +30,7 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([adaptor], [])
 
-        assert_that(generator.generate(CONTEXT), contains('exten = 4000,hint,confbridge:1'))
+        assert_that(generator.generate(CONTEXT), contains_exactly('exten = 4000,hint,confbridge:1'))
         adaptor.generate.assert_called_once_with(CONTEXT)
 
     def test_given_2_adaptors_then_generates_hint_for_all_adaptors(self):
@@ -43,8 +43,8 @@ class TestGenerator(unittest.TestCase):
         generator = HintGenerator([first_adaptor, second_adaptor], [])
 
         assert_that(generator.generate(CONTEXT),
-                    contains('exten = 1000,hint,1000',
-                             'exten = 4000,hint,confbridge:1'))
+                    contains_exactly('exten = 1000,hint,1000',
+                                     'exten = 4000,hint,confbridge:1'))
         first_adaptor.generate.assert_called_once_with(CONTEXT)
         second_adaptor.generate.assert_called_once_with(CONTEXT)
 
@@ -57,7 +57,7 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([first_adaptor, second_adaptor], [])
 
-        assert_that(generator.generate(CONTEXT), contains('exten = 1000,hint,PJSIP/abcdef'))
+        assert_that(generator.generate(CONTEXT), contains_exactly('exten = 1000,hint,PJSIP/abcdef'))
         first_adaptor.generate.assert_called_once_with(CONTEXT)
         second_adaptor.generate.assert_called_once_with(CONTEXT)
 
@@ -67,7 +67,7 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([], [first_adaptor])
 
-        assert_that(generator.generate_global_hints(), contains(
+        assert_that(generator.generate_global_hints(), contains_exactly(
             'exten = 1001,hint,PJSIP/abc&SCCP/1042',
         ))
 
@@ -86,5 +86,5 @@ class TestGenerator(unittest.TestCase):
             result = generator.generate(CONTEXT)
             assert_that(
                 list(result),
-                contains('exten = 1000,hint,PJSIP/abcdef'),
+                contains_exactly('exten = 1000,hint,PJSIP/abcdef'),
             )

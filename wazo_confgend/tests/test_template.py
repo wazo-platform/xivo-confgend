@@ -148,18 +148,22 @@ class TestMeetingUserTemplate(TestCase):
             Mock(tenant_uuid='tenant-uuid', uuid='uuid1'),
             Mock(tenant_uuid='tenant-uuid', uuid='uuid2'),
         ]
+        meetings[0].name = u'nàme 1'
+        meetings[1].name = u'nàme 2'
 
         output = self.template.render(meetings=meetings)
 
-        assert output == textwrap.dedent('''\
+        assert output == textwrap.dedent(u'''\
             exten = wazo-meeting-uuid1,1,NoOp(New user participant in meeting)
             same = n,Set(WAZO_TENANT_UUID=tenant-uuid)
             same = n,Set(WAZO_MEETING_UUID=uuid1)
+            same = n,Set(WAZO_MEETING_NAME=nàme 1)
             same = n,Goto(wazo-meeting,participant,1)
 
             exten = wazo-meeting-uuid2,1,NoOp(New user participant in meeting)
             same = n,Set(WAZO_TENANT_UUID=tenant-uuid)
             same = n,Set(WAZO_MEETING_UUID=uuid2)
+            same = n,Set(WAZO_MEETING_NAME=nàme 2)
             same = n,Goto(wazo-meeting,participant,1)
 
         ''')
@@ -189,16 +193,20 @@ class TestMeetingGuestTemplate(TestCase):
             Mock(tenant_uuid='tenant-uuid', uuid='uuid1'),
             Mock(tenant_uuid='tenant-uuid', uuid='uuid2'),
         ]
+        meetings[0].name = u'nàme 1'
+        meetings[1].name = u'nàme 2'
 
         output = self.template.render(meetings=meetings)
 
-        assert output == textwrap.dedent('''\
+        assert output == textwrap.dedent(u'''\
             [wazo-meeting-uuid1-guest]
             exten = meeting-guest,1,NoOp(New guest participant in the meeting)
+            same = n,Set(WAZO_MEETING_NAME=nàme 1)
             same = n,Goto(wazo-meeting,participant,1)
 
             [wazo-meeting-uuid2-guest]
             exten = meeting-guest,1,NoOp(New guest participant in the meeting)
+            same = n,Set(WAZO_MEETING_NAME=nàme 2)
             same = n,Goto(wazo-meeting,participant,1)
 
         ''')

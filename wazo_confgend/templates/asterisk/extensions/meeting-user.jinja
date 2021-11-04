@@ -1,8 +1,0 @@
-{% for meeting in meetings -%}
-exten = wazo-meeting-{{ meeting.uuid }},1,NoOp(New user participant in meeting)
-same = n,Set(WAZO_TENANT_UUID={{ meeting.tenant_uuid }})
-same = n,Set(WAZO_MEETING_UUID={{ meeting.uuid }})
-same = n,Set(WAZO_MEETING_NAME={{ meeting.name }})
-same = n,Goto(wazo-meeting,participant,1)
-
-{% endfor %}

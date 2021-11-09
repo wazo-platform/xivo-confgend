@@ -149,6 +149,21 @@ class TestCustomAdaptor(TestAdaptor):
                     contains_exactly(('1234', 'Custom:1234')))
         dao.custom_hints.assert_called_once_with(CONTEXT)
 
+    def test_that_non_ascii_characters_are_ignored(self):
+        dao = Mock()
+        dao.custom_hints.return_value = [
+            Hint(user_id=None, extension=u'\xe9', argument=None),
+        ]
+
+        adaptor = CustomAdaptor(dao)
+
+        try:
+            list(adaptor.generate(CONTEXT))
+        except Exception:
+            raise AssertionError('Should not raise')
+
+        dao.custom_hints.assert_called_once_with(CONTEXT)
+
 
 class TestBSFilterAdaptor(TestAdaptor):
 

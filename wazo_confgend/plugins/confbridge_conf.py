@@ -142,6 +142,8 @@ class _ConfBridgeConf(object):
         yield 'max_members = 50'
         yield 'record_conference = no'
         yield 'enable_events = yes'
+        yield 'sound_join = meeting-join'
+        yield 'sound_leave = meeting-leave'
         yield ''
         yield '[wazo-meeting-user-profile]'
         yield 'dsp_drop_silence = yes'

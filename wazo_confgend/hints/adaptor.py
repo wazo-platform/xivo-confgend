@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
+
 from xivo.xivo_helpers import fkey_extension
+
+
+logger = logging.getLogger(__name__)
 
 
 class HintAdaptor(object):
@@ -85,7 +90,11 @@ class CustomAdaptor(HintAdaptor):
 
     def generate(self, context):
         for hint in self.dao.custom_hints(context):
-            yield (hint.extension, 'Custom:{}'.format(hint.extension))
+            try:
+                yield (hint.extension, 'Custom:{}'.format(hint.extension))
+            except UnicodeEncodeError:
+                logger.info(u'invalid custom function key "%s"', hint.extension)
+                continue
 
 
 class BSFilterAdaptor(HintAdaptor):

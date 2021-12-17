@@ -32,6 +32,7 @@ DEFAULT_EXTENFEATURES = {
     'agentstaticlogtoggle': 'GoSub(agentstaticlogtoggle,s,1(${EXTEN:3}))',
     'bsfilter': 'GoSub(bsfilter,s,1(${EXTEN:3}))',
     'cctoggle': 'GoSub(cctoggle,s,1())',
+    'meetingjoin': 'GoSub(meetingjoin,s,1(${EXTEN:3}))',
     'calllistening': 'GoSub(calllistening,s,1())',
     'callrecord': 'GoSub(callrecord,s,1() )',
     'directoryaccess': 'Directory(${CONTEXT})',

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import unicode_literals
@@ -139,7 +139,7 @@ class _ConfBridgeConf(object):
         yield 'video_mode = sfu'
         yield 'remb_send_interval = 1000'
         yield 'remb_behavior = lowest_all'
-        yield 'max_members = 50'
+        yield 'max_members = 25'
         yield 'record_conference = no'
         yield 'enable_events = yes'
         yield 'sound_join = meeting-join'

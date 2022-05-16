@@ -90,6 +90,7 @@ enabled_asterisk_modules:
   res_mwi_external.so: false
   res_phoneprov.so: false
   res_pjsip_config_wizard.so: false
+  res_pjsip_phoneprov_provider.so: false
   res_snmp.so: false
   res_stasis_mailbox.so: false
   res_statsd.so: false

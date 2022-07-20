@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-# Copyright 2010-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from StringIO import StringIO
 
 from wazo_confgend.generators.extensionsconf import ExtensionsConf
 from wazo_confgend.generators.features import FeaturesConf
+from wazo_confgend.generators.iax import IaxConf
 from wazo_confgend.generators.queues import QueuesConf
 from wazo_confgend.generators.res_parking import ResParkingConf
 from wazo_confgend.generators.sccp import SccpConf
@@ -52,67 +53,8 @@ class AsteriskFrontend(object):
         return output.getvalue()
 
     def iax_conf(self):
-        output = StringIO()
-
-        # # section::general
-        data_iax_general_settings = asterisk_conf_dao.find_iax_general_settings()
-        print >> output, self._gen_iax_general(data_iax_general_settings)
-
-        # # section::callnumberlimits
-        items = asterisk_conf_dao.find_iax_calllimits_settings()
-        if len(items) > 0:
-            print >> output, '\n[callnumberlimits]'
-            for auth in items:
-                print >> output, "%s/%s = %s" % (auth['destination'], auth['netmask'], auth['calllimits'])
-
-        # section::trunks
-        for trunk in asterisk_conf_dao.find_iax_trunk_settings():
-            print >> output, self._gen_iax_trunk(trunk)
-
-        return output.getvalue()
-
-    def _gen_iax_general(self, data_iax_general):
-        output = StringIO()
-
-        print >> output, '[general]'
-        for item in data_iax_general:
-            if item['var_val'] is None:
-                continue
-
-            if item['var_name'] == 'register':
-                print >> output, item['var_name'], "=>", item['var_val']
-
-            elif item['var_name'] not in ['allow', 'disallow']:
-                print >> output, "%s = %s" % (item['var_name'], item['var_val'])
-
-            elif item['var_name'] == 'allow':
-                print >> output, 'disallow = all'
-                for c in item['var_val'].split(','):
-                    print >> output, 'allow = %s' % c
-
-        return output.getvalue()
-
-    def _gen_iax_trunk(self, trunk):
-        output = StringIO()
-
-        print >> output, "\n[%s]" % trunk.name
-
-        exclude_options = ('id', 'name', 'protocol', 'category', 'commented', 'disallow')
-        for k, v in trunk.all_options(exclude=exclude_options):
-            if v in (None, ''):
-                continue
-
-            if isinstance(v, unicode):
-                v = v.encode('utf8')
-
-            if k == 'allow':
-                print >> output, "disallow = all"
-                for c in v.split(','):
-                    print >> output, "allow = " + str(c)
-            else:
-                print >> output, k + " = ", v
-
-        return output.getvalue()
+        config_generator = IaxConf()
+        return self._generate_conf_from_generator(config_generator)
 
     def queueskills_conf(self):
         """Generate queueskills.conf asterisk configuration file

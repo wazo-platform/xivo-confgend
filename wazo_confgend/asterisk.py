@@ -10,6 +10,7 @@ from wazo_confgend.generators.iax import IaxConf
 from wazo_confgend.generators.queues import QueuesConf
 from wazo_confgend.generators.res_parking import ResParkingConf
 from wazo_confgend.generators.sccp import SccpConf
+from wazo_confgend.generators.util import AsteriskFileWriter
 from wazo_confgend.generators.voicemail import VoicemailConf, VoicemailGenerator
 from wazo_confgend.hints.generator import HintGenerator
 from xivo_dao import asterisk_conf_dao
@@ -57,52 +58,50 @@ class AsteriskFrontend(object):
         return self._generate_conf_from_generator(config_generator)
 
     def queueskills_conf(self):
-        """Generate queueskills.conf asterisk configuration file
-        """
-        options = StringIO()
+        """Generate queueskills.conf asterisk configuration file"""
+        output = StringIO()
+        ast_writer = AsteriskFileWriter(output)
 
-        agentid = None
+        agent_id = None
         for sk in asterisk_conf_dao.find_agent_queue_skills_settings():
-            if agentid != sk['id']:
-                print >> options, "\n[agent-%d]" % sk['id']
-                agentid = sk['id']
+            if agent_id != sk['id']:
+                ast_writer.write_section('agent-{:d}'.format(sk['id']))
+                agent_id = sk['id']
+            ast_writer.write_option(sk['name'], sk['weight'])
 
-            print >> options, "%s = %s" % (sk['name'], sk['weight'])
-
-        return options.getvalue()
+        return output.getvalue()
 
     def queueskillrules_conf(self):
-        """Generate queueskillrules.conf asterisk configuration file
-        """
-        options = StringIO()
+        """Generate queueskillrules.conf asterisk configuration file"""
+        output = StringIO()
+        ast_writer = AsteriskFileWriter(output)
 
         for r in asterisk_conf_dao.find_queue_skillrule_settings():
-            print >> options, "\n[skillrule-%s]" % r['id']
-
+            ast_writer.write_section('skillrule-{}'.format(r['id']))
             if 'rule' in r and r['rule'] is not None:
                 for rule in r['rule'].split(';'):
-                    print >> options, "rule = %s" % rule
+                    ast_writer.write_option('rule', rule)
 
-        return options.getvalue()
+        return output.getvalue()
 
     def queuerules_conf(self):
-        options = StringIO()
+        output = StringIO()
 
         rule = None
         for m in asterisk_conf_dao.find_queue_penalties_settings():
             if m['name'] != rule:
                 rule = m['name']
-                print >> options, "\n[%s]" % rule
+                output.write('\n[{}]\n'.format(rule))
 
-            print >> options, "penaltychange => %d," % m['seconds'],
+            output.write('penaltychange => {:d}'.format(m['seconds']))
+
             if m['maxp_sign'] is not None and m['maxp_value'] is not None:
                 sign = '' if m['maxp_sign'] == '=' else m['maxp_sign']
-                print >> options, "%s%d" % (sign, m['maxp_value']),
+                output.write('{}{:d}'.format(sign, m['maxp_value']))
 
             if m['minp_sign'] is not None and m['minp_value'] is not None:
                 sign = '' if m['minp_sign'] == '=' else m['minp_sign']
-                print >> options, ",%s%d" % (sign, m['minp_value']),
+                output.write(',{}{:d}'.format(sign, m['minp_value']))
 
-            print >> options
-
-        return options.getvalue()
+            output.write('\n')
+        return output.getvalue()

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import copy
@@ -103,6 +103,7 @@ class UserExtensionGenerator(ExtensionGenerator):
 
     def generate(self):
         return {
+            'tenant_uuid': self._exten_row['tenant_uuid'],
             'context': self._exten_row['context'],
             'exten': self._exten_row['exten'],
             'priority': '1',
@@ -126,6 +127,7 @@ class GenericExtensionGenerator(ExtensionGenerator):
 
     def generate(self):
         return {
+            'tenant_uuid': self._exten_row['tenant_uuid'],
             'context': self._exten_row['context'],
             'exten': self._exten_row['exten'],
             'priority': '1',

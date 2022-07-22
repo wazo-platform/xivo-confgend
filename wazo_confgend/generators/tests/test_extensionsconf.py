@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -71,7 +71,7 @@ class TestExtensionsConf(unittest.TestCase):
             'exten = 4000,hint,confbridge:1',
             'exten = *7351***223*1234,hint,Custom:*7351***223*1234',
         ]
-        self.hint_generator.generate_global_hints.return_value = hints
+        self.hint_generator.generate_global_hints.side_effect = [hints, []]
         self.hint_generator.generate.return_value = hints
 
         mock_asterisk_conf_dao.find_extenfeatures_settings.return_value = [
@@ -87,17 +87,21 @@ class TestExtensionsConf(unittest.TestCase):
         ]
 
         mock_asterisk_conf_dao.find_context_settings.return_value = [
-            {"name": "ctx_name", "contexttype": "incall", "tenant_uuid": "tenant-uuid"}
+            {"name": "ctx_name", "contexttype": "incall", "tenant_uuid": "tenant-uuid"},
+            {"name": "ctx_internal", "contexttype": "internal", "tenant_uuid": "tenant-uuid"},
         ]
         mock_asterisk_conf_dao.find_contextincludes_settings.return_value = [
             {"include": "include-me.conf"}
         ]
-        mock_asterisk_conf_dao.find_exten_settings.return_value = [
-            {"type": "incall", "context": "default", "exten": "foo@bar", "typeval":
-             "incallfilter", "id": 1234, "tenant_uuid": "2b853b5b-6c19-4123-90da-3ce05fe9aa74"},
+        mock_asterisk_conf_dao.find_exten_settings.side_effect = [
+            [{"type": "incall", "context": "default", "exten": "foo@bar", "typeval":
+             "incallfilter", "id": 1234, "tenant_uuid": "2b853b5b-6c19-4123-90da-3ce05fe9aa74"}],
+            [{"type": "user", "context": "ctx_internal", "exten": "user@ctx_internal", "typeval":
+             "user", "id": 56, "tenant_uuid": "5adadf7b-5a4c-4701-9486-a4e8f9d21db0"}],
         ]
 
         self.extensionsconf.generate(self.output)
+        print(self.output.getvalue())
 
         lines = [line for line in self.output.getvalue().split("\n") if line]
         path = os.path.dirname(__file__)

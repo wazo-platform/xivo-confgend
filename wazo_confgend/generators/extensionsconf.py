@@ -105,6 +105,7 @@ class UserExtensionGenerator(ExtensionGenerator):
 
     def generate(self):
         return {
+            'tenant_uuid': self._exten_row['tenant_uuid'],
             'context': self._exten_row['context'],
             'exten': self._exten_row['exten'],
             'priority': '1',
@@ -128,6 +129,7 @@ class GenericExtensionGenerator(ExtensionGenerator):
 
     def generate(self):
         return {
+            'tenant_uuid': self._exten_row['tenant_uuid'],
             'context': self._exten_row['context'],
             'exten': self._exten_row['exten'],
             'priority': '1',

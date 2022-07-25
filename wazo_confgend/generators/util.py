@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import unicode_literals
@@ -71,6 +71,9 @@ class AsteriskFileWriter(object):
 
     def write_object_option(self, name, value):
         self._write_line(format_ast_object_option(name, value))
+
+    def write_newline(self):
+        self._fobj.write('\n')
 
     def _write_line(self, line):
         self._fobj.write('{}\n'.format(line))

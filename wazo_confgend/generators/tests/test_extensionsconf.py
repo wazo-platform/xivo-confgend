@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -23,9 +23,11 @@ class TestExtensionsConf(unittest.TestCase):
         self.hint_generator = Mock(HintGenerator)
         self.tpl_mapping = {}
         self.tpl_helper = TemplateHelper(DictLoader(self.tpl_mapping))
-        self.extensionsconf = ExtensionsConf('etc/wazo-confgend/templates/contexts.conf',
-                                             self.hint_generator, self.tpl_helper)
+        self.extensionsconf = ExtensionsConf(
+            'etc/wazo-confgend/templates/contexts.conf', self.hint_generator, self.tpl_helper
+        )
         self.output = StringIO()
+        self.maxDiff = 10000
 
     def test_generate_dialplan_from_template(self):
         template = ["%%EXTEN%%,%%PRIORITY%%,Set('__XIVO_BASE_CONTEXT': ${CONTEXT})"]

@@ -50,7 +50,7 @@ class Test(unittest.TestCase):
             [skillrule-1]
             rule = rule-1
             rule = rule-2
-            
+
             [skillrule-2]
             rule = rule-3
             rule = rule-4

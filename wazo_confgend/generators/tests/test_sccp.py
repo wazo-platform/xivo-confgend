@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import itertools
@@ -14,6 +14,7 @@ from wazo_confgend.generators.tests.util import assert_generates_config,\
 
 from wazo_confgend.generators.sccp import SccpConf, _SccpGeneralSettingsConf, _SccpLineConf, _SccpDeviceConf, \
     _SccpSpeedDialConf, _SplittedGeneralSettings
+from wazo_confgend.generators.util import AsteriskFileWriter
 
 
 class TestSccpConf(unittest.TestCase):
@@ -127,13 +128,14 @@ class TestSccpDeviceConf(unittest.TestCase):
     def setUp(self):
         self._device_conf = _SccpDeviceConf([])
         self._output = StringIO.StringIO()
+        self._ast_writer = AsteriskFileWriter(self._output)
 
     def test_template_items(self):
         items = [
             {'option_name': 'foo', 'option_value': 'bar'},
         ]
 
-        self._device_conf._generate_template(items, self._output)
+        self._device_conf._generate_template(items, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [xivo_device_tpl](!)
@@ -147,7 +149,7 @@ class TestSccpDeviceConf(unittest.TestCase):
                        'line': u'',
                        'voicemail': u''}]
 
-        self._device_conf._generate_devices(sccpdevice, self._output)
+        self._device_conf._generate_devices(sccpdevice, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [SEPACA016FDF235](xivo_device_tpl)
@@ -169,7 +171,7 @@ class TestSccpDeviceConf(unittest.TestCase):
                            'device': 'SEPACA016FDF235'}]
 
         device_conf = _SccpDeviceConf(sccpspeeddials)
-        device_conf._generate_devices(sccpdevice, self._output)
+        device_conf._generate_devices(sccpdevice, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [SEPACA016FDF235](xivo_device_tpl)
@@ -202,7 +204,7 @@ class TestSccpDeviceConf(unittest.TestCase):
         ]
 
         device_conf = _SccpDeviceConf(sccpspeeddials)
-        device_conf._generate_devices(sccpdevice, self._output)
+        device_conf._generate_devices(sccpdevice, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [SEPACA016FDF235](xivo_device_tpl)
@@ -219,13 +221,14 @@ class TestSccpLineConf(unittest.TestCase):
     def setUp(self):
         self._line_conf = _SccpLineConf()
         self._output = StringIO.StringIO()
+        self._ast_writer = AsteriskFileWriter(self._output)
 
     def test_template_directmedia_option(self):
         items = [
             {'option_name': 'directmedia', 'option_value': 'no'},
         ]
 
-        self._line_conf._generate_template(items, self._output)
+        self._line_conf._generate_template(items, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [xivo_line_tpl](!)
@@ -237,7 +240,7 @@ class TestSccpLineConf(unittest.TestCase):
             {'option_name': 'allow', 'option_value': 'ulaw'},
         ]
 
-        self._line_conf._generate_template(items, self._output)
+        self._line_conf._generate_template(items, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [xivo_line_tpl](!)
@@ -250,7 +253,7 @@ class TestSccpLineConf(unittest.TestCase):
             {'option_name': 'allow', 'option_value': ''},
         ]
 
-        self._line_conf._generate_template(items, self._output)
+        self._line_conf._generate_template(items, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [xivo_line_tpl](!)
@@ -261,7 +264,7 @@ class TestSccpLineConf(unittest.TestCase):
             {'option_name': 'disallow', 'option_value': 'foobar'},
         ]
 
-        self._line_conf._generate_template(items, self._output)
+        self._line_conf._generate_template(items, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [xivo_line_tpl](!)
@@ -284,7 +287,7 @@ class TestSccpLineConf(unittest.TestCase):
             'enable_online_recording': 1,
         }]
 
-        self._line_conf._generate_lines(sccpline, self._output)
+        self._line_conf._generate_lines(sccpline, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [100](xivo_line_tpl)
@@ -321,7 +324,7 @@ class TestSccpLineConf(unittest.TestCase):
             'enable_online_recording': 0,
         }]
 
-        self._line_conf._generate_lines(sccpline, self._output)
+        self._line_conf._generate_lines(sccpline, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [100](xivo_line_tpl)
@@ -357,7 +360,7 @@ class TestSccpLineConf(unittest.TestCase):
             'enable_online_recording': 0,
         }]
 
-        self._line_conf._generate_lines(sccpline, self._output)
+        self._line_conf._generate_lines(sccpline, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [100](xivo_line_tpl)
@@ -395,7 +398,7 @@ class TestSccpLineConf(unittest.TestCase):
             'enable_online_recording': 0,
         }]
 
-        self._line_conf._generate_lines(sccpline, self._output)
+        self._line_conf._generate_lines(sccpline, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [100](xivo_line_tpl)
@@ -434,7 +437,7 @@ class TestSccpLineConf(unittest.TestCase):
             'enable_online_recording': 0,
         }]
 
-        self._line_conf._generate_lines(sccpline, self._output)
+        self._line_conf._generate_lines(sccpline, self._ast_writer)
 
         assert_config_equal(self._output.getvalue(), '''
             [100](xivo_line_tpl)

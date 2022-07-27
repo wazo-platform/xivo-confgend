@@ -4,7 +4,6 @@
 
 import copy
 import ConfigParser
-from StringIO import StringIO
 from UserDict import DictMixin
 
 from xivo import xivo_helpers
@@ -209,22 +208,20 @@ class ExtensionsConf(object):
             for exten_row in asterisk_conf_dao.find_exten_settings(context_name):
                 exten_generator = extension_generators.get(exten_row['type'], GenericExtensionGenerator)
                 exten = exten_generator(exten_row).generate()
-                self.gen_dialplan_from_template(tmpl, exten, output)
+                self.gen_dialplan_from_template(tmpl, exten, ast_writer)
 
             self._generate_hints(ctx['name'], output)
 
-        self._extensions_features(conf, xfeatures, ast_writer)
+        self._generate_extension_features(conf, xfeatures, ast_writer)
         self._generate_ivr(output)
 
         return output.getvalue()
 
-    def _extensions_features(self, conf, xfeatures, ast_writer):
-        options = StringIO()
+    def _generate_extension_features(self, conf, xfeatures, ast_writer):
         # XiVO features
         context = 'xivo-features'
         cfeatures = []
         tmpl = []
-
         ast_writer.write_section(context)
         for option_name, option_value in conf.items(context):
             if option_name == 'objtpl':
@@ -237,7 +234,7 @@ class ExtensionsConf(object):
             name = exten['typeval']
             if name in DEFAULT_EXTENFEATURES:
                 exten['action'] = DEFAULT_EXTENFEATURES[name]
-                self.gen_dialplan_from_template(tmpl, exten, options)
+                self.gen_dialplan_from_template(tmpl, exten, ast_writer)
 
         for x in ('busy', 'rna', 'unc'):
             fwdtype = "fwd%s" % x
@@ -253,14 +250,12 @@ class ExtensionsConf(object):
             for exten_feature in cfeatures:
                 ast_writer.write_option('exten', exten_feature)
 
-        return options.getvalue()
-
-    def gen_dialplan_from_template(self, template, exten, output):
+    def gen_dialplan_from_template(self, template, exten, ast_writer):
         if 'priority' not in exten:
             exten['priority'] = 1
 
         for line in template:
-            prefix = 'exten =' if line.startswith('%%EXTEN%%') else 'same  =    '
+            prefix, padding = ('exten', '') if line.startswith('%%EXTEN%%') else ('same ', '    ')
 
             line = line.replace('%%CONTEXT%%', str(exten.get('context', '')))
             line = line.replace('%%EXTEN%%', str(exten.get('exten', '')))
@@ -268,11 +263,11 @@ class ExtensionsConf(object):
             line = line.replace('%%ACTION%%', str(exten.get('action', '')))
             line = line.replace('%%TENANT_UUID%%', str(exten.get('tenant_uuid', '')))
 
-            output.write(u'{} {}\n'.format(prefix, line))
-        output.write('\n')
+            ast_writer.write_option(prefix, '{}{}'.format(padding, line))
+        ast_writer.write_newline()
 
     def _generate_global_hints(self, output):
-        output.write(u'[usersharedlines]\n')
+        output.write(u'\n[usersharedlines]\n')
         for line in self.hint_generator.generate_global_hints():
             output.write(u'{}\n'.format(line))
 

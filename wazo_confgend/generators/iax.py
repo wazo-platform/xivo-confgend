@@ -17,13 +17,13 @@ class IaxConf(object):
     def __init__(self):
         self._general_settings = asterisk_conf_dao.find_iax_general_settings()
         self._call_limit_settings = asterisk_conf_dao.find_iax_calllimits_settings()
-        self._truck_settings = asterisk_conf_dao.find_iax_trunk_settings()
+        self._trunk_settings = asterisk_conf_dao.find_iax_trunk_settings()
 
     def generate(self, output):
         ast_writer = AsteriskFileWriter(output)
         self._generate_general(ast_writer)
         self._generate_call_limits(ast_writer)
-        for trunk in self._truck_settings:
+        for trunk in self._trunk_settings:
             self._generate_trunk(trunk, ast_writer)
 
     def _generate_general(self, ast_writer):

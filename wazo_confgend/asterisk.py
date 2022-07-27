@@ -86,22 +86,25 @@ class AsteriskFrontend(object):
 
     def queuerules_conf(self):
         output = StringIO()
+        ast_writer = AsteriskFileWriter(output)
 
         rule = None
         for m in asterisk_conf_dao.find_queue_penalties_settings():
             if m['name'] != rule:
                 rule = m['name']
-                output.write('\n[{}]\n'.format(rule))
+                ast_writer.write_newline()
+                ast_writer.write_section(rule)
 
-            output.write('penaltychange => {:d}'.format(m['seconds']))
+            penalty_change = '{:d}'.format(m['seconds'])
 
             if m['maxp_sign'] is not None and m['maxp_value'] is not None:
                 sign = '' if m['maxp_sign'] == '=' else m['maxp_sign']
-                output.write('{}{:d}'.format(sign, m['maxp_value']))
+                penalty_change = '{}{}{:d}'.format(penalty_change, sign, m['maxp_value'])
 
             if m['minp_sign'] is not None and m['minp_value'] is not None:
                 sign = '' if m['minp_sign'] == '=' else m['minp_sign']
-                output.write(',{}{:d}'.format(sign, m['minp_value']))
+                penalty_change = '{},{}{:d}'.format(penalty_change, sign, m['minp_value'])
 
-            output.write('\n')
+            ast_writer.write_object_option('penaltychange', penalty_change)
+            ast_writer.write_newline()
         return output.getvalue()

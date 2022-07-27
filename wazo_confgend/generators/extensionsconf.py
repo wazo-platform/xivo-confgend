@@ -183,7 +183,7 @@ class ExtensionsConf(object):
             context_name = ctx['name']
             if conf and conf.has_section('!%s' % context_name):
                 continue
-
+            ast_writer.write_newline()
             ast_writer.write_section(context_name)
             if conf.has_section(context_name):
                 section = context_name
@@ -267,7 +267,7 @@ class ExtensionsConf(object):
         ast_writer.write_newline()
 
     def _generate_global_hints(self, output):
-        output.write(u'\n[usersharedlines]\n')
+        output.write(u'[usersharedlines]\n')
         for line in self.hint_generator.generate_global_hints():
             output.write(u'{}\n'.format(line))
 

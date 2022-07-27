@@ -34,33 +34,33 @@ class _ConfBridgeConf(object):
     def generate(self, output):
         conferences = self.conference_dao.find_all_by()
         self._gen_bridge_profile(conferences, output)
-        print >> output
+        output.write('\n')
 
         self._gen_user_profile(conferences, output)
-        print >> output
+        output.write('\n')
 
         self._gen_default_menu(output)
-        print >> output
+        output.write('\n')
 
         self._gen_meeting_config(output)
-        print >> output
+        output.write('\n')
 
     def _gen_bridge_profile(self, conferences, output):
         for row in conferences:
             for line in self._format_bridge_profile(row):
-                print >> output, line
-            print >> output
+                output.write('{}\n'.format(line))
+            output.write('\n')
 
     def _gen_user_profile(self, conferences, output):
         for row in conferences:
             for line in self._format_user_profile(row):
-                print >> output, line
-            print >> output
+                output.write('{}\n'.format(line))
+            output.write('\n')
 
             if row.admin_pin:
                 for line in self._format_admin_profile(row):
-                    print >> output, line
-            print >> output
+                    output.write('{}\n'.format(line))
+            output.write('\n')
 
     def _format_bridge_profile(self, row):
         yield '[xivo-bridge-profile-{}](wazo_default_bridge)'.format(row.id)
@@ -88,11 +88,11 @@ class _ConfBridgeConf(object):
 
     def _gen_default_menu(self, output):
         for line in self._gen_default_user_menu():
-            print >> output, line
+            output.write('{}\n'.format(line))
 
-        print >> output
+        output.write('\n')
         for line in self._gen_default_admin_menu():
-            print >> output, line
+            output.write('{}\n'.format(line))
 
     def _gen_default_user_menu(self):
         yield '[xivo-default-user-menu]'
@@ -131,7 +131,7 @@ class _ConfBridgeConf(object):
 
     def _gen_meeting_config(self, output):
         for line in self._gen_default_meeting_config():
-            print >> output, line
+            output.write('{}\n'.format(line))
 
     def _gen_default_meeting_config(self):
         yield '[wazo-meeting-bridge-profile]'

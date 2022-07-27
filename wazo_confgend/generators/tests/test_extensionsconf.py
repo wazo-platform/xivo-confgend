@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -12,25 +12,86 @@ from mock import Mock, patch
 from xivo_dao.alchemy.ivr import IVR
 
 from wazo_confgend.generators.extensionsconf import ExtensionsConf
+from wazo_confgend.generators.util import AsteriskFileWriter
 from wazo_confgend.hints.generator import HintGenerator
 from wazo_confgend.template import TemplateHelper
 from jinja2.loaders import DictLoader
 
 
 class TestExtensionsConf(unittest.TestCase):
+    maxDiff = 10000
 
     def setUp(self):
         self.hint_generator = Mock(HintGenerator)
         self.tpl_mapping = {}
         self.tpl_helper = TemplateHelper(DictLoader(self.tpl_mapping))
-        self.extensionsconf = ExtensionsConf('etc/wazo-confgend/templates/contexts.conf',
-                                             self.hint_generator, self.tpl_helper)
+        self.extensionsconf = ExtensionsConf(
+            'etc/wazo-confgend/templates/contexts.conf', self.hint_generator, self.tpl_helper
+        )
         self.output = StringIO()
+
+    @patch('xivo_dao.asterisk_conf_dao.find_exten_xivofeatures_setting')
+    def test_extensions_features(self, mock_find_exten_xivofeatures_setting):
+        mock_conf = Mock()
+        mock_conf.items.return_value = [
+            ('objtpl', '%%EXTEN%%,%%PRIORITY%%,Set(__XIVO_BASE_CONTEXT=${CONTEXT})'),
+            ('objtpl', 'n,Set(__XIVO_BASE_EXTEN=${EXTEN})'),
+            ('objtpl', 'n,GoSub(contextlib,entry-exten-context,1)'),
+            ('objtpl', 'n,%%ACTION%%')
+        ]
+        xfeatures = {
+            'fwdrna': {'exten': u'_*22.', 'commented': 0}, u'fwdbusy': {'exten': u'_*23.', 'commented': 0},
+            'bsfilter': {'exten': u'_*37.', 'commented': 0}, u'fwdunc': {'exten': u'_*21.', 'commented': 0},
+            'vmusermsg': {'exten': u'*98', 'commented': 0},
+            'phoneprogfunckey': {'exten': u'_*735.', 'commented': 0}
+        }
+        mock_find_exten_xivofeatures_setting.return_value = [
+            {'exten': u'*10', 'commented': 0, 'context': u'xivo-features', 'typeval': u'phonestatus',
+             'type': 'extenfeatures', 'id': 17},
+            {'exten': u'_*11.', 'commented': 0, 'context': u'xivo-features', 'typeval': u'paging',
+             'type': 'extenfeatures', 'id': 28},
+            {'exten': u'*20', 'commented': 0, 'context': u'xivo-features', 'typeval': u'fwdundoall',
+             'type': 'extenfeatures', 'id': 14},
+        ]
+
+        ast_writer = AsteriskFileWriter(self.output)
+        self.extensionsconf._generate_extension_features(mock_conf, xfeatures, ast_writer)
+        mock_conf.items.assert_called_once_with('xivo-features')
+        mock_find_exten_xivofeatures_setting.assert_called_once()
+        self.assertEqual(self.output.getvalue(), textwrap.dedent("""\
+            [xivo-features]
+            exten = *10,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            same  =     n,Set(__XIVO_BASE_EXTEN=${EXTEN})
+            same  =     n,GoSub(contextlib,entry-exten-context,1)
+            same  =     n,GoSub(phonestatus,s,1())
+
+            exten = _*11.,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            same  =     n,Set(__XIVO_BASE_EXTEN=${EXTEN})
+            same  =     n,GoSub(contextlib,entry-exten-context,1)
+            same  =     n,GoSub(paging,s,1(${EXTEN:3}))
+
+            exten = *20,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            same  =     n,Set(__XIVO_BASE_EXTEN=${EXTEN})
+            same  =     n,GoSub(contextlib,entry-exten-context,1)
+            same  =     n,GoSub(fwdundoall,s,1())
+
+            exten = *23,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            exten = *23,n,Set(__XIVO_BASE_EXTEN=${EXTEN})
+            exten = *23,n,Gosub(feature_forward,s,1(busy))
+            exten = *22,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            exten = *22,n,Set(__XIVO_BASE_EXTEN=${EXTEN})
+            exten = *22,n,Gosub(feature_forward,s,1(rna))
+            exten = *21,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            exten = *21,n,Set(__XIVO_BASE_EXTEN=${EXTEN})
+            exten = *21,n,Gosub(feature_forward,s,1(unc))
+        """))
 
     def test_generate_dialplan_from_template(self):
         template = ["%%EXTEN%%,%%PRIORITY%%,Set('__XIVO_BASE_CONTEXT': ${CONTEXT})"]
         exten = {'exten': '*98', 'priority': 1}
-        self.extensionsconf.gen_dialplan_from_template(template, exten, self.output)
+
+        ast_writer = AsteriskFileWriter(self.output)
+        self.extensionsconf.gen_dialplan_from_template(template, exten, ast_writer)
 
         self.assertEqual(self.output.getvalue(), "exten = *98,1,Set('__XIVO_BASE_CONTEXT': ${CONTEXT})\n\n")
 

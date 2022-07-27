@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from operator import itemgetter
 
-from wazo_confgend.generators.util import format_ast_section, \
-    format_ast_option, format_ast_section_tpl, format_ast_section_using_tpl
+from wazo_confgend.generators.util import AsteriskFileWriter
 from xivo_dao import asterisk_conf_dao
 
 _GUEST_DEVICE_NAME = 'guest'
@@ -67,10 +66,11 @@ class _SplittedGeneralSettings(object):
 class _SccpGeneralSettingsConf(object):
 
     def generate(self, general_items, output):
-        print >> output, u'[general]'
+        ast_writer = AsteriskFileWriter(output)
+        ast_writer.write_section(u'general')
         for item in general_items:
-            print >> output, format_ast_option(item['option_name'], item['option_value'])
-        print >> output
+            ast_writer.write_option(item['option_name'], item['option_value'])
+        ast_writer.write_newline()
 
 
 class _SccpDeviceConf(object):
@@ -84,37 +84,38 @@ class _SccpDeviceConf(object):
         )
 
     def generate(self, sccpdevice, general_device_items, output):
-        self._generate_template(general_device_items, output)
-        self._generate_guest_device(output)
-        self._generate_devices(sccpdevice, output)
+        ast_writer = AsteriskFileWriter(output)
+        self._generate_template(general_device_items, ast_writer)
+        self._generate_guest_device(ast_writer)
+        self._generate_devices(sccpdevice, ast_writer)
 
-    def _generate_template(self, device_items, output):
-        print >> output, format_ast_section_tpl(self._TPL_NAME)
+    def _generate_template(self, device_items, ast_writer):
+        ast_writer.write_section_tpl(self._TPL_NAME)
         for item in device_items:
-            print >> output, format_ast_option(item['option_name'], item['option_value'])
-        print >> output
+            ast_writer.write_option(item['option_name'], item['option_value'])
+        ast_writer.write_newline()
 
-    def _generate_guest_device(self, output):
-        print >> output, format_ast_section_using_tpl(_GUEST_DEVICE_NAME, self._TPL_NAME)
-        print >> output, format_ast_option('type', 'device')
-        print >> output, format_ast_option('line', _GUEST_LINE_NAME)
-        print >> output
+    def _generate_guest_device(self, ast_writer):
+        ast_writer.write_section_using_tpl(_GUEST_DEVICE_NAME, self._TPL_NAME)
+        ast_writer.write_option('type', 'device')
+        ast_writer.write_option('line', _GUEST_LINE_NAME)
+        ast_writer.write_newline()
 
-    def _generate_devices(self, sccpdevice, output):
+    def _generate_devices(self, sccpdevice, ast_writer):
         for item in sccpdevice:
-            print >> output, format_ast_section_using_tpl(item['name'], self._TPL_NAME)
-            print >> output, format_ast_option('type', 'device')
+            ast_writer.write_section_using_tpl(item['name'], self._TPL_NAME)
+            ast_writer.write_option('type', 'device')
             if item['line']:
-                print >> output, format_ast_option('line', item['line'])
+                ast_writer.write_option('line', item['line'])
             if item['voicemail']:
-                print >> output, format_ast_option('voicemail', item['voicemail'])
-            self._generate_speeddials(output, item['device'])
-            print >> output
+                ast_writer.write_option('voicemail', item['voicemail'])
+            self._generate_speeddials(item['device'], ast_writer)
+            ast_writer.write_newline()
 
-    def _generate_speeddials(self, output, device):
+    def _generate_speeddials(self, device, ast_writer):
         for item in self._sccpspeeddialdevices:
             if item['device'] == device:
-                print >> output, format_ast_option('speeddial', '%d-%d' % (item['user_id'], item['fknum']))
+                ast_writer.write_option('speeddial', '{:d}-{:d}'.format(item['user_id'], item['fknum']))
 
 
 class _SccpLineConf(object):
@@ -122,12 +123,13 @@ class _SccpLineConf(object):
     _TPL_NAME = 'xivo_line_tpl'
 
     def generate(self, sccplines, general_line_items, output):
-        self._generate_template(general_line_items, output)
-        self._generate_guest_line(output)
-        self._generate_lines(sccplines, output)
+        ast_writer = AsteriskFileWriter(output)
+        self._generate_template(general_line_items, ast_writer)
+        self._generate_guest_line(ast_writer)
+        self._generate_lines(sccplines, ast_writer)
 
-    def _generate_template(self, line_items, output):
-        print >> output, format_ast_section_tpl(self._TPL_NAME)
+    def _generate_template(self, line_items, ast_writer):
+        ast_writer.write_section_tpl(self._TPL_NAME)
         for item in line_items:
             option_name = item['option_name']
             option_value = item['option_value']
@@ -135,60 +137,60 @@ class _SccpLineConf(object):
             if option_name == 'allow':
                 if not option_value:
                     continue
-                print >> output, format_ast_option('disallow', 'all')
+                ast_writer.write_option('disallow', 'all')
             elif option_name == 'disallow':
                 continue
             elif option_name == 'directmedia':
                 option_value = '0' if option_value == 'no' else '1'
+            ast_writer.write_option(option_name, option_value)
+        ast_writer.write_newline()
 
-            print >> output, format_ast_option(option_name, option_value)
-        print >> output
+    def _generate_guest_line(self, ast_writer):
+        ast_writer.write_section_using_tpl(_GUEST_LINE_NAME, self._TPL_NAME)
+        ast_writer.write_option('type', 'line')
+        ast_writer.write_option('context', 'xivo-initconfig')
+        ast_writer.write_option('cid_name', 'Autoprov')
+        ast_writer.write_option('cid_num', 'autoprov')
+        ast_writer.write_newline()
 
-    def _generate_guest_line(self, output):
-        print >> output, format_ast_section_using_tpl(_GUEST_LINE_NAME, self._TPL_NAME)
-        print >> output, format_ast_option('type', 'line')
-        print >> output, format_ast_option('context', 'xivo-initconfig')
-        print >> output, format_ast_option('cid_name', 'Autoprov')
-        print >> output, format_ast_option('cid_num', 'autoprov')
-        print >> output
-
-    def _generate_lines(self, sccplines, output):
+    def _generate_lines(self, sccplines, ast_writer):
         for item in sccplines:
-            print >> output, format_ast_section_using_tpl(item['name'], self._TPL_NAME)
-            print >> output, format_ast_option('type', 'line')
-            print >> output, format_ast_option('cid_name', item['cid_name'])
-            print >> output, format_ast_option('cid_num', item['cid_num'])
-            print >> output, format_ast_option('setvar', u'XIVO_ORIGINAL_CALLER_ID="{cid_name}" <{cid_num}>'.format(**item))
-            print >> output, format_ast_option('setvar', 'XIVO_USERID=%s' % item['user_id'])
-            print >> output, format_ast_option('setvar', 'XIVO_USERUUID=%s' % item['uuid'])
-            print >> output, format_ast_option('setvar', 'WAZO_TENANT_UUID=%s' % item['tenant_uuid'])
-            print >> output, format_ast_option('setvar', 'PICKUPMARK=%(number)s%%%(context)s' % item)
-            print >> output, format_ast_option('setvar', 'TRANSFER_CONTEXT=%s' % item['context'])
-            print >> output, format_ast_option('setvar', 'WAZO_CHANNEL_DIRECTION=from-wazo')
-            print >> output, format_ast_option('setvar', 'WAZO_LINE_ID=%s' % item['id'])
+            ast_writer.write_section_using_tpl(item['name'], self._TPL_NAME)
+            ast_writer.write_option('type', 'line')
+            ast_writer.write_option('cid_name', item['cid_name'])
+            ast_writer.write_option('cid_num', item['cid_num'])
+            ast_writer.write_option('setvar', u'XIVO_ORIGINAL_CALLER_ID="{cid_name}" <{cid_num}>'.format(**item))
+            ast_writer.write_option('setvar', 'XIVO_USERID={}'.format(item['user_id']))
+            ast_writer.write_option('setvar', 'XIVO_USERUUID={}'.format(item['uuid']))
+            ast_writer.write_option('setvar', 'WAZO_TENANT_UUID={}'.format(item['tenant_uuid']))
+            ast_writer.write_option('setvar', 'PICKUPMARK={number}%{context}'.format(**item))
+            ast_writer.write_option('setvar', 'TRANSFER_CONTEXT={}'.format(item['context']))
+            ast_writer.write_option('setvar', 'WAZO_CHANNEL_DIRECTION=from-wazo')
+            ast_writer.write_option('setvar', 'WAZO_LINE_ID={}'.format(item['id']))
             if item['enable_online_recording']:
-                print >> output, format_ast_option('setvar', 'DYNAMIC_FEATURES=togglerecord')
+                ast_writer.write_option('setvar', 'DYNAMIC_FEATURES=togglerecord')
             if item['language']:
-                print >> output, format_ast_option('language', item['language'])
-            print >> output, format_ast_option('context', item['context'])
+                ast_writer.write_option('language', item['language'])
+            ast_writer.write_option('context', item['context'])
             if 'disallow' in item:
-                print >> output, format_ast_option('disallow', item['disallow'])
+                ast_writer.write_option('disallow', item['disallow'])
             if 'allow' in item:
-                print >> output, format_ast_option('allow', item['allow'])
+                ast_writer.write_option('allow', item['allow'])
             if 'callgroup' in item:
-                print >> output, format_ast_option('namedcallgroup', ','.join(str(i) for i in item['callgroup']))
+                ast_writer.write_option('namedcallgroup', ','.join(map(str, item['callgroup'])))
             if 'pickupgroup' in item:
-                print >> output, format_ast_option('namedpickupgroup', ','.join(str(i) for i in item['pickupgroup']))
-            print >> output
+                ast_writer.write_option('namedpickupgroup', ','.join(map(str, item['pickupgroup'])))
+            ast_writer.write_newline()
 
 
 class _SccpSpeedDialConf(object):
     def generate(self, sccpspeeddial, output):
+        ast_writer = AsteriskFileWriter(output)
         for item in sccpspeeddial:
-            print >> output, format_ast_section('%d-%d' % (item['user_id'], item['fknum']))
-            print >> output, format_ast_option('type', 'speeddial')
-            print >> output, format_ast_option('extension', item['exten'])
+            ast_writer.write_section('{:d}-{:d}'.format(item['user_id'], item['fknum']))
+            ast_writer.write_option('type', 'speeddial')
+            ast_writer.write_option('extension', item['exten'])
             if item['label']:
-                print >> output, format_ast_option('label', item['label'])
-            print >> output, format_ast_option('blf', item['supervision'])
-            print >> output
+                ast_writer.write_option('label', item['label'])
+            ast_writer.write_option('blf', item['supervision'])
+            ast_writer.write_newline()

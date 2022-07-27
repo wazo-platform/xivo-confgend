@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011-2015 Avencall
-# Copyright (C) 2016 Proformatique Inc.
+# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import itertools
 
-from wazo_confgend.generators.util import format_ast_option
+from wazo_confgend.generators.util import AsteriskFileWriter
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.voicemail import dao as voicemail_dao
 
@@ -26,7 +25,6 @@ class VoicemailGenerator(object):
             output += u"\n"
             output += self.format_voicemails(voicemails)
             output += u"\n\n"
-
         return output
 
     def group_voicemails(self):
@@ -90,14 +88,14 @@ class VoicemailConf(object):
         self._voicemail_settings = asterisk_conf_dao.find_voicemail_general_settings()
 
     def generate(self, output):
-        self._gen_general_section(output)
-        print >> output
-        self._gen_zonemessages_section(output)
-        print >> output
-        print >> output, self.voicemail_generator.generate()
+        ast_writer = AsteriskFileWriter(output)
+        self._gen_general_section(ast_writer)
+        ast_writer.write_newline()
+        self._gen_zonemessages_section(ast_writer)
+        output.write('\n{}\n'.format(self.voicemail_generator.generate()))
 
-    def _gen_general_section(self, output):
-        print >> output, u'[general]'
+    def _gen_general_section(self, ast_writer):
+        ast_writer.write_section(u'general')
         for item in self._voicemail_settings:
             if item['category'] == u'general':
                 opt_name = item['var_name']
@@ -105,13 +103,13 @@ class VoicemailConf(object):
                     opt_val = self._format_emailbody(item['var_val'])
                 else:
                     opt_val = item['var_val']
-                print >> output, format_ast_option(opt_name, opt_val)
+                ast_writer.write_option(opt_name, opt_val)
 
     def _format_emailbody(self, emailbody):
         return emailbody.replace(u'\n', u'\\n')
 
-    def _gen_zonemessages_section(self, output):
-        print >> output, u'[zonemessages]'
+    def _gen_zonemessages_section(self, ast_writer):
+        ast_writer.write_section(u'zonemessages')
         for item in self._voicemail_settings:
             if item['category'] == u'zonemessages':
-                print >> output, format_ast_option(item['var_name'], item['var_val'])
+                ast_writer.write_option(item['var_name'], item['var_val'])

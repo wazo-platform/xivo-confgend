@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-# Copyright 2011-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import copy
 import ConfigParser
-from StringIO import StringIO
 from UserDict import DictMixin
 
 from xivo import xivo_helpers
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.ivr import dao as ivr_dao
 
+from wazo_confgend.generators.util import AsteriskFileWriter
 
 DEFAULT_EXTENFEATURES = {
     'paging': 'GoSub(paging,s,1(${EXTEN:3}))',
@@ -148,7 +148,7 @@ class ExtensionsConf(object):
         self._tpl_helper = tpl_helper
 
     def generate(self, output):
-        options = output
+        ast_writer = AsteriskFileWriter(output)
 
         if self.contextsconf is not None:
             # load context templates
@@ -171,20 +171,22 @@ class ExtensionsConf(object):
             'vmusermsg',
         )
         extenfeatures = asterisk_conf_dao.find_extenfeatures_settings(features=extenfeature_names)
-        xfeatures = {extenfeature.typeval: {'exten': extenfeature.exten,
-                                            'commented': extenfeature.commented}
-                     for extenfeature in extenfeatures}
+        xfeatures = {
+            extenfeature.typeval: {
+                'exten': extenfeature.exten, 'commented': extenfeature.commented
+            } for extenfeature in extenfeatures
+        }
 
         # foreach active context
         for ctx in asterisk_conf_dao.find_context_settings():
             # context name preceded with '!' is ignored
-            if conf and conf.has_section('!%s' % ctx['name']):
+            context_name = ctx['name']
+            if conf and conf.has_section('!%s' % context_name):
                 continue
-
-            print >> options, "\n[%s]" % ctx['name']
-
-            if conf.has_section(ctx['name']):
-                section = ctx['name']
+            ast_writer.write_newline()
+            ast_writer.write_section(context_name)
+            if conf.has_section(context_name):
+                section = context_name
             elif conf.has_section('type:%s' % ctx['contexttype']):
                 section = 'type:%s' % ctx['contexttype']
             else:
@@ -195,47 +197,44 @@ class ExtensionsConf(object):
                 if option_name == 'objtpl':
                     tmpl.append(option_value)
                     continue
-                print >> options, "%s = %s" % (option_name, option_value.replace('%%CONTEXT%%', ctx['name']))
+                ast_writer.write_option(option_name, option_value.replace('%%CONTEXT%%', context_name))
 
             # context includes
-            for row in asterisk_conf_dao.find_contextincludes_settings(ctx['name']):
-                print >> options, "include = %s" % row['include']
-            print >> options
+            for row in asterisk_conf_dao.find_contextincludes_settings(context_name):
+                ast_writer.write_option('include', row['include'])
+            ast_writer.write_newline()
 
             # objects extensions (user, group, ...)
-            for exten_row in asterisk_conf_dao.find_exten_settings(ctx['name']):
+            for exten_row in asterisk_conf_dao.find_exten_settings(context_name):
                 exten_generator = extension_generators.get(exten_row['type'], GenericExtensionGenerator)
                 exten = exten_generator(exten_row).generate()
-                self.gen_dialplan_from_template(tmpl, exten, options)
+                self.gen_dialplan_from_template(tmpl, exten, ast_writer)
 
-            self._generate_hints(ctx['name'], options)
+            self._generate_hints(ctx['name'], output)
 
-        print >> options, self._extensions_features(conf, xfeatures)
+        self._generate_extension_features(conf, xfeatures, ast_writer)
         self._generate_ivr(output)
 
-        return options.getvalue()
+        return output.getvalue()
 
-    def _extensions_features(self, conf, xfeatures):
-        options = StringIO()
+    def _generate_extension_features(self, conf, xfeatures, ast_writer):
         # XiVO features
         context = 'xivo-features'
         cfeatures = []
         tmpl = []
-
-        print >> options, "\n[%s]" % context
+        ast_writer.write_section(context)
         for option_name, option_value in conf.items(context):
             if option_name == 'objtpl':
                 tmpl.append(option_value)
                 continue
-
-            print >> options, "%s = %s" % (option_name, option_value.replace('%%CONTEXT%%', context))
-            print >> options
+            ast_writer.write_option(option_name, option_value.replace('%%CONTEXT%%', context))
+            ast_writer.write_newline()
 
         for exten in asterisk_conf_dao.find_exten_xivofeatures_setting():
             name = exten['typeval']
             if name in DEFAULT_EXTENFEATURES:
                 exten['action'] = DEFAULT_EXTENFEATURES[name]
-                self.gen_dialplan_from_template(tmpl, exten, options)
+                self.gen_dialplan_from_template(tmpl, exten, ast_writer)
 
         for x in ('busy', 'rna', 'unc'):
             fwdtype = "fwd%s" % x
@@ -248,16 +247,15 @@ class ExtensionsConf(object):
                 ])
 
         if cfeatures:
-            print >> options, "exten = " + "\nexten = ".join(cfeatures)
+            for exten_feature in cfeatures:
+                ast_writer.write_option('exten', exten_feature)
 
-        return options.getvalue()
-
-    def gen_dialplan_from_template(self, template, exten, output):
+    def gen_dialplan_from_template(self, template, exten, ast_writer):
         if 'priority' not in exten:
             exten['priority'] = 1
 
         for line in template:
-            prefix = 'exten =' if line.startswith('%%EXTEN%%') else 'same  =    '
+            prefix, padding = ('exten', '') if line.startswith('%%EXTEN%%') else ('same ', '    ')
 
             line = line.replace('%%CONTEXT%%', str(exten.get('context', '')))
             line = line.replace('%%EXTEN%%', str(exten.get('exten', '')))
@@ -265,20 +263,20 @@ class ExtensionsConf(object):
             line = line.replace('%%ACTION%%', str(exten.get('action', '')))
             line = line.replace('%%TENANT_UUID%%', str(exten.get('tenant_uuid', '')))
 
-            print >> output, prefix, line
-        print >> output
+            ast_writer.write_option(prefix, '{}{}'.format(padding, line))
+        ast_writer.write_newline()
 
     def _generate_global_hints(self, output):
-        print >> output, '[usersharedlines]'
+        output.write(u'[usersharedlines]\n')
         for line in self.hint_generator.generate_global_hints():
-            print >> output, line
+            output.write(u'{}\n'.format(line))
 
     def _generate_hints(self, context, output):
         for line in self.hint_generator.generate(context):
-            print >> output, line
+            output.write(u'{}\n'.format(line))
 
     def _generate_ivr(self, output):
         for ivr in ivr_dao.find_all_by():
             template_context = {'ivr': ivr}
             template = self._tpl_helper.get_customizable_template('asterisk/extensions/ivr', ivr.id)
-            print >> output, template.dump(template_context)
+            output.write(u'{}\n'.format(template.dump(template_context)))

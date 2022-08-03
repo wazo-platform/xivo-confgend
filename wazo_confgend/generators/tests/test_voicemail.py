@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012-2014 Avencall
+# Copyright 2012-2022 The Wazo Authors  (see the AUTHORS file)
 # Copyright (C) 2016 Proformatique Inc.
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -146,7 +146,7 @@ class TestVoicemailConf(unittest.TestCase):
     @patch('xivo_dao.asterisk_conf_dao.find_voicemail_general_settings', Mock(return_value=[]))
     def setUp(self):
         self.voicemail_generator = Mock(VoicemailGenerator)
-        self.voicemail_generator.generate.return_value = ''
+        self.voicemail_generator.generate.return_value = u''
 
         self.voicemail_conf = VoicemailConf(self.voicemail_generator)
         self.voicemail_conf._voicemail_settings = []
@@ -156,6 +156,21 @@ class TestVoicemailConf(unittest.TestCase):
             [general]
 
             [zonemessages]
+        ''')
+
+    @patch('xivo_dao.asterisk_conf_dao.find_voicemail_general_settings', Mock(return_value=[]))
+    def test_non_ascii_voicemail(self):
+        voicemail_generator = Mock(VoicemailGenerator)
+        voicemail_generator.generate.return_value = u'[defaulté]'
+        voicemail_conf = VoicemailConf(voicemail_generator)
+        voicemail_conf._voicemail_settings = []
+
+        assert_generates_config(voicemail_conf, u'''
+            [general]
+
+            [zonemessages]
+
+            [defaulté]
         ''')
 
     def test_one_element_general_section(self):

@@ -92,7 +92,7 @@ class VoicemailConf(object):
         self._gen_general_section(ast_writer)
         ast_writer.write_newline()
         self._gen_zonemessages_section(ast_writer)
-        output.write('\n{}\n'.format(self.voicemail_generator.generate()))
+        output.write(u'\n{}\n'.format(self.voicemail_generator.generate()))
 
     def _gen_general_section(self, ast_writer):
         ast_writer.write_section(u'general')

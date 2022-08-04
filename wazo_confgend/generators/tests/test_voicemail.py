@@ -3,6 +3,8 @@
 # Copyright (C) 2016 Proformatique Inc.
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import unicode_literals
+
 import unittest
 import textwrap
 
@@ -146,7 +148,7 @@ class TestVoicemailConf(unittest.TestCase):
     @patch('xivo_dao.asterisk_conf_dao.find_voicemail_general_settings', Mock(return_value=[]))
     def setUp(self):
         self.voicemail_generator = Mock(VoicemailGenerator)
-        self.voicemail_generator.generate.return_value = u''
+        self.voicemail_generator.generate.return_value = ''
 
         self.voicemail_conf = VoicemailConf(self.voicemail_generator)
         self.voicemail_conf._voicemail_settings = []
@@ -161,11 +163,11 @@ class TestVoicemailConf(unittest.TestCase):
     @patch('xivo_dao.asterisk_conf_dao.find_voicemail_general_settings', Mock(return_value=[]))
     def test_non_ascii_voicemail(self):
         voicemail_generator = Mock(VoicemailGenerator)
-        voicemail_generator.generate.return_value = u'[defaulté]'
+        voicemail_generator.generate.return_value = '[defaulté]'
         voicemail_conf = VoicemailConf(voicemail_generator)
         voicemail_conf._voicemail_settings = []
 
-        assert_generates_config(voicemail_conf, u'''
+        assert_generates_config(voicemail_conf, '''
             [general]
 
             [zonemessages]
@@ -174,9 +176,9 @@ class TestVoicemailConf(unittest.TestCase):
         ''')
 
     def test_one_element_general_section(self):
-        self.voicemail_conf._voicemail_settings = [{'category': u'general',
-                                                    'var_name': u'foo',
-                                                    'var_val': u'bar'}]
+        self.voicemail_conf._voicemail_settings = [{'category': 'general',
+                                                    'var_name': 'foo',
+                                                    'var_val': 'bar'}]
 
         assert_generates_config(self.voicemail_conf, '''
             [general]
@@ -186,9 +188,9 @@ class TestVoicemailConf(unittest.TestCase):
         ''')
 
     def test_one_element_zonemessages_section(self):
-        self.voicemail_conf._voicemail_settings = [{'category': u'zonemessages',
-                                                    'var_name': u'foo',
-                                                    'var_val': u'bar'}]
+        self.voicemail_conf._voicemail_settings = [{'category': 'zonemessages',
+                                                    'var_name': 'foo',
+                                                    'var_val': 'bar'}]
 
         assert_generates_config(self.voicemail_conf, '''
             [general]
@@ -198,9 +200,9 @@ class TestVoicemailConf(unittest.TestCase):
         ''')
 
     def test_escape_general_emailbody_option(self):
-        self.voicemail_conf._voicemail_settings = [{'category': u'general',
-                                                    'var_name': u'emailbody',
-                                                    'var_val': u'foo\nbar'}]
+        self.voicemail_conf._voicemail_settings = [{'category': 'general',
+                                                    'var_name': 'emailbody',
+                                                    'var_val': 'foo\nbar'}]
 
         assert_generates_config(self.voicemail_conf, '''
             [general]

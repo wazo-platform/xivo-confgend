@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import unicode_literals
 
 import unittest
 
@@ -152,7 +153,7 @@ class TestCustomAdaptor(TestAdaptor):
     def test_that_non_ascii_characters_are_ignored(self):
         dao = Mock()
         dao.custom_hints.return_value = [
-            Hint(user_id=None, extension=u'\xe9', argument=None),
+            Hint(user_id=None, extension='\xe9', argument=None),
         ]
 
         adaptor = CustomAdaptor(dao)

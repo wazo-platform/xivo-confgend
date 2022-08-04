@@ -2,6 +2,8 @@
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import unicode_literals
+
 import unittest
 import sys
 
@@ -21,13 +23,14 @@ class Test(unittest.TestCase):
         self.asteriskFrontEnd = AsteriskFrontend(self._config, self.tpl_helper)
 
     def test_encoding(self):
-        charset = ("ascii", "US-ASCII",)
-        self.assertTrue(sys.getdefaultencoding() in charset, "Test should be run in ascii, in eclipse change run configuration common tab")
+        charset = ('ascii', 'US-ASCII',)
+        self.assertTrue(sys.getdefaultencoding() in charset,
+                        'Test should be run in ascii, in eclipse change run configuration common tab')
 
     @patch('xivo_dao.asterisk_conf_dao.find_agent_queue_skills_settings')
     def test_queueskills_conf(self, find_agent_queue_skills_settings):
         find_agent_queue_skills_settings.return_value = [
-            {'id': 1, 'name': u"test-skill", 'weight': 10},
+            {'id': 1, 'name': 'test-skill', 'weight': 10},
         ]
         assert_config_equal(
             self.asteriskFrontEnd.queueskills_conf(),
@@ -41,8 +44,8 @@ class Test(unittest.TestCase):
     @patch('xivo_dao.asterisk_conf_dao.find_queue_skillrule_settings')
     def test_queueskillrules_conf(self, find_queue_skillrule_settings):
         find_queue_skillrule_settings.return_value = [
-            {'id': 1, 'name': u"test-rule-1", 'rule': u'rule-1;rule-2'},
-            {'id': 2, 'name': u"test-rule-2", 'rule': u'rule-3;rule-4'},
+            {'id': 1, 'name': 'test-rule-1', 'rule': 'rule-1;rule-2'},
+            {'id': 2, 'name': 'test-rule-2', 'rule': 'rule-3;rule-4'},
         ]
         assert_config_equal(
             self.asteriskFrontEnd.queueskillrules_conf(),
@@ -61,8 +64,8 @@ class Test(unittest.TestCase):
     @patch('xivo_dao.asterisk_conf_dao.find_queue_penalties_settings')
     def test_queuerules_conf(self, find_queue_penalties_settings):
         find_queue_penalties_settings.return_value = [
-            {'name': u'rule-1', 'seconds': 25, 'maxp_sign': '=', 'maxp_value': 2, 'minp_sign': '+', 'minp_value': 2},
-            {'name': u'rule-2', 'seconds': 30, 'maxp_sign': None, 'minp_sign': None},
+            {'name': 'rule-1', 'seconds': 25, 'maxp_sign': '=', 'maxp_value': 2, 'minp_sign': '+', 'minp_value': 2},
+            {'name': 'rule-2', 'seconds': 30, 'maxp_sign': None, 'minp_sign': None},
         ]
         assert_config_equal(
             self.asteriskFrontEnd.queuerules_conf(),

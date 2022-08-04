@@ -2,6 +2,8 @@
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import unicode_literals
+
 import os
 import unittest
 import textwrap
@@ -40,17 +42,17 @@ class TestExtensionsConf(unittest.TestCase):
             ('objtpl', 'n,%%ACTION%%')
         ]
         xfeatures = {
-            'fwdrna': {'exten': u'_*22.', 'commented': 0}, u'fwdbusy': {'exten': u'_*23.', 'commented': 0},
-            'bsfilter': {'exten': u'_*37.', 'commented': 0}, u'fwdunc': {'exten': u'_*21.', 'commented': 0},
-            'vmusermsg': {'exten': u'*98', 'commented': 0},
-            'phoneprogfunckey': {'exten': u'_*735.', 'commented': 0}
+            'fwdrna': {'exten': '_*22.', 'commented': 0}, 'fwdbusy': {'exten': '_*23.', 'commented': 0},
+            'bsfilter': {'exten': '_*37.', 'commented': 0}, 'fwdunc': {'exten': '_*21.', 'commented': 0},
+            'vmusermsg': {'exten': '*98', 'commented': 0},
+            'phoneprogfunckey': {'exten': '_*735.', 'commented': 0}
         }
         mock_find_exten_xivofeatures_setting.return_value = [
-            {'exten': u'*10', 'commented': 0, 'context': u'xivo-features', 'typeval': u'phonestatus',
+            {'exten': '*10', 'commented': 0, 'context': 'xivo-features', 'typeval': 'phonestatus',
              'type': 'extenfeatures', 'id': 17},
-            {'exten': u'_*11.', 'commented': 0, 'context': u'xivo-features', 'typeval': u'paging',
+            {'exten': '_*11.', 'commented': 0, 'context': 'xivo-features', 'typeval': 'paging',
              'type': 'extenfeatures', 'id': 28},
-            {'exten': u'*20', 'commented': 0, 'context': u'xivo-features', 'typeval': u'fwdundoall',
+            {'exten': '*20', 'commented': 0, 'context': 'xivo-features', 'typeval': 'fwdundoall',
              'type': 'extenfeatures', 'id': 14},
         ]
 
@@ -112,7 +114,7 @@ class TestExtensionsConf(unittest.TestCase):
 
     @patch('wazo_confgend.generators.extensionsconf.ivr_dao')
     def test_generate_ivrs(self, mock_ivr_dao):
-        ivr = IVR(id=42, name='foo', menu_sound=u'héllo-world')
+        ivr = IVR(id=42, name='foo', menu_sound='héllo-world')
         mock_ivr_dao.find_all_by.return_value = [ivr]
         self.tpl_mapping['asterisk/extensions/ivr.jinja'] = textwrap.dedent('''
             [xivo-ivr-{{ ivr.id }}]
@@ -122,7 +124,7 @@ class TestExtensionsConf(unittest.TestCase):
         self.extensionsconf._generate_ivr(self.output)
 
         assert_that(self.output.getvalue(), contains_string('[xivo-ivr-42]'))
-        assert_that(self.output.getvalue(), contains_string(u'same  =   n,Background(héllo-world)'))
+        assert_that(self.output.getvalue(), contains_string('same  =   n,Background(héllo-world)'))
 
     @patch('wazo_confgend.generators.extensionsconf.ivr_dao')
     @patch('wazo_confgend.generators.extensionsconf.asterisk_conf_dao')
@@ -144,7 +146,7 @@ class TestExtensionsConf(unittest.TestCase):
 
         mock_ivr_dao.find_all_by.return_value = [
             IVR(id=42, name='foo', menu_sound='hello-world'),
-            IVR(id=43, name='bar', menu_sound='youhou'),
+            IVR(id=43, name='bar', menu_sound='youho'),
         ]
 
         mock_asterisk_conf_dao.find_context_settings.return_value = [

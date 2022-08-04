@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -93,7 +93,7 @@ class CustomAdaptor(HintAdaptor):
             try:
                 yield (hint.extension, 'Custom:{}'.format(hint.extension))
             except UnicodeEncodeError:
-                logger.info(u'invalid custom function key "%s"', hint.extension)
+                logger.info('invalid custom function key "%s"', hint.extension)
                 continue
 
 

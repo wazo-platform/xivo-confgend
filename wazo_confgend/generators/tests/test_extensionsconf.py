@@ -146,7 +146,7 @@ class TestExtensionsConf(unittest.TestCase):
 
         mock_ivr_dao.find_all_by.return_value = [
             IVR(id=42, name='foo', menu_sound='hello-world'),
-            IVR(id=43, name='bar', menu_sound='youho'),
+            IVR(id=43, name='bar', menu_sound='youhou'),
         ]
 
         mock_asterisk_conf_dao.find_context_settings.return_value = [

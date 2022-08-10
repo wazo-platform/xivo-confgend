@@ -2,6 +2,8 @@
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import unicode_literals
+
 import copy
 import ConfigParser
 from UserDict import DictMixin
@@ -267,16 +269,16 @@ class ExtensionsConf(object):
         ast_writer.write_newline()
 
     def _generate_global_hints(self, output):
-        output.write(u'[usersharedlines]\n')
+        output.write('[usersharedlines]\n')
         for line in self.hint_generator.generate_global_hints():
-            output.write(u'{}\n'.format(line))
+            output.write('{}\n'.format(line))
 
     def _generate_hints(self, context, output):
         for line in self.hint_generator.generate(context):
-            output.write(u'{}\n'.format(line))
+            output.write('{}\n'.format(line))
 
     def _generate_ivr(self, output):
         for ivr in ivr_dao.find_all_by():
             template_context = {'ivr': ivr}
             template = self._tpl_helper.get_customizable_template('asterisk/extensions/ivr', ivr.id)
-            output.write(u'{}\n'.format(template.dump(template_context)))
+            output.write('{}\n'.format(template.dump(template_context)))

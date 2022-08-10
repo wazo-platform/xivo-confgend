@@ -2,6 +2,8 @@
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import unicode_literals
+
 from operator import itemgetter
 
 from wazo_confgend.generators.util import AsteriskFileWriter
@@ -67,7 +69,7 @@ class _SccpGeneralSettingsConf(object):
 
     def generate(self, general_items, output):
         ast_writer = AsteriskFileWriter(output)
-        ast_writer.write_section(u'general')
+        ast_writer.write_section('general')
         for item in general_items:
             ast_writer.write_option(item['option_name'], item['option_value'])
         ast_writer.write_newline()
@@ -159,7 +161,7 @@ class _SccpLineConf(object):
             ast_writer.write_option('type', 'line')
             ast_writer.write_option('cid_name', item['cid_name'])
             ast_writer.write_option('cid_num', item['cid_num'])
-            ast_writer.write_option('setvar', u'XIVO_ORIGINAL_CALLER_ID="{cid_name}" <{cid_num}>'.format(**item))
+            ast_writer.write_option('setvar', 'XIVO_ORIGINAL_CALLER_ID="{cid_name}" <{cid_num}>'.format(**item))
             ast_writer.write_option('setvar', 'XIVO_USERID={}'.format(item['user_id']))
             ast_writer.write_option('setvar', 'XIVO_USERUUID={}'.format(item['uuid']))
             ast_writer.write_option('setvar', 'WAZO_TENANT_UUID={}'.format(item['tenant_uuid']))

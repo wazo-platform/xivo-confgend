@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
+
+from __future__ import unicode_literals
 
 import unittest
 
@@ -36,9 +38,9 @@ class TestFeaturesConf(unittest.TestCase):
 
     def test_settings(self):
         settings = {
-            'general_options': [(u'pickupexten', u'*8')],
-            'featuremap_options': [(u'blindxfer', u'*1')],
-            'applicationmap_options': [(u'toto', u'*1')],
+            'general_options': [('pickupexten', '*8')],
+            'featuremap_options': [('blindxfer', '*1')],
+            'applicationmap_options': [('toto', '*1')],
         }
 
         features_conf = self._new_conf(settings)

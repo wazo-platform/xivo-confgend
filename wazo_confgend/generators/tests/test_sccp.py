@@ -2,6 +2,8 @@
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import unicode_literals
+
 import itertools
 import StringIO
 import unittest
@@ -91,8 +93,8 @@ class TestSccpGeneralConf(unittest.TestCase):
         self._output = StringIO.StringIO()
 
     def test_one_element_general_section(self):
-        items = [{'option_name': u'foo',
-                  'option_value': u'bar'}]
+        items = [{'option_name': 'foo',
+                  'option_value': 'bar'}]
 
         self._general_conf.generate(items, self._output)
 
@@ -143,11 +145,11 @@ class TestSccpDeviceConf(unittest.TestCase):
         ''')
 
     def test_one_device_no_line_no_voicemail(self):
-        sccpdevice = [{'category': u'devices',
-                       'name': u'SEPACA016FDF235',
-                       'device': u'SEPACA016FDF235',
-                       'line': u'',
-                       'voicemail': u''}]
+        sccpdevice = [{'category': 'devices',
+                       'name': 'SEPACA016FDF235',
+                       'device': 'SEPACA016FDF235',
+                       'line': '',
+                       'voicemail': ''}]
 
         self._device_conf._generate_devices(sccpdevice, self._ast_writer)
 
@@ -157,11 +159,11 @@ class TestSccpDeviceConf(unittest.TestCase):
         ''')
 
     def test_one_element_devices_section(self):
-        sccpdevice = [{'category': u'devices',
-                       'name': u'SEPACA016FDF235',
-                       'device': u'SEPACA016FDF235',
-                       'line': u'103',
-                       'voicemail': u'103'}]
+        sccpdevice = [{'category': 'devices',
+                       'name': 'SEPACA016FDF235',
+                       'device': 'SEPACA016FDF235',
+                       'line': '103',
+                       'voicemail': '103'}]
 
         sccpspeeddials = [{'exten': '1001',
                            'fknum': 1,
@@ -182,11 +184,11 @@ class TestSccpDeviceConf(unittest.TestCase):
         ''')
 
     def test_multiple_speedials_devices_section(self):
-        sccpdevice = [{'category': u'devices',
-                       'name': u'SEPACA016FDF235',
-                       'device': u'SEPACA016FDF235',
-                       'line': u'103',
-                       'voicemail': u'103'}]
+        sccpdevice = [{'category': 'devices',
+                       'name': 'SEPACA016FDF235',
+                       'device': 'SEPACA016FDF235',
+                       'line': '103',
+                       'voicemail': '103'}]
 
         sccpspeeddials = [
             {'exten': '1002',
@@ -274,16 +276,16 @@ class TestSccpLineConf(unittest.TestCase):
         uuid = str(uuid4())
         sccpline = [{
             'id': 13423,
-            'category': u'lines',
-            'name': u'100',
-            'cid_name': u'jimmy',
-            'cid_num': u'100',
-            'user_id': u'1',
+            'category': 'lines',
+            'name': '100',
+            'cid_name': 'jimmy',
+            'cid_num': '100',
+            'user_id': '1',
             'uuid': uuid,
-            'language': u'fr_FR',
-            'number': u'100',
-            'context': u'a_context',
-            'tenant_uuid': u'tenant-uuid',
+            'language': 'fr_FR',
+            'number': '100',
+            'context': 'a_context',
+            'tenant_uuid': 'tenant-uuid',
             'enable_online_recording': 1,
         }]
 
@@ -311,16 +313,16 @@ class TestSccpLineConf(unittest.TestCase):
         uuid = str(uuid4())
         sccpline = [{
             'id': 13423,
-            'category': u'lines',
-            'name': u'100',
-            'cid_name': u'jimmy',
-            'cid_num': u'100',
-            'user_id': u'1',
+            'category': 'lines',
+            'name': '100',
+            'cid_name': 'jimmy',
+            'cid_num': '100',
+            'user_id': '1',
             'uuid': uuid,
             'language': None,
-            'number': u'100',
-            'context': u'a_context',
-            'tenant_uuid': u'tenant-uuid',
+            'number': '100',
+            'context': 'a_context',
+            'tenant_uuid': 'tenant-uuid',
             'enable_online_recording': 0,
         }]
 
@@ -346,17 +348,17 @@ class TestSccpLineConf(unittest.TestCase):
         uuid = str(uuid4())
         sccpline = [{
             'id': 13423,
-            'category': u'lines',
-            'name': u'100',
-            'cid_name': u'jimmy',
-            'cid_num': u'100',
-            'user_id': u'1',
+            'category': 'lines',
+            'name': '100',
+            'cid_name': 'jimmy',
+            'cid_num': '100',
+            'user_id': '1',
             'language': None,
-            'number': u'100',
-            'context': u'a_context',
-            'allow': u'g729,ulaw',
+            'number': '100',
+            'context': 'a_context',
+            'allow': 'g729,ulaw',
             'uuid': uuid,
-            'tenant_uuid': u'tenant-uuid',
+            'tenant_uuid': 'tenant-uuid',
             'enable_online_recording': 0,
         }]
 
@@ -383,18 +385,18 @@ class TestSccpLineConf(unittest.TestCase):
         uuid = str(uuid4())
         sccpline = [{
             'id': 13423,
-            'category': u'lines',
-            'name': u'100',
-            'cid_name': u'jimmy',
-            'cid_num': u'100',
-            'user_id': u'1',
+            'category': 'lines',
+            'name': '100',
+            'cid_name': 'jimmy',
+            'cid_num': '100',
+            'user_id': '1',
             'uuid': uuid,
             'language': None,
-            'number': u'100',
-            'context': u'a_context',
-            'allow': u'g729,ulaw',
-            'disallow': u'all',
-            'tenant_uuid': u'tenant-uuid',
+            'number': '100',
+            'context': 'a_context',
+            'allow': 'g729,ulaw',
+            'disallow': 'all',
+            'tenant_uuid': 'tenant-uuid',
             'enable_online_recording': 0,
         }]
 
@@ -422,18 +424,18 @@ class TestSccpLineConf(unittest.TestCase):
         uuid = str(uuid4())
         sccpline = [{
             'id': 13423,
-            'category': u'lines',
-            'name': u'100',
-            'cid_name': u'jimmy',
-            'cid_num': u'100',
-            'user_id': u'1',
+            'category': 'lines',
+            'name': '100',
+            'cid_name': 'jimmy',
+            'cid_num': '100',
+            'user_id': '1',
             'uuid': uuid,
             'language': None,
-            'number': u'100',
-            'context': u'a_context',
+            'number': '100',
+            'context': 'a_context',
             'callgroup': [1, 2, 3, 4],
             'pickupgroup': [3, 4],
-            'tenant_uuid': u'tenant-uuid',
+            'tenant_uuid': 'tenant-uuid',
             'enable_online_recording': 0,
         }]
 

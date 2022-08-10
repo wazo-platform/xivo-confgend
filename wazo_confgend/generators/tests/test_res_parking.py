@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
+
+from __future__ import unicode_literals
 
 import unittest
 
@@ -33,10 +35,10 @@ class TestResParkingConf(unittest.TestCase):
 
     def test_settings(self):
         settings = {
-            'general_options': [(u'parkeddynamic', u'no')],
+            'general_options': [('parkeddynamic', 'no')],
             'parking_lots': [{
-                'name': u'default',
-                'options': [(u'parkext', u'700')]
+                'name': 'default',
+                'options': [('parkext', '700')]
             }],
         }
 

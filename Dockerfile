@@ -10,7 +10,9 @@ RUN apt-get install -y gcc
 
 COPY requirements.txt /usr/local/src/wazo-confgend/requirements.txt
 WORKDIR /usr/local/src/wazo-confgend
-RUN pip install -r requirements.txt
+# incremental is needed by twisted setup
+RUN pip install incremental==16.10.1 && \
+    pip install -r requirements.txt
 
 COPY setup.py /usr/local/src/wazo-confgend/
 COPY bin /usr/local/src/wazo-confgend/bin

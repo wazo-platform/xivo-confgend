@@ -40,5 +40,8 @@ setup(
         'wazo_confgend.provd.network.yml': [
             'wazo = wazo_confgend.plugins.provd_conf:ProvdNetworkConfGenerator',
         ],
+        'wazo_confgend.asterisk.features.conf': [
+            'wazo = wazo_confgend.plugins.features_conf:FeaturesConfGenerator',
+        ],
     },
 )

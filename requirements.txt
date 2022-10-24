@@ -1,5 +1,6 @@
 https://github.com/wazo-platform/xivo-dao/archive/master.zip
 https://github.com/wazo-platform/xivo-lib-python/archive/master.zip
+incremental==16.10.1  # from twisted
 jinja2==2.10
 psycopg2-binary
 pyyaml==3.13

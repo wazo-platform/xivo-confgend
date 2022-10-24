@@ -57,15 +57,17 @@ class PluginHandlerFactory(HandlerFactory):
             raise NoSuchHandler()
 
         try:
-            return driver.DriverManager(
+            generator = driver.DriverManager(
                 namespace=namespace,
                 name=driver_name,
                 invoke_on_load=True,
                 invoke_args=(self._dependencies,),
-            ).driver.generate
+            ).driver
         except RuntimeError:
             raise NoSuchHandler()
-
+        else:
+            logger.info("Loaded plugin %s for namespace %s", driver_name, namespace)
+            return generator.generate
 
 class FrontendHandlerFactory(HandlerFactory):
     def __init__(self, frontends):

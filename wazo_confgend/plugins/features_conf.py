@@ -5,7 +5,6 @@
 from __future__ import unicode_literals
 
 from wazo_confgend.generators.util import AsteriskFileWriter
-from wazo_confgend.generators.features import FeaturesConf
 from xivo_dao import asterisk_conf_dao
 import logging
 import io

@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 import unittest
 
 from mock import patch
-from wazo_confgend.generators.features import FeaturesConf
+from wazo_confgend.plugins.features_conf import FeaturesConfGenerator
 from wazo_confgend.generators.tests.util import assert_generates_config
 
 
@@ -15,7 +15,7 @@ class TestFeaturesConf(unittest.TestCase):
 
     def _new_conf(self, settings):
         with patch('xivo_dao.asterisk_conf_dao.find_features_settings'):
-            conf = FeaturesConf()
+            conf = FeaturesConfGenerator()
             conf._settings = settings
             return conf
 

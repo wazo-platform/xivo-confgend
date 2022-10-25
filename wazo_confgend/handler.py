@@ -69,6 +69,7 @@ class PluginHandlerFactory(HandlerFactory):
             logger.info("Loaded plugin %s for namespace %s", driver_name, namespace)
             return generator.generate
 
+
 class FrontendHandlerFactory(HandlerFactory):
     def __init__(self, frontends):
         self._frontends = frontends
@@ -88,7 +89,6 @@ class FrontendHandlerFactory(HandlerFactory):
 
 
 class NullHandlerFactory(HandlerFactory):
-
     class _NullHandler(object):
         def __init__(self, resource, filename):
             self._error_msg = 'No handler found for {}/{}'.format(resource, filename)

@@ -10,13 +10,7 @@ import logging
 import io
 
 
-# A plugin supplies a generate method
-# TODO: define Protocol for generator plugin interface
-# class Generator(Protocol):
-#     def generate(self) -> str: pass
-
 class FeaturesConfGenerator:
-    # TODO: add type annots after python 3 mig
     def __init__(self, dependencies):
         self._settings = asterisk_conf_dao.find_features_settings()
         self.logger = logging.getLogger(__name__).getChild(self.__class__.__name__)

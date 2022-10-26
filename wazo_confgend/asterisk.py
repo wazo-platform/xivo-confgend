@@ -7,7 +7,6 @@ from __future__ import unicode_literals
 from StringIO import StringIO
 
 from wazo_confgend.generators.extensionsconf import ExtensionsConf
-from wazo_confgend.generators.features import FeaturesConf
 from wazo_confgend.generators.iax import IaxConf
 from wazo_confgend.generators.queues import QueuesConf
 from wazo_confgend.generators.res_parking import ResParkingConf

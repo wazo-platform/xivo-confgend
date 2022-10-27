@@ -23,10 +23,6 @@ class AsteriskFrontend(object):
         self.contextsconf = config['templates']['contextsconf']
         self._tpl_helper = tpl_helper
 
-    def features_conf(self):
-        config_generator = FeaturesConf()
-        return self._generate_conf_from_generator(config_generator)
-
     def res_parking_conf(self):
         config_generator = ResParkingConf()
         return self._generate_conf_from_generator(config_generator)

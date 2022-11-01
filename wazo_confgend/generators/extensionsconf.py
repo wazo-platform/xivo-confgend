@@ -3,10 +3,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 import copy
 import configparser
-from UserDict import DictMixin
+from collections.abc import MutableMapping
 
 from xivo import xivo_helpers
 from xivo_dao import asterisk_conf_dao
@@ -51,7 +50,7 @@ DEFAULT_EXTENFEATURES = {
 }
 
 
-class CustomConfigParserStorage(DictMixin):
+class CustomConfigParserStorage(MutableMapping):
     def __init__(self, init=None):
         self._data = init if init else []
 
@@ -78,6 +77,9 @@ class CustomConfigParserStorage(DictMixin):
         if len(self._data) == n_items:
             raise KeyError
 
+    def __len__(self):
+        return len(self._data)
+
     def keys(self):
         return [k for k, v in self._data]
 
@@ -89,6 +91,10 @@ class CustomConfigParserStorage(DictMixin):
             yield k
 
     def iteritems(self):
+        # TODO: this can be deleted once all usages are refactored to items()
+        yield from self.items()
+
+    def items(self):
         for k, v in self._data:
             yield k, v
 

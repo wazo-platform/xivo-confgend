@@ -2,7 +2,7 @@
 # Copyright (C) 2011-2016 Avencall
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import StringIO
+import io
 
 from hamcrest import all_of
 from hamcrest import assert_that
@@ -15,7 +15,7 @@ from hamcrest import starts_with
 
 
 def assert_generates_config(generator, expected):
-    output = StringIO.StringIO()
+    output = io.StringIO()
     generator.generate(output)
 
     assert_config_equal(output.getvalue(), expected)

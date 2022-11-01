@@ -2,10 +2,10 @@
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
+
 
 import copy
-import ConfigParser
+import configparser
 from UserDict import DictMixin
 
 from xivo import xivo_helpers
@@ -156,10 +156,10 @@ class ExtensionsConf(object):
 
         if self.contextsconf is not None:
             # load context templates
-            conf = ConfigParser.RawConfigParser(dict_type=CustomConfigParserStorage)
+            conf = configparser.RawConfigParser(dict_type=CustomConfigParserStorage)
             try:
                 conf.read([self.contextsconf])
-            except ConfigParser.DuplicateSectionError:
+            except configparser.DuplicateSectionError:
                 raise ValueError("%s has conflicting section names" % self.contextsconf)
             if not conf.has_section('template'):
                 raise ValueError("Template section doesn't exist in %s" % self.contextsconf)

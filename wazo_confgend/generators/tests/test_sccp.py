@@ -2,10 +2,10 @@
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
+
 
 import itertools
-import StringIO
+import io
 import unittest
 
 from mock import Mock, patch
@@ -26,7 +26,7 @@ class TestSccpConf(unittest.TestCase):
     @patch('xivo_dao.asterisk_conf_dao.find_sccp_device_settings', Mock(return_value=[]))
     @patch('xivo_dao.asterisk_conf_dao.find_sccp_speeddial_settings', Mock(return_value=[]))
     def setUp(self):
-        self._output = StringIO.StringIO()
+        self._output = io.StringIO()
         self._conf = SccpConf()
 
     def test_generate(self):
@@ -90,7 +90,7 @@ class TestSccpGeneralConf(unittest.TestCase):
 
     def setUp(self):
         self._general_conf = _SccpGeneralSettingsConf()
-        self._output = StringIO.StringIO()
+        self._output = io.StringIO()
 
     def test_one_element_general_section(self):
         items = [{'option_name': 'foo',
@@ -129,7 +129,7 @@ class TestSccpDeviceConf(unittest.TestCase):
 
     def setUp(self):
         self._device_conf = _SccpDeviceConf([])
-        self._output = StringIO.StringIO()
+        self._output = io.StringIO()
         self._ast_writer = AsteriskFileWriter(self._output)
 
     def test_template_items(self):
@@ -222,7 +222,7 @@ class TestSccpLineConf(unittest.TestCase):
 
     def setUp(self):
         self._line_conf = _SccpLineConf()
-        self._output = StringIO.StringIO()
+        self._output = io.StringIO()
         self._ast_writer = AsteriskFileWriter(self._output)
 
     def test_template_directmedia_option(self):

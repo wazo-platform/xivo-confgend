@@ -2,12 +2,12 @@
 # Copyright 2017-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
+
 
 import unittest
 
 from mock import Mock
-from StringIO import StringIO
+from io import StringIO
 
 from wazo_confgend.generators.tests.util import assert_config_equal
 

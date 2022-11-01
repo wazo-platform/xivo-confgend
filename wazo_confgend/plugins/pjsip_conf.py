@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # Copyright 2018-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
-from __future__ import unicode_literals
 
-from StringIO import StringIO
+
+from io import StringIO
 
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.asterisk_file import dao as asterisk_file_dao

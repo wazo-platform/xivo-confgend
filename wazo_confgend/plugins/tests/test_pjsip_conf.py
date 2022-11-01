@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from mock import patch
 
-from StringIO import StringIO
+from io import StringIO
 from xivo_dao.alchemy.pjsip_transport import PJSIPTransport
 from wazo_confgend.generators.tests.util import assert_config_equal
 

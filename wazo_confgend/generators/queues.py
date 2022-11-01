@@ -2,7 +2,7 @@
 # Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
+
 
 from xivo_dao import asterisk_conf_dao
 
@@ -31,10 +31,10 @@ class QueuesConf(object):
         for q in asterisk_conf_dao.find_queue_settings():
             writer.write_section(q['name'], comment=q['label'])
 
-            for k, v in q.iteritems():
+            for k, v in q.items():
                 if k in self._ignored_keys:
                     continue
-                if v is None or (isinstance(v, basestring) and not v):
+                if v is None or (isinstance(v, str) and not v):
                     continue
 
                 if k == 'defaultrule':

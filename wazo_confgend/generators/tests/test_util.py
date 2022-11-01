@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
-import StringIO
+import io
 
 from hamcrest import assert_that, equal_to
 from wazo_confgend.generators.util import AsteriskFileWriter
@@ -12,7 +12,7 @@ from wazo_confgend.generators.util import AsteriskFileWriter
 class TestAsteriskFileWriter(unittest.TestCase):
 
     def setUp(self):
-        self.output = StringIO.StringIO()
+        self.output = io.StringIO()
         self.ast_file = AsteriskFileWriter(self.output)
 
     def test_write_section(self):

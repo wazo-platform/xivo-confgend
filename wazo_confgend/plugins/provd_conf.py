@@ -2,7 +2,7 @@
 # Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
+
 
 import yaml
 
@@ -48,8 +48,8 @@ class ProvdNetworkConfGenerator(object):
                 }
             }
 
-            for section_name, section_value in sections.iteritems():
-                for option, value in section_value.iteritems():
+            for section_name, section_value in sections.items():
+                for option, value in section_value.items():
                     if value:
                         if section_name not in config:
                             config.update({section_name: {}})

@@ -2,7 +2,7 @@
 # Copyright 2016-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
+
 
 from jinja2 import Environment
 from jinja2 import ChoiceLoader, PackageLoader, FileSystemLoader

@@ -5,7 +5,7 @@
 import unittest
 
 from mock import Mock
-from StringIO import StringIO
+from io import StringIO
 
 from xivo_dao.alchemy.conference import Conference
 from wazo_confgend.generators.tests.util import assert_config_equal

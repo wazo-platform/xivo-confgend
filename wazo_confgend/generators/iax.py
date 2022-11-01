@@ -2,7 +2,7 @@
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
+
 
 from xivo_dao import asterisk_conf_dao
 
@@ -60,7 +60,7 @@ class IaxConf(object):
             if v in (None, ''):
                 continue
 
-            if isinstance(v, unicode):
+            if isinstance(v, str):
                 v = v.encode('utf8')
 
             if k == 'allow':

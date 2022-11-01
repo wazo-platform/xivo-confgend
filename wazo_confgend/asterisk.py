@@ -7,7 +7,6 @@ from __future__ import unicode_literals
 from StringIO import StringIO
 
 from wazo_confgend.generators.extensionsconf import ExtensionsConf
-from wazo_confgend.generators.features import FeaturesConf
 from wazo_confgend.generators.iax import IaxConf
 from wazo_confgend.generators.queues import QueuesConf
 from wazo_confgend.generators.res_parking import ResParkingConf
@@ -23,10 +22,6 @@ class AsteriskFrontend(object):
     def __init__(self, config, tpl_helper):
         self.contextsconf = config['templates']['contextsconf']
         self._tpl_helper = tpl_helper
-
-    def features_conf(self):
-        config_generator = FeaturesConf()
-        return self._generate_conf_from_generator(config_generator)
 
     def res_parking_conf(self):
         config_generator = ResParkingConf()

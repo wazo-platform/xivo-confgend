@@ -106,3 +106,4 @@ plugins:
   asterisk.sip.conf: wazo
   asterisk.pjsip.conf: wazo
   provd.network.yml: wazo
+  asterisk.features.conf: wazo

@@ -7,15 +7,19 @@ from __future__ import unicode_literals
 import unittest
 
 from mock import patch
-from wazo_confgend.generators.features import FeaturesConf
-from wazo_confgend.generators.tests.util import assert_generates_config
+from wazo_confgend.plugins.features_conf import FeaturesConfGenerator
+from wazo_confgend.generators.tests.util import assert_config_equal
 
 
 class TestFeaturesConf(unittest.TestCase):
+    def setUp(self):
+        self.dependencies = {
+
+        }
 
     def _new_conf(self, settings):
         with patch('xivo_dao.asterisk_conf_dao.find_features_settings'):
-            conf = FeaturesConf()
+            conf = FeaturesConfGenerator(self.dependencies)
             conf._settings = settings
             return conf
 
@@ -26,9 +30,10 @@ class TestFeaturesConf(unittest.TestCase):
             'applicationmap_options': [],
         }
 
-        features_conf = self._new_conf(settings)
+        features_conf_gen = self._new_conf(settings)
+        features_conf = features_conf_gen.generate()
 
-        assert_generates_config(features_conf, '''
+        assert_config_equal(features_conf, '''
             [general]
 
             [featuremap]
@@ -43,9 +48,11 @@ class TestFeaturesConf(unittest.TestCase):
             'applicationmap_options': [('toto', '*1')],
         }
 
-        features_conf = self._new_conf(settings)
+        features_conf_gen = self._new_conf(settings)
 
-        assert_generates_config(features_conf, '''
+        features_conf = features_conf_gen.generate()
+
+        assert_config_equal(features_conf, '''
             [general]
             pickupexten = *8
 

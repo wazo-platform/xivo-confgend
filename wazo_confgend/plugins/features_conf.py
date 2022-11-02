@@ -12,6 +12,7 @@ import io
 
 LOGGER = logging.getLogger(__name__)
 
+
 class FeaturesConfGenerator:
     def __init__(self, dependencies):
         self._settings = asterisk_conf_dao.find_features_settings()

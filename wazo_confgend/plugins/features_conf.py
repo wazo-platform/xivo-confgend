@@ -10,7 +10,7 @@ import logging
 import io
 
 
-LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class FeaturesConfGenerator:
@@ -30,13 +30,13 @@ class FeaturesConfGenerator:
         ast_file.write_options(self._settings['applicationmap_options'])
 
     def generate(self):
-        LOGGER.debug("Generating config for features.conf")
+        logger.debug("Generating config for features.conf")
         output = io.StringIO()
         ast_file = AsteriskFileWriter(output)
         self._generate_general(ast_file)
-        LOGGER.debug("Generated general section for features.conf")
+        logger.debug("Generated general section for features.conf")
         self._generate_featuremap(ast_file)
-        LOGGER.debug("Generated featuremap section for features.conf")
+        logger.debug("Generated featuremap section for features.conf")
         self._generate_applicationmap(ast_file)
-        LOGGER.debug("Generated applicationmap section for features.conf")
+        logger.debug("Generated applicationmap section for features.conf")
         return output.getvalue()

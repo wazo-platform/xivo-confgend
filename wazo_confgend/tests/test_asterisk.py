@@ -22,11 +22,6 @@ class Test(unittest.TestCase):
         self.tpl_helper = Mock()
         self.asteriskFrontEnd = AsteriskFrontend(self._config, self.tpl_helper)
 
-    def test_encoding(self):
-        charset = ('ascii', 'US-ASCII',)
-        self.assertTrue(sys.getdefaultencoding() in charset,
-                        'Test should be run in ascii, in eclipse change run configuration common tab')
-
     @patch('xivo_dao.asterisk_conf_dao.find_agent_queue_skills_settings')
     def test_queueskills_conf(self, find_agent_queue_skills_settings):
         find_agent_queue_skills_settings.return_value = [

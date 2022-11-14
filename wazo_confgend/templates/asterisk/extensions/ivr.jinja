@@ -13,7 +13,8 @@ same  =   n,Goto(t,1)
 {%- endif %}
 
 {% for choice in ivr.choices %}
-exten = {{ choice.exten }},1,Gosub(forward,s,1({{ choice.destination.gosub_args | replace(";", "\;") }}))
+exten = {{ choice.exten }},1,CELGenUserEvent(WAZO_IVR_CHOICE, {"id":{{ ivr.id }},"exten":"{{ choice.exten }}"})
+exten = {{ choice.exten }},n,Gosub(forward,s,1({{ choice.destination.gosub_args | replace(";", "\;") }}))
 same  =   n,Hangup()
 {% endfor %}
 

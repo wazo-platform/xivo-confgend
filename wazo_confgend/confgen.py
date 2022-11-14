@@ -110,6 +110,6 @@ class ConfgendFactory(ServerFactory):
         if not content:
             return
 
-        encoded_content = content.encode('utf-8')
+        encoded_content = content
         self._cache.put(cache_key, encoded_content)
         return encoded_content

@@ -60,9 +60,6 @@ class IaxConf(object):
             if v in (None, ''):
                 continue
 
-            if isinstance(v, str):
-                v = v.encode('utf8')
-
             if k == 'allow':
                 write_allow_rules(v, ast_writer)
             else:

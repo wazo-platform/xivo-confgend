@@ -3,15 +3,20 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-import copy
 import configparser
-from collections.abc import MutableMapping
+import collections
+import itertools
+import logging
 
 from xivo import xivo_helpers
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.ivr import dao as ivr_dao
 
 from wazo_confgend.generators.util import AsteriskFileWriter
+
+
+logger = logging.getLogger(__name__)
+
 
 DEFAULT_EXTENFEATURES = {
     'paging': 'GoSub(paging,s,1(${EXTEN:3}))',
@@ -50,56 +55,30 @@ DEFAULT_EXTENFEATURES = {
 }
 
 
-class CustomConfigParserStorage(MutableMapping):
-    def __init__(self, init=None):
-        self._data = init if init else []
+class CustomConfigParserStorage(collections.UserDict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.data = collections.OrderedDict(self.data)
+        self.counter = itertools.count(start=1)
 
-    def __setitem__(self, key, value):
-        # This reverse the config parser logic of merging option keys
-        if isinstance(value, list):
-            if len(value) != 1:
-                raise RuntimeError("Unexpected value from configparser")
-            value = value[0]
-        self._data.append((key, value))
-
-    def __getitem__(self, key):
-        values = [v for k, v in self._data if k == key]
-        if len(values) > 1:
-            raise RuntimeError("Can't get a key with multiple value")
-        if values:
-            return values[0]
+    def __setitem__(self, k, v):
+        if isinstance(v, list):
+            # if list, we assume this is a new option declaration
+            # configparser creates option values as list to deal with multiline values
+            self.data[f"{next(self.counter)}:{k}"] = v
         else:
-            raise KeyError
+            # this is either a SectionProxy object,
+            # or an option value transformed from list form to string(so not a new option)
+            self.data[k] = v
 
-    def __delitem__(self, key):
-        n_items = len(self._data)
-        self._data = [(k, v) for k, v in self._data if k != key]
-        if len(self._data) == n_items:
-            raise KeyError
 
-    def __len__(self):
-        return len(self._data)
+class CustomConfigParser(configparser.RawConfigParser):
+    def items(self, *args, **kwargs):
+        # Coupled with above CustomConfigParserStorage class as dict_type,
+        # we trick configparser into tracking each duplicate option declarations by storing them under different keys
+        # This reverts the trick in order to expose duplicate options under their real name
+        return [(option.split(":", maxsplit=1)[-1], value) for option, value in super().items(*args, **kwargs)]
 
-    def keys(self):
-        return [k for k, v in self._data]
-
-    def values(self):
-        return [v for k, v in self._data]
-
-    def __iter__(self):
-        for k, v in self._data:
-            yield k
-
-    def iteritems(self):
-        # TODO: this can be deleted once all usages are refactored to items()
-        yield from self.items()
-
-    def items(self):
-        for k, v in self._data:
-            yield k, v
-
-    def copy(self):
-        return CustomConfigParserStorage(copy.deepcopy(self._data))
 
 
 class ExtensionGenerator(object):
@@ -159,14 +138,22 @@ class ExtensionsConf(object):
 
     def generate(self, output):
         ast_writer = AsteriskFileWriter(output)
+        conf = CustomConfigParser(
+            dict_type=CustomConfigParserStorage,
+            strict=False,
+            interpolation=None,
+            empty_lines_in_values=False,
+            inline_comment_prefixes=[";"]
+        )
 
         if self.contextsconf is not None:
-            # load context templates
-            conf = configparser.RawConfigParser(dict_type=CustomConfigParserStorage)
+            # load and validate template conf
             try:
-                conf.read([self.contextsconf])
+                with open(self.contextsconf) as contextsconf_file:
+                    conf.read_file(contextsconf_file)
             except configparser.DuplicateSectionError:
                 raise ValueError("%s has conflicting section names" % self.contextsconf)
+
             if not conf.has_section('template'):
                 raise ValueError("Template section doesn't exist in %s" % self.contextsconf)
 

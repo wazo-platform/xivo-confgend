@@ -1,8 +1,8 @@
 https://github.com/wazo-platform/xivo-dao/archive/master.zip
 https://github.com/wazo-platform/xivo-lib-python/archive/master.zip
 automat==0.6.0  # from twisted
-incremental==16.10.1  # from twisted
 jinja2==2.10
+markupsafe==2.0.1 # via jinja2, see https://github.com/pallets/jinja/issues/1585
 psycopg2-binary
 pyyaml==3.13
 sqlalchemy==1.2.18

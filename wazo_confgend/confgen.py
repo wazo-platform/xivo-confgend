@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
-
-
-
 import logging
 import time
+from typing import List
 
 from wazo_confgend import cache
 from wazo_confgend.asterisk import AsteriskFrontend
@@ -21,13 +19,36 @@ from wazo_confgend.handler import (
 from wazo_confgend.template import new_template_helper
 from xivo_dao.helpers.db_utils import session_scope
 from twisted.internet.protocol import Protocol, ServerFactory
+import twisted.python.failure
 
 logger = logging.getLogger(__name__)
 
 
 class Confgen(Protocol):
 
-    def dataReceived(self, data):
+    def connectionMade(self):
+        logger.info("connection established")
+
+    def connectionLost(self, reason: twisted.python.failure.Failure):
+        logger.info("connection lost: %s", reason.getErrorMessage())
+        super().connectionLost(reason=reason)
+
+    def commandReceived(self, cmd: str, args: List[str]):
+        logger.debug("command received cmd_length=%d, args_count=%d", len(cmd), len(args))
+        try:
+            resource, filename = cmd.split('/')
+        except ValueError:
+            logger.error("cannot split %s", cmd)
+            return
+
+        content = self.factory.generate(resource, filename, *args)
+        if content:
+            self.transport.write(content.encode("utf-8"))
+
+    def dataReceived(self, data: bytes):
+        logger.debug("data received bytes_count=%d", len(data))
+
+        data = data.decode("utf-8")
         try:
             t1 = time.time()
             line = data.replace('\n', '')
@@ -38,18 +59,11 @@ class Confgen(Protocol):
             else:
                 cmd, args = line, []
 
-            try:
-                resource, filename = cmd.split('/')
-            except ValueError:
-                logger.error("cannot split %s", data)
-                return
+            self.commandReceived(cmd, args)
 
-            content = self.factory.generate(resource, filename, *args)
-            if content:
-                self.transport.write(content)
             t2 = time.time()
 
-            logger.info("serving %s in %.3f seconds", data, t2 - t1)
+            logger.info("serving %s in %.3f seconds", line, t2 - t1)
         finally:
             self.transport.loseConnection()
 
@@ -77,6 +91,7 @@ class ConfgendFactory(ServerFactory):
         ])
 
     def generate(self, resource, filename, *args):
+        logger.info("Generating conf for resource=%s and filename=%s with args=%s", resource, filename, args)
         cache_key = '{}/{}'.format(resource, filename)
         if 'invalidate' in args:
             self._cache.invalidate(cache_key)

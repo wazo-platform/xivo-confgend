@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2018-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2018-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -147,9 +147,9 @@ class TestPJSIPConfGenerator(unittest.TestCase):
 
     def test_generate_meeting_guests(self):
         output = StringIO()
-        name_1 = 'abcdef'
+        name_1 = 'abcdeféèìïöçàäỳÿüùúóíá'
         label_1 = 'meeting_guest_1_uuid'
-        name_2 = 'ghijkl'
+        name_2 = 'ghijkléèìïöçàäỳÿüùúóíá'
         label_2 = 'meeting_guest_2_uuid'
 
         with patch('wazo_confgend.plugins.pjsip_conf.asterisk_conf_dao') as dao:

@@ -29,16 +29,16 @@ class TestConfgen(unittest.TestCase):
         self.protocol.transport = self.transport
 
     def test_receive_command(self):
-        cmd = 'resource/filename.conf\n'
+        cmd = b'resource/filename.conf\n'
 
         self.protocol.dataReceived(cmd)
 
         self.factory.generate.assert_called_once_with('resource', 'filename.conf')
-        self.transport.write.assert_called_once_with(self.factory.generate.return_value)
+        self.transport.write.assert_called_once_with(self.factory.generate.return_value.encode("utf-8"))
 
     def test_receive_command_no_result(self):
         self.factory.generate.return_value = None
-        cmd = 'resource/filename.conf\n'
+        cmd = b'resource/filename.conf\n'
 
         self.protocol.dataReceived(cmd)
 
@@ -46,12 +46,12 @@ class TestConfgen(unittest.TestCase):
         self.transport.write.assert_not_called()
 
     def test_receive_with_arguments(self):
-        cmd = 'resource/filename.conf  arg1    arg2\n'
+        cmd = b'resource/filename.conf  arg1    arg2\n'
 
         self.protocol.dataReceived(cmd)
 
         self.factory.generate.assert_called_once_with('resource', 'filename.conf', 'arg1', 'arg2')
-        self.transport.write.assert_called_once_with(self.factory.generate.return_value)
+        self.transport.write.assert_called_once_with(self.factory.generate.return_value.encode("utf-8"))
 
 
 class TestConfgendFactory(unittest.TestCase):

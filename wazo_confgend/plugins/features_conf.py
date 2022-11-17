@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 from wazo_confgend.generators.util import AsteriskFileWriter
 from xivo_dao import asterisk_conf_dao
 import logging

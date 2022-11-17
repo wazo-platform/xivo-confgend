@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 import unittest
 
 from mock import patch, Mock
@@ -12,33 +11,89 @@ from wazo_confgend.generators.tests.util import assert_generates_config
 
 
 class TestIaxConf(unittest.TestCase):
-    @patch('xivo_dao.asterisk_conf_dao.find_iax_general_settings', Mock(return_value=[]))
-    @patch('xivo_dao.asterisk_conf_dao.find_iax_calllimits_settings', Mock(return_value=[]))
+    @patch(
+        'xivo_dao.asterisk_conf_dao.find_iax_general_settings', Mock(return_value=[])
+    )
+    @patch(
+        'xivo_dao.asterisk_conf_dao.find_iax_calllimits_settings', Mock(return_value=[])
+    )
     @patch('xivo_dao.asterisk_conf_dao.find_iax_trunk_settings', Mock(return_value=[]))
     def test_empty_sections(self):
         iax_conf = IaxConf()
-        assert_generates_config(iax_conf, '''
+        assert_generates_config(
+            iax_conf,
+            '''
             [general]
-        ''')
+        ''',
+        )
 
     @patch('xivo_dao.asterisk_conf_dao.find_iax_general_settings')
-    @patch('xivo_dao.asterisk_conf_dao.find_iax_calllimits_settings', Mock(return_value=[]))
+    @patch(
+        'xivo_dao.asterisk_conf_dao.find_iax_calllimits_settings', Mock(return_value=[])
+    )
     @patch('xivo_dao.asterisk_conf_dao.find_iax_trunk_settings', Mock(return_value=[]))
     def test_general_section(self, find_iax_general_settings):
         find_iax_general_settings.return_value = [
-            {'filename': 'iax.conf', 'category': 'general', 'var_name': 'bindport', 'var_val': '4569'},
-            {'filename': 'iax.conf', 'category': 'general', 'var_name': 'bindaddr', 'var_val': '0.0.0.0'},
-            {'filename': 'iax.conf', 'category': 'general', 'var_name': 'iaxcompat', 'var_val': 'no'},
-            {'filename': 'iax.conf', 'category': 'general', 'var_name': 'authdebug', 'var_val': 'yes'},
-            {'filename': 'iax.conf', 'category': 'general', 'var_name': 'srvlookup', 'var_val': None},
-            {'filename': 'iax.conf', 'category': 'general', 'var_name': 'shrinkcallerid', 'var_val': None},
-            {'filename': 'iax.conf', 'category': 'general', 'var_name': 'language', 'var_val': 'fr_FR'},
-            {'filename': 'iax.conf', 'category': 'general', 'var_name': 'register', 'var_val': 'user:secret@host'},
-            {'filename': 'iax.conf', 'category': 'general', 'var_name': 'allow', 'var_val': 'gsm,ulaw,alaw'},
+            {
+                'filename': 'iax.conf',
+                'category': 'general',
+                'var_name': 'bindport',
+                'var_val': '4569',
+            },
+            {
+                'filename': 'iax.conf',
+                'category': 'general',
+                'var_name': 'bindaddr',
+                'var_val': '0.0.0.0',
+            },
+            {
+                'filename': 'iax.conf',
+                'category': 'general',
+                'var_name': 'iaxcompat',
+                'var_val': 'no',
+            },
+            {
+                'filename': 'iax.conf',
+                'category': 'general',
+                'var_name': 'authdebug',
+                'var_val': 'yes',
+            },
+            {
+                'filename': 'iax.conf',
+                'category': 'general',
+                'var_name': 'srvlookup',
+                'var_val': None,
+            },
+            {
+                'filename': 'iax.conf',
+                'category': 'general',
+                'var_name': 'shrinkcallerid',
+                'var_val': None,
+            },
+            {
+                'filename': 'iax.conf',
+                'category': 'general',
+                'var_name': 'language',
+                'var_val': 'fr_FR',
+            },
+            {
+                'filename': 'iax.conf',
+                'category': 'general',
+                'var_name': 'register',
+                'var_val': 'user:secret@host',
+            },
+            {
+                'filename': 'iax.conf',
+                'category': 'general',
+                'var_name': 'allow',
+                'var_val': 'gsm,ulaw,alaw',
+            },
         ]
 
         iax_conf = IaxConf()
-        assert_generates_config(iax_conf, '''
+        assert_generates_config(
+            iax_conf,
+            '''
             [general]
             bindport = 4569
             bindaddr = 0.0.0.0
@@ -50,29 +105,49 @@ class TestIaxConf(unittest.TestCase):
             allow = gsm
             allow = ulaw
             allow = alaw
-        ''')
+        ''',
+        )
         find_iax_general_settings.assert_called_once_with()
 
-    @patch('xivo_dao.asterisk_conf_dao.find_iax_general_settings', Mock(return_value=[]))
+    @patch(
+        'xivo_dao.asterisk_conf_dao.find_iax_general_settings', Mock(return_value=[])
+    )
     @patch('xivo_dao.asterisk_conf_dao.find_iax_calllimits_settings')
     @patch('xivo_dao.asterisk_conf_dao.find_iax_trunk_settings', Mock(return_value=[]))
     def test_call_limits_section(self, find_iax_calllimits_settings):
         find_iax_calllimits_settings.return_value = [
-            {'id': 1, 'destination': '192.168.2.1', 'netmask': '255.255.255.0', 'calllimits': 10},
-            {'id': 1, 'destination': '10.0.0.1', 'netmask': '255.255.255.255', 'calllimits': 100},
+            {
+                'id': 1,
+                'destination': '192.168.2.1',
+                'netmask': '255.255.255.0',
+                'calllimits': 10,
+            },
+            {
+                'id': 1,
+                'destination': '10.0.0.1',
+                'netmask': '255.255.255.255',
+                'calllimits': 100,
+            },
         ]
 
         iax_conf = IaxConf()
-        assert_generates_config(iax_conf, '''
+        assert_generates_config(
+            iax_conf,
+            '''
             [general]
             [callnumberlimits]
             192.168.2.1/255.255.255.0 = 10
             10.0.0.1/255.255.255.255 = 100
-        ''')
+        ''',
+        )
         find_iax_calllimits_settings.assert_called_once_with()
 
-    @patch('xivo_dao.asterisk_conf_dao.find_iax_general_settings', Mock(return_value=[]))
-    @patch('xivo_dao.asterisk_conf_dao.find_iax_calllimits_settings', Mock(return_value=[]))
+    @patch(
+        'xivo_dao.asterisk_conf_dao.find_iax_general_settings', Mock(return_value=[])
+    )
+    @patch(
+        'xivo_dao.asterisk_conf_dao.find_iax_calllimits_settings', Mock(return_value=[])
+    )
     @patch('xivo_dao.asterisk_conf_dao.find_iax_trunk_settings')
     def test_trunk_section(self, find_iax_trunk_settings):
         trunk = Mock()
@@ -131,7 +206,9 @@ class TestIaxConf(unittest.TestCase):
         find_iax_trunk_settings.return_value = [trunk]
 
         iax_conf = IaxConf()
-        assert_generates_config(iax_conf, '''
+        assert_generates_config(
+            iax_conf,
+            '''
             [general]
             [wazo_devel_51]
             type = friend
@@ -151,5 +228,6 @@ class TestIaxConf(unittest.TestCase):
             category = trunk
             commented = 0
             requirecalltoken = auto
-        ''')
+        ''',
+        )
         find_iax_trunk_settings.assert_called_once_with()

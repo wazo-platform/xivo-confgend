@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015 Avencall
+# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -10,7 +10,6 @@ from wazo_confgend.generators.util import AsteriskFileWriter
 
 
 class TestAsteriskFileWriter(unittest.TestCase):
-
     def setUp(self):
         self.output = io.StringIO()
         self.ast_file = AsteriskFileWriter(self.output)

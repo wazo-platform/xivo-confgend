@@ -3,12 +3,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 import os.path
 
 
 class Cache(object):
-
     def get(self, key):
         raise NotImplementedError()
 
@@ -20,7 +18,6 @@ class Cache(object):
 
 
 class FileCache(Cache):
-
     def __init__(self, basedir):
         super(FileCache, self).__init__()
         self.basedir = basedir

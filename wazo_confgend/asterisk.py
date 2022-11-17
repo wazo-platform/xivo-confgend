@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 from io import StringIO
 
 from wazo_confgend.generators.extensionsconf import ExtensionsConf
@@ -18,7 +17,6 @@ from xivo_dao import asterisk_conf_dao
 
 
 class AsteriskFrontend(object):
-
     def __init__(self, config, tpl_helper):
         self.contextsconf = config['templates']['contextsconf']
         self._tpl_helper = tpl_helper
@@ -38,7 +36,9 @@ class AsteriskFrontend(object):
 
     def extensions_conf(self):
         hint_generator = HintGenerator.build()
-        config_generator = ExtensionsConf(self.contextsconf, hint_generator, self._tpl_helper)
+        config_generator = ExtensionsConf(
+            self.contextsconf, hint_generator, self._tpl_helper
+        )
         return self._generate_conf_from_generator(config_generator)
 
     def queues_conf(self):
@@ -96,11 +96,15 @@ class AsteriskFrontend(object):
 
             if m['maxp_sign'] is not None and m['maxp_value'] is not None:
                 sign = '' if m['maxp_sign'] == '=' else m['maxp_sign']
-                penalty_change = '{}{}{:d}'.format(penalty_change, sign, m['maxp_value'])
+                penalty_change = '{}{}{:d}'.format(
+                    penalty_change, sign, m['maxp_value']
+                )
 
             if m['minp_sign'] is not None and m['minp_value'] is not None:
                 sign = '' if m['minp_sign'] == '=' else m['minp_sign']
-                penalty_change = '{},{}{:d}'.format(penalty_change, sign, m['minp_value'])
+                penalty_change = '{},{}{:d}'.format(
+                    penalty_change, sign, m['minp_value']
+                )
 
             ast_writer.write_object_option('penaltychange', penalty_change)
             ast_writer.write_newline()

@@ -77,8 +77,10 @@ class CustomConfigParser(configparser.RawConfigParser):
         # Coupled with above CustomConfigParserStorage class as dict_type,
         # we trick configparser into tracking each duplicate option declarations by storing them under different keys
         # This reverts the trick in order to expose duplicate options under their real name
-        return [(option.split(":", maxsplit=1)[-1], value) for option, value in super().items(*args, **kwargs)]
-
+        return [
+            (option.split(":", maxsplit=1)[-1], value)
+            for option, value in super().items(*args, **kwargs)
+        ]
 
 
 class ExtensionGenerator(object):
@@ -87,19 +89,19 @@ class ExtensionGenerator(object):
 
 
 class UserExtensionGenerator(ExtensionGenerator):
-
     def generate(self):
         return {
             'tenant_uuid': self._exten_row['tenant_uuid'],
             'context': self._exten_row['context'],
             'exten': self._exten_row['exten'],
             'priority': '1',
-            'action': 'GoSub(user,s,1({},,{}))'.format(self._exten_row['typeval'], self._exten_row['id']),
+            'action': 'GoSub(user,s,1({},,{}))'.format(
+                self._exten_row['typeval'], self._exten_row['id']
+            ),
         }
 
 
 class IncallExtensionGenerator(ExtensionGenerator):
-
     def generate(self):
         return {
             'tenant_uuid': self._exten_row['tenant_uuid'],
@@ -111,14 +113,15 @@ class IncallExtensionGenerator(ExtensionGenerator):
 
 
 class GenericExtensionGenerator(ExtensionGenerator):
-
     def generate(self):
         return {
             'tenant_uuid': self._exten_row['tenant_uuid'],
             'context': self._exten_row['context'],
             'exten': self._exten_row['exten'],
             'priority': '1',
-            'action': 'GoSub({},s,1({},))'.format(self._exten_row['type'], self._exten_row['typeval']),
+            'action': 'GoSub({},s,1({},))'.format(
+                self._exten_row['type'], self._exten_row['typeval']
+            ),
         }
 
 
@@ -130,7 +133,6 @@ extension_generators = {
 
 
 class ExtensionsConf(object):
-
     def __init__(self, contextsconf, hint_generator, tpl_helper):
         self.contextsconf = contextsconf
         self.hint_generator = hint_generator
@@ -143,7 +145,7 @@ class ExtensionsConf(object):
             strict=False,
             interpolation=None,
             empty_lines_in_values=False,
-            inline_comment_prefixes=[";"]
+            inline_comment_prefixes=[";"],
         )
 
         if self.contextsconf is not None:
@@ -155,7 +157,9 @@ class ExtensionsConf(object):
                 raise ValueError("%s has conflicting section names" % self.contextsconf)
 
             if not conf.has_section('template'):
-                raise ValueError("Template section doesn't exist in %s" % self.contextsconf)
+                raise ValueError(
+                    "Template section doesn't exist in %s" % self.contextsconf
+                )
 
         # hints & features (init)
         self._generate_global_hints(output)
@@ -167,11 +171,15 @@ class ExtensionsConf(object):
             'phoneprogfunckey',
             'vmusermsg',
         )
-        extenfeatures = asterisk_conf_dao.find_extenfeatures_settings(features=extenfeature_names)
+        extenfeatures = asterisk_conf_dao.find_extenfeatures_settings(
+            features=extenfeature_names
+        )
         xfeatures = {
             extenfeature.typeval: {
-                'exten': extenfeature.exten, 'commented': extenfeature.commented
-            } for extenfeature in extenfeatures
+                'exten': extenfeature.exten,
+                'commented': extenfeature.commented,
+            }
+            for extenfeature in extenfeatures
         }
 
         # foreach active context
@@ -194,7 +202,9 @@ class ExtensionsConf(object):
                 if option_name == 'objtpl':
                     tmpl.append(option_value)
                     continue
-                ast_writer.write_option(option_name, option_value.replace('%%CONTEXT%%', context_name))
+                ast_writer.write_option(
+                    option_name, option_value.replace('%%CONTEXT%%', context_name)
+                )
 
             # context includes
             for row in asterisk_conf_dao.find_contextincludes_settings(context_name):
@@ -203,7 +213,9 @@ class ExtensionsConf(object):
 
             # objects extensions (user, group, ...)
             for exten_row in asterisk_conf_dao.find_exten_settings(context_name):
-                exten_generator = extension_generators.get(exten_row['type'], GenericExtensionGenerator)
+                exten_generator = extension_generators.get(
+                    exten_row['type'], GenericExtensionGenerator
+                )
                 exten = exten_generator(exten_row).generate()
                 self.gen_dialplan_from_template(tmpl, exten, ast_writer)
 
@@ -224,7 +236,9 @@ class ExtensionsConf(object):
             if option_name == 'objtpl':
                 tmpl.append(option_value)
                 continue
-            ast_writer.write_option(option_name, option_value.replace('%%CONTEXT%%', context))
+            ast_writer.write_option(
+                option_name, option_value.replace('%%CONTEXT%%', context)
+            )
             ast_writer.write_newline()
 
         for exten in asterisk_conf_dao.find_exten_xivofeatures_setting():
@@ -237,11 +251,13 @@ class ExtensionsConf(object):
             fwdtype = "fwd%s" % x
             if not xfeatures[fwdtype].get('commented', 1):
                 exten = xivo_helpers.clean_extension(xfeatures[fwdtype]['exten'])
-                cfeatures.extend([
-                    "%s,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})" % exten,
-                    "%s,n,Set(__XIVO_BASE_EXTEN=${EXTEN})" % exten,
-                    "%s,n,Gosub(feature_forward,s,1(%s))\n" % (exten, x),
-                ])
+                cfeatures.extend(
+                    [
+                        "%s,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})" % exten,
+                        "%s,n,Set(__XIVO_BASE_EXTEN=${EXTEN})" % exten,
+                        "%s,n,Gosub(feature_forward,s,1(%s))\n" % (exten, x),
+                    ]
+                )
 
         if cfeatures:
             for exten_feature in cfeatures:
@@ -252,7 +268,9 @@ class ExtensionsConf(object):
             exten['priority'] = 1
 
         for line in template:
-            prefix, padding = ('exten', '') if line.startswith('%%EXTEN%%') else ('same ', '    ')
+            prefix, padding = (
+                ('exten', '') if line.startswith('%%EXTEN%%') else ('same ', '    ')
+            )
 
             line = line.replace('%%CONTEXT%%', str(exten.get('context', '')))
             line = line.replace('%%EXTEN%%', str(exten.get('exten', '')))
@@ -275,5 +293,7 @@ class ExtensionsConf(object):
     def _generate_ivr(self, output):
         for ivr in ivr_dao.find_all_by():
             template_context = {'ivr': ivr}
-            template = self._tpl_helper.get_customizable_template('asterisk/extensions/ivr', ivr.id)
+            template = self._tpl_helper.get_customizable_template(
+                'asterisk/extensions/ivr', ivr.id
+            )
             output.write('{}\n'.format(template.dump(template_context)))

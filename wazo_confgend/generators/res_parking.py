@@ -3,14 +3,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 from wazo_confgend.generators.util import AsteriskFileWriter
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.parking_lot import dao as parking_lot_dao
 
 
 class ResParkingConf(object):
-
     def __init__(self):
         self._settings = asterisk_conf_dao.find_parking_settings()
         self._parking_lots = parking_lot_dao.find_all_by()
@@ -36,21 +34,25 @@ class ResParkingConf(object):
                 continue
 
             section = 'parkinglot-{}'.format(parking_lot.id)
-            options = [('parkext', parking_lot.extensions[0].exten),
-                       ('context', parking_lot.extensions[0].context),
-                       ('parkedmusicclass', parking_lot.music_on_hold or ''),
-                       ('parkpos', '{}-{}'.format(parking_lot.slots_start,
-                                                  parking_lot.slots_end)),
-                       ('parkingtime', parking_lot.timeout or 0),
-                       ('findslot', 'next'),
-                       ('parkext_exclusive', 'yes'),
-                       ('parkinghints', 'yes'),
-                       ('comebacktoorigin', 'yes'),
-                       ('parkedplay', 'caller'),
-                       ('parkedcalltransfers', 'no'),
-                       ('parkedcallreparking', 'no'),
-                       ('parkedcallhangup', 'no'),
-                       ('parkedcallrecording', 'no')]
+            options = [
+                ('parkext', parking_lot.extensions[0].exten),
+                ('context', parking_lot.extensions[0].context),
+                ('parkedmusicclass', parking_lot.music_on_hold or ''),
+                (
+                    'parkpos',
+                    '{}-{}'.format(parking_lot.slots_start, parking_lot.slots_end),
+                ),
+                ('parkingtime', parking_lot.timeout or 0),
+                ('findslot', 'next'),
+                ('parkext_exclusive', 'yes'),
+                ('parkinghints', 'yes'),
+                ('comebacktoorigin', 'yes'),
+                ('parkedplay', 'caller'),
+                ('parkedcalltransfers', 'no'),
+                ('parkedcallreparking', 'no'),
+                ('parkedcallhangup', 'no'),
+                ('parkedcallrecording', 'no'),
+            ]
 
             ast_file.write_section(section)
             ast_file.write_options(options)

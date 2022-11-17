@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 import unittest
 import tempfile
 
@@ -20,7 +19,6 @@ from ..confgen import (
 
 
 class TestConfgen(unittest.TestCase):
-
     def setUp(self):
         self.factory = Mock()
         self.transport = Mock()
@@ -34,7 +32,9 @@ class TestConfgen(unittest.TestCase):
         self.protocol.dataReceived(cmd)
 
         self.factory.generate.assert_called_once_with('resource', 'filename.conf')
-        self.transport.write.assert_called_once_with(self.factory.generate.return_value.encode("utf-8"))
+        self.transport.write.assert_called_once_with(
+            self.factory.generate.return_value.encode("utf-8")
+        )
 
     def test_receive_command_no_result(self):
         self.factory.generate.return_value = None
@@ -50,12 +50,15 @@ class TestConfgen(unittest.TestCase):
 
         self.protocol.dataReceived(cmd)
 
-        self.factory.generate.assert_called_once_with('resource', 'filename.conf', 'arg1', 'arg2')
-        self.transport.write.assert_called_once_with(self.factory.generate.return_value.encode("utf-8"))
+        self.factory.generate.assert_called_once_with(
+            'resource', 'filename.conf', 'arg1', 'arg2'
+        )
+        self.transport.write.assert_called_once_with(
+            self.factory.generate.return_value.encode("utf-8")
+        )
 
 
 class TestConfgendFactory(unittest.TestCase):
-
     def setUp(self):
         config = {
             'templates': {'contextsconf': ''},

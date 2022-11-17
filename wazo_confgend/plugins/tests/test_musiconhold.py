@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2017-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -14,7 +14,6 @@ from ..musiconhold_conf import MOHConfGenerator
 
 
 class TestConfBridgeConf(unittest.TestCase):
-
     def setUp(self):
         self.moh_dao = Mock()
         loader = PackageLoader('wazo_confgend.template', 'templates')
@@ -31,12 +30,15 @@ class TestConfBridgeConf(unittest.TestCase):
 
         value = self.generator.generate()
 
-        assert_config_equal(value, '''
+        assert_config_equal(
+            value,
+            '''
             [foo]
             mode = files
             directory = /var/lib/asterisk/moh/foo
             sort = alpha
-        ''')
+        ''',
+        )
 
     @patch('wazo_confgend.plugins.musiconhold_conf.moh_dao')
     def test_generate_mode_custom(self, mock_moh_dao):
@@ -47,11 +49,14 @@ class TestConfBridgeConf(unittest.TestCase):
 
         value = self.generator.generate()
 
-        assert_config_equal(value, '''
+        assert_config_equal(
+            value,
+            '''
             [bar]
             mode = custom
             application = /bin/false rrr
-        ''')
+        ''',
+        )
 
     @patch('wazo_confgend.plugins.musiconhold_conf.moh_dao')
     def test_generate_unknown_sort(self, mock_moh_dao):
@@ -62,9 +67,12 @@ class TestConfBridgeConf(unittest.TestCase):
 
         value = self.generator.generate()
 
-        assert_config_equal(value, '''
+        assert_config_equal(
+            value,
+            '''
             [foo]
             mode = files
             directory = /var/lib/asterisk/moh/foo
             sort = rabbit
-        ''')
+        ''',
+        )

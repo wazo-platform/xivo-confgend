@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 import unittest
 import sys
 
@@ -14,7 +13,6 @@ from wazo_confgend.generators.tests.util import assert_config_equal
 
 
 class Test(unittest.TestCase):
-
     def setUp(self):
         self._config = {
             'templates': {'contextsconf': None},
@@ -32,7 +30,7 @@ class Test(unittest.TestCase):
             """
             [agent-1]
             test-skill = 10
-            """
+            """,
         )
         find_agent_queue_skills_settings.assert_called_once_with()
 
@@ -52,14 +50,21 @@ class Test(unittest.TestCase):
             [skillrule-2]
             rule = rule-3
             rule = rule-4
-            """
+            """,
         )
         find_queue_skillrule_settings.assert_called_once_with()
 
     @patch('xivo_dao.asterisk_conf_dao.find_queue_penalties_settings')
     def test_queuerules_conf(self, find_queue_penalties_settings):
         find_queue_penalties_settings.return_value = [
-            {'name': 'rule-1', 'seconds': 25, 'maxp_sign': '=', 'maxp_value': 2, 'minp_sign': '+', 'minp_value': 2},
+            {
+                'name': 'rule-1',
+                'seconds': 25,
+                'maxp_sign': '=',
+                'maxp_value': 2,
+                'minp_sign': '+',
+                'minp_value': 2,
+            },
             {'name': 'rule-2', 'seconds': 30, 'maxp_sign': None, 'minp_sign': None},
         ]
         assert_config_equal(
@@ -69,6 +74,6 @@ class Test(unittest.TestCase):
             penaltychange => 252,+2
             [rule-2]
             penaltychange => 30
-            """
+            """,
         )
         find_queue_penalties_settings.assert_called_once_with()

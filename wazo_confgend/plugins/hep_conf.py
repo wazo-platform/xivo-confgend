@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright 2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
-
 
 
 from io import StringIO
@@ -12,7 +11,6 @@ from ..helpers.asterisk import AsteriskFileGenerator
 
 
 class HEPConfGenerator(object):
-
     def __init__(self, dependencies):
         self.dependencies = dependencies
 

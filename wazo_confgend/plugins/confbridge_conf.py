@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 from io import StringIO
 
 from xivo_dao.resources.conference import dao as conference_dao
@@ -13,7 +12,6 @@ from ..helpers.asterisk import AsteriskFileGenerator
 
 
 class ConfBridgeConfGenerator(object):
-
     def __init__(self, dependencies):
         self.dependencies = dependencies
 
@@ -27,7 +25,6 @@ class ConfBridgeConfGenerator(object):
 
 
 class _ConfBridgeConf(object):
-
     def __init__(self, dao):
         self.conference_dao = dao
 
@@ -72,9 +69,15 @@ class _ConfBridgeConf(object):
         yield '[xivo-user-profile-{}](wazo_default_user)'.format(row.id)
         yield 'type = user'
         yield 'quiet = {}'.format(self._convert_bool(row.quiet_join_leave))
-        yield 'announce_join_leave = {}'.format(self._convert_bool(row.announce_join_leave))
-        yield 'announce_user_count = {}'.format(self._convert_bool(row.announce_user_count))
-        yield 'announce_only_user = {}'.format(self._convert_bool(row.announce_only_user))
+        yield 'announce_join_leave = {}'.format(
+            self._convert_bool(row.announce_join_leave)
+        )
+        yield 'announce_user_count = {}'.format(
+            self._convert_bool(row.announce_user_count)
+        )
+        yield 'announce_only_user = {}'.format(
+            self._convert_bool(row.announce_only_user)
+        )
         if row.music_on_hold:
             yield 'music_on_hold_when_empty = yes'
             yield 'music_on_hold_class = {}'.format(row.music_on_hold)
@@ -97,14 +100,20 @@ class _ConfBridgeConf(object):
     def _gen_default_user_menu(self):
         yield '[xivo-default-user-menu]'
         yield 'type = menu'
-        yield '* = playback_and_continue({})'.format('&'.join(['dir-multi1',
-                                                               'digits/1&confbridge-mute-out',
-                                                               'digits/4&confbridge-dec-list-vol-out',
-                                                               'digits/5&confbridge-rest-list-vol-out',
-                                                               'digits/6&confbridge-inc-list-vol-out',
-                                                               'digits/7&confbridge-dec-talk-vol-out',
-                                                               'digits/8&confbridge-rest-talk-vol-out',
-                                                               'digits/9&confbridge-inc-talk-vol-out']))
+        yield '* = playback_and_continue({})'.format(
+            '&'.join(
+                [
+                    'dir-multi1',
+                    'digits/1&confbridge-mute-out',
+                    'digits/4&confbridge-dec-list-vol-out',
+                    'digits/5&confbridge-rest-list-vol-out',
+                    'digits/6&confbridge-inc-list-vol-out',
+                    'digits/7&confbridge-dec-talk-vol-out',
+                    'digits/8&confbridge-rest-talk-vol-out',
+                    'digits/9&confbridge-inc-talk-vol-out',
+                ]
+            )
+        )
         yield '1 = toggle_mute'
         yield '4 = decrease_listening_volume'
         yield '5 = reset_listening_volume'
@@ -115,16 +124,22 @@ class _ConfBridgeConf(object):
 
     def _gen_default_admin_menu(self):
         yield '[xivo-default-admin-menu](xivo-default-user-menu)'
-        yield '* = playback_and_continue({})'.format('&'.join(['dir-multi1',
-                                                               'digits/1&confbridge-mute-out',
-                                                               'digits/2&confbridge-lock-out',
-                                                               'digits/3&confbridge-remove-last-out',
-                                                               'digits/4&confbridge-dec-list-vol-out',
-                                                               'digits/5&confbridge-rest-list-vol-out',
-                                                               'digits/6&confbridge-inc-list-vol-out',
-                                                               'digits/7&confbridge-dec-talk-vol-out',
-                                                               'digits/8&confbridge-rest-talk-vol-out',
-                                                               'digits/9&confbridge-inc-talk-vol-out']))
+        yield '* = playback_and_continue({})'.format(
+            '&'.join(
+                [
+                    'dir-multi1',
+                    'digits/1&confbridge-mute-out',
+                    'digits/2&confbridge-lock-out',
+                    'digits/3&confbridge-remove-last-out',
+                    'digits/4&confbridge-dec-list-vol-out',
+                    'digits/5&confbridge-rest-list-vol-out',
+                    'digits/6&confbridge-inc-list-vol-out',
+                    'digits/7&confbridge-dec-talk-vol-out',
+                    'digits/8&confbridge-rest-talk-vol-out',
+                    'digits/9&confbridge-inc-talk-vol-out',
+                ]
+            )
+        )
         yield '2 = admin_toggle_conference_lock'
         yield '3 = admin_kick_last'
         yield '0 = admin_toggle_mute_participants'

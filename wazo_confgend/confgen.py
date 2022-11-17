@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 
 
 class Confgen(Protocol):
-
     def connectionMade(self):
         logger.info("connection established")
 
@@ -34,7 +33,9 @@ class Confgen(Protocol):
         super().connectionLost(reason=reason)
 
     def commandReceived(self, cmd: str, args: List[str]):
-        logger.debug("command received cmd_length=%d, args_count=%d", len(cmd), len(args))
+        logger.debug(
+            "command received cmd_length=%d, args_count=%d", len(cmd), len(args)
+        )
         try:
             resource, filename = cmd.split('/')
         except ValueError:
@@ -84,27 +85,34 @@ class ConfgendFactory(ServerFactory):
             'wazo': WazoFrontend(),
         }
         self._cache = cache.FileCache(cachedir)
-        self._handler_factory = MultiHandlerFactory([
-            CachedHandlerFactoryDecorator(PluginHandlerFactory(config, dependencies)),
-            FrontendHandlerFactory(frontends),
-            NullHandlerFactory(),
-        ])
+        self._handler_factory = MultiHandlerFactory(
+            [
+                CachedHandlerFactoryDecorator(
+                    PluginHandlerFactory(config, dependencies)
+                ),
+                FrontendHandlerFactory(frontends),
+                NullHandlerFactory(),
+            ]
+        )
 
     def generate(self, resource, filename, *args):
-        logger.info("Generating conf for resource=%s and filename=%s with args=%s", resource, filename, args)
+        logger.info(
+            "Generating conf for resource=%s and filename=%s with args=%s",
+            resource,
+            filename,
+            args,
+        )
         cache_key = '{}/{}'.format(resource, filename)
         if 'invalidate' in args:
             self._cache.invalidate(cache_key)
         elif 'cached' in args:
-            return (
-                self._get_cached_content(cache_key)
-                or self._generate_and_cache(cache_key, resource, filename)
+            return self._get_cached_content(cache_key) or self._generate_and_cache(
+                cache_key, resource, filename
             )
         else:
-            return (
-                self._generate_and_cache(cache_key, resource, filename)
-                or self._get_cached_content(cache_key)
-            )
+            return self._generate_and_cache(
+                cache_key, resource, filename
+            ) or self._get_cached_content(cache_key)
 
     def _generate_and_cache(self, cache_key, resource, filename):
         handler = self._handler_factory.get(resource, filename)

@@ -17,29 +17,31 @@ SearchResult = namedtuple('SearchResult', ['total', 'items'])
 
 
 class TestPJSIPConfGenerator(unittest.TestCase):
-
     def setUp(self):
         self.generator = PJSIPConfGenerator(dependencies=None)
 
     def test_generate_transports(self):
         output = StringIO()
         with patch('wazo_confgend.plugins.pjsip_conf.transport_dao') as dao:
-            dao.search.return_value = SearchResult(2, [
-                PJSIPTransport(
-                    name='transport-udp',
-                    options=[
-                        ['protocol', 'udp'],
-                        ['bind', '0.0.0.0:5060'],
-                    ]
-                ),
-                PJSIPTransport(
-                    name='transport-wss',
-                    options=[
-                        ['protocol', 'wss'],
-                        ['bind', '0.0.0.0:5060'],
-                    ]
-                ),
-            ])
+            dao.search.return_value = SearchResult(
+                2,
+                [
+                    PJSIPTransport(
+                        name='transport-udp',
+                        options=[
+                            ['protocol', 'udp'],
+                            ['bind', '0.0.0.0:5060'],
+                        ],
+                    ),
+                    PJSIPTransport(
+                        name='transport-wss',
+                        options=[
+                            ['protocol', 'wss'],
+                            ['bind', '0.0.0.0:5060'],
+                        ],
+                    ),
+                ],
+            )
 
             self.generator.generate_transports(output)
             assert_config_equal(
@@ -54,7 +56,7 @@ class TestPJSIPConfGenerator(unittest.TestCase):
                 type = transport
                 protocol = wss
                 bind = 0.0.0.0:5060
-                '''
+                ''',
             )
 
     def test_generate_users(self):
@@ -142,7 +144,7 @@ class TestPJSIPConfGenerator(unittest.TestCase):
                     label_2=label_2,
                     name_1=name_1,
                     name_2=name_2,
-                )
+                ),
             )
 
     def test_generate_meeting_guests(self):
@@ -231,7 +233,7 @@ class TestPJSIPConfGenerator(unittest.TestCase):
                     label_2=label_2,
                     name_1=name_1,
                     name_2=name_2,
-                )
+                ),
             )
 
     def test_generate_trunks(self):
@@ -267,7 +269,10 @@ class TestPJSIPConfGenerator(unittest.TestCase):
                     'registration_section_options': [
                         ['type', 'registration'],
                         ['expiration', '120'],
-                        ['outbound_auth', 'auth_reg_dev_370@wazo-dev-gateway.lan.wazo.io'],
+                        [
+                            'outbound_auth',
+                            'auth_reg_dev_370@wazo-dev-gateway.lan.wazo.io',
+                        ],
                     ],
                     'registration_outbound_auth_section_options': [
                         ['type', 'auth'],
@@ -323,5 +328,7 @@ class TestPJSIPConfGenerator(unittest.TestCase):
                 type = registration
                 expiration = 120
                 outbound_auth = auth_reg_dev_370@wazo-dev-gateway.lan.wazo.io
-                '''.format(label_1=label_1, name_1=name_1)
+                '''.format(
+                    label_1=label_1, name_1=name_1
+                ),
             )

@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
-
 def format_ast_comment(comment):
     return '; {}'.format(comment)
 
@@ -37,7 +35,6 @@ def format_none_as_empty(value):
 
 
 class AsteriskFileWriter(object):
-
     def __init__(self, fobj):
         self._fobj = fobj
         self._first_section = True

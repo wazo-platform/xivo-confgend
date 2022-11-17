@@ -19,12 +19,18 @@ logger = logging.getLogger(__name__)
 def main():
     config = load_config()
 
-    xivo_logging.setup_logging(config['log_filename'], debug=config['debug'], log_level=config['log_level'])
+    xivo_logging.setup_logging(
+        config['log_filename'], debug=config['debug'], log_level=config['log_level']
+    )
 
     xivo_dao.init_db(config['db_uri'])
     f = ConfgendFactory(config['cache'], config)
 
-    logger.info("Listening to TCP port %s on address %s", config['listen_port'], config['listen_address'])
+    logger.info(
+        "Listening to TCP port %s on address %s",
+        config['listen_port'],
+        config['listen_address'],
+    )
     reactor.listenTCP(config['listen_port'], f, interface=config['listen_address'])
     logger.info("Starting Twisted Reactor")
     reactor.run()
@@ -33,14 +39,18 @@ def main():
 def twisted_application():
     config = load_config()
 
-    xivo_logging.setup_logging(config['log_filename'], debug=config['debug'], log_level=config['log_level'])
+    xivo_logging.setup_logging(
+        config['log_filename'], debug=config['debug'], log_level=config['log_level']
+    )
 
     xivo_dao.init_db(config['db_uri'])
     f = ConfgendFactory(config['cache'], config)
 
     application = service.Application('confgend')
 
-    svc = internet.TCPServer(config['listen_port'], f, interface=config['listen_address'])
+    svc = internet.TCPServer(
+        config['listen_port'], f, interface=config['listen_address']
+    )
     svc.setServiceParent(application)
 
     return application

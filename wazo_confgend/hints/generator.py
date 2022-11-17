@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2014-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from wazo_confgend.hints import adaptor as hint_adaptor
@@ -20,7 +20,7 @@ class HintGenerator(object):
             hint_adaptor.GroupMemberAdaptor(hint_dao),
             hint_adaptor.AgentAdaptor(hint_dao),
             hint_adaptor.BSFilterAdaptor(hint_dao),
-            hint_adaptor.CustomAdaptor(hint_dao)
+            hint_adaptor.CustomAdaptor(hint_dao),
         ]
         global_resource_adaptors = [
             hint_adaptor.UserSharedHintAdaptor(hint_dao),
@@ -45,6 +45,5 @@ class HintGenerator(object):
         for adaptor in self.context_resource_adaptors:
             for extension, hint in adaptor.generate(context):
                 if extension not in existing:
-                    yield self.DIALPLAN.format(extension=extension,
-                                               hint=hint)
+                    yield self.DIALPLAN.format(extension=extension, hint=hint)
                     existing.add(extension)

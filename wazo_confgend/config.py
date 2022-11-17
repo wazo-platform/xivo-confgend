@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
-
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
 from xivo.xivo_logging import get_log_level_by_name
@@ -27,7 +25,9 @@ _DEFAULT_CONFIG = {
 
 def load():
     file_config = read_config_file_hierarchy(_DEFAULT_CONFIG)
-    reinterpreted_config = _get_reinterpreted_raw_values(ChainMap(file_config, _DEFAULT_CONFIG))
+    reinterpreted_config = _get_reinterpreted_raw_values(
+        ChainMap(file_config, _DEFAULT_CONFIG)
+    )
     config = ChainMap(reinterpreted_config, file_config, _DEFAULT_CONFIG)
     return config
 

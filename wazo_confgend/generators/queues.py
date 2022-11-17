@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 from xivo_dao import asterisk_conf_dao
 
 from wazo_confgend.generators.util import AsteriskFileWriter
@@ -44,6 +43,8 @@ class QueuesConf(object):
 
                 writer.write_option(k, v)
 
-            queuemember_settings = asterisk_conf_dao.find_queue_members_settings(q['name'])
+            queuemember_settings = asterisk_conf_dao.find_queue_members_settings(
+                q['name']
+            )
             for values in queuemember_settings:
                 writer.write_option('member', ','.join(values))

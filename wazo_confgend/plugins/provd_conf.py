@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 import yaml
 
 from xivo_dao import init_db_from_config
@@ -13,7 +12,6 @@ from xivo_dao.alchemy.netiface import Netiface
 
 
 class ProvdNetworkConfGenerator(object):
-
     def __init__(self, dependencies):
         init_db_from_config(dependencies['config'])
 
@@ -24,7 +22,11 @@ class ProvdNetworkConfGenerator(object):
         return result.net4_ip
 
     def get_netiface_net4_ip(self, session):
-        result = session.query(Netiface.address).filter(Netiface.networktype == 'voip').first()
+        result = (
+            session.query(Netiface.address)
+            .filter(Netiface.networktype == 'voip')
+            .first()
+        )
         if not result:
             return
         return result.address
@@ -38,7 +40,9 @@ class ProvdNetworkConfGenerator(object):
     def generate(self):
         with session_scope(read_only=True) as session:
             config = {}
-            external_ip = self.get_provd_net4_ip(session) or self.get_netiface_net4_ip(session)
+            external_ip = self.get_provd_net4_ip(session) or self.get_netiface_net4_ip(
+                session
+            )
             external_port = self.get_provd_http_port(session)
 
             sections = {

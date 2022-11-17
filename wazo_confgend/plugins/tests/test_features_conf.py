@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 import unittest
 
 from mock import patch
@@ -13,9 +12,7 @@ from wazo_confgend.generators.tests.util import assert_config_equal
 
 class TestFeaturesConf(unittest.TestCase):
     def setUp(self):
-        self.dependencies = {
-
-        }
+        self.dependencies = {}
 
     def _new_conf(self, settings):
         with patch('xivo_dao.asterisk_conf_dao.find_features_settings'):
@@ -33,13 +30,16 @@ class TestFeaturesConf(unittest.TestCase):
         features_conf_gen = self._new_conf(settings)
         features_conf = features_conf_gen.generate()
 
-        assert_config_equal(features_conf, '''
+        assert_config_equal(
+            features_conf,
+            '''
             [general]
 
             [featuremap]
 
             [applicationmap]
-        ''')
+        ''',
+        )
 
     def test_settings(self):
         settings = {
@@ -52,7 +52,9 @@ class TestFeaturesConf(unittest.TestCase):
 
         features_conf = features_conf_gen.generate()
 
-        assert_config_equal(features_conf, '''
+        assert_config_equal(
+            features_conf,
+            '''
             [general]
             pickupexten = *8
 
@@ -61,4 +63,5 @@ class TestFeaturesConf(unittest.TestCase):
 
             [applicationmap]
             toto = *1
-        ''')
+        ''',
+        )

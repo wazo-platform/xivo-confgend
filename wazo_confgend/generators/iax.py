@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 from xivo_dao import asterisk_conf_dao
 
 from wazo_confgend.generators.util import AsteriskFileWriter
@@ -55,7 +54,14 @@ class IaxConf(object):
     def _generate_trunk(self, trunk, ast_writer):
         ast_writer.write_section(trunk.name)
 
-        exclude_options = ('id', 'name', 'protocol', 'category', 'commented', 'disallow')
+        exclude_options = (
+            'id',
+            'name',
+            'protocol',
+            'category',
+            'commented',
+            'disallow',
+        )
         for k, v in trunk.all_options(exclude=exclude_options):
             if v in (None, ''):
                 continue

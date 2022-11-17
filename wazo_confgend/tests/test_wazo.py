@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 import yaml
 import unittest
 
@@ -19,9 +18,10 @@ MockedInfo = namedtuple('MockedInfo', ['uuid'])
 
 
 class TestUUIDyml(unittest.TestCase):
-
-    @patch('wazo_confgend.wazo.infos_dao.get',
-           Mock(return_value=MockedInfo(uuid='sentinel-uuid')))
+    @patch(
+        'wazo_confgend.wazo.infos_dao.get',
+        Mock(return_value=MockedInfo(uuid='sentinel-uuid')),
+    )
     def test_uuid_yml(self):
         frontend = WazoFrontend()
 

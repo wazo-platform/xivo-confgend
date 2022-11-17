@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2018-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2018-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -14,14 +14,15 @@ from wazo_confgend.generators.util import AsteriskFileWriter
 
 
 class PJSIPConfGenerator(object):
-
     def __init__(self, dependencies):
         pass
 
     def generate(self):
         asterisk_file_generator = AsteriskFileGenerator(asterisk_file_dao)
         output = StringIO()
-        asterisk_file_generator.generate('pjsip.conf', output, required_sections=['global', 'system'])
+        asterisk_file_generator.generate(
+            'pjsip.conf', output, required_sections=['global', 'system']
+        )
         self.generate_transports(output)
         output.write('\n')
         self.generate_lines(output)
@@ -75,7 +76,9 @@ class PJSIPConfGenerator(object):
             name = endpoint['name']
             label = endpoint.get('label')
             endpoint_section_options = endpoint.get('endpoint_section_options', [])
-            registration_section_options = endpoint.get('registration_section_options', [])
+            registration_section_options = endpoint.get(
+                'registration_section_options', []
+            )
             writer.write_section(name, comment=label)
             writer.write_options(endpoint_section_options)
             sections = {

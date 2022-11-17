@@ -3,21 +3,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
 from jinja2 import Environment
 from jinja2 import ChoiceLoader, PackageLoader, FileSystemLoader
 
 
 def new_template_helper():
-    loader = ChoiceLoader([
-        FileSystemLoader('/etc/wazo-confgend/templates'),
-        PackageLoader(__name__, 'templates'),
-    ])
+    loader = ChoiceLoader(
+        [
+            FileSystemLoader('/etc/wazo-confgend/templates'),
+            PackageLoader(__name__, 'templates'),
+        ]
+    )
     return TemplateHelper(loader)
 
 
 class TemplateHelper(object):
-
     def __init__(self, loader):
         self._env = Environment(loader=loader)
 
@@ -36,7 +36,6 @@ class TemplateHelper(object):
 
 
 class _Template(object):
-
     def __init__(self, jinja_template):
         self._jinja_template = jinja_template
 

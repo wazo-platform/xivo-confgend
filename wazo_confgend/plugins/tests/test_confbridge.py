@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -14,7 +14,6 @@ from ..confbridge_conf import _ConfBridgeConf
 
 
 class TestConfBridgeConf(unittest.TestCase):
-
     def setUp(self):
         self.conference_dao = Mock()
         self.conference_dao.find_all_by.return_value = []
@@ -28,7 +27,9 @@ class TestConfBridgeConf(unittest.TestCase):
         ]
         self.confbridge_conf._gen_bridge_profile(conferences, self.output)
 
-        assert_config_equal(self.output.getvalue(), '''
+        assert_config_equal(
+            self.output.getvalue(),
+            '''
             [xivo-bridge-profile-1](wazo_default_bridge)
             type = bridge
             max_members = 50
@@ -38,28 +39,35 @@ class TestConfBridgeConf(unittest.TestCase):
             type = bridge
             max_members = 0
             record_conference = no
-        ''')
+        ''',
+        )
 
     def test_gen_user_profile(self):
         conferences = [
-            Conference(id=1,
-                       admin_pin=None,
-                       music_on_hold=None,
-                       quiet_join_leave=False,
-                       announce_join_leave=False,
-                       announce_user_count=False,
-                       announce_only_user=False),
-            Conference(id=2,
-                       admin_pin='1234',
-                       music_on_hold='Music',
-                       quiet_join_leave=True,
-                       announce_join_leave=True,
-                       announce_user_count=True,
-                       announce_only_user=True),
+            Conference(
+                id=1,
+                admin_pin=None,
+                music_on_hold=None,
+                quiet_join_leave=False,
+                announce_join_leave=False,
+                announce_user_count=False,
+                announce_only_user=False,
+            ),
+            Conference(
+                id=2,
+                admin_pin='1234',
+                music_on_hold='Music',
+                quiet_join_leave=True,
+                announce_join_leave=True,
+                announce_user_count=True,
+                announce_only_user=True,
+            ),
         ]
         self.confbridge_conf._gen_user_profile(conferences, self.output)
 
-        assert_config_equal(self.output.getvalue(), '''
+        assert_config_equal(
+            self.output.getvalue(),
+            '''
             [xivo-user-profile-1](wazo_default_user)
             type = user
             quiet = no
@@ -78,12 +86,15 @@ class TestConfBridgeConf(unittest.TestCase):
 
             [xivo-admin-profile-2](xivo-user-profile-2)
             admin = yes
-        ''')
+        ''',
+        )
 
     def test_gen_default_menu(self):
         self.confbridge_conf._gen_default_menu(self.output)
 
-        assert_config_equal(self.output.getvalue(), '''
+        assert_config_equal(
+            self.output.getvalue(),
+            '''
         [xivo-default-user-menu]
         type = menu
         * = playback_and_continue(dir-multi1&digits/1&confbridge-mute-out&digits/4&confbridge-dec-list-vol-out&digits/5&confbridge-rest-list-vol-out&digits/6&confbridge-inc-list-vol-out&digits/7&confbridge-dec-talk-vol-out&digits/8&confbridge-rest-talk-vol-out&digits/9&confbridge-inc-talk-vol-out)
@@ -100,4 +111,5 @@ class TestConfBridgeConf(unittest.TestCase):
         2 = admin_toggle_conference_lock
         3 = admin_kick_last
         0 = admin_toggle_mute_participants
-        ''')
+        ''',
+        )

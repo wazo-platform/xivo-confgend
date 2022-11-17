@@ -8,7 +8,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY requirements.txt /usr/local/src/wazo-confgend/requirements.txt
 WORKDIR /usr/local/src/wazo-confgend
-# incremental is needed by twisted setup
+
 RUN pip install -r requirements.txt
 
 COPY setup.py /usr/local/src/wazo-confgend/

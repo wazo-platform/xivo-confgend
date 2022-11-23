@@ -1,0 +1,13 @@
+# This file should not be modified as it may get changed by the maintainer.
+# Add extra configuration files to the extra_config_files directory to override
+# the settings in this file
+
+# Change the log level to debug level.
+debug: true
+
+# Listen address and port the wazo-confgen
+listen_address: 0.0.0.0
+listen_port: 8669
+
+# Database connection settings.
+db_uri: postgresql://asterisk:proformatique@postgres/asterisk?application_name=wazo-confgend

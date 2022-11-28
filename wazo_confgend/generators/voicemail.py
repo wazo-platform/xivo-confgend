@@ -9,7 +9,7 @@ from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.voicemail import dao as voicemail_dao
 
 
-class VoicemailGenerator(object):
+class VoicemailGenerator:
     @classmethod
     def build(cls):
         return cls(voicemail_dao.find_all_by(enabled=True))
@@ -86,7 +86,7 @@ class VoicemailGenerator(object):
         )
 
 
-class VoicemailConf(object):
+class VoicemailConf:
     def __init__(self, voicemail_generator):
         self.voicemail_generator = voicemail_generator
         self._voicemail_settings = asterisk_conf_dao.find_voicemail_general_settings()

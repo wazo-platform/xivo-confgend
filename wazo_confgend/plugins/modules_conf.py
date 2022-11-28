@@ -9,7 +9,7 @@ from jinja2 import Template
 logger = logging.getLogger(__name__)
 
 
-class ModulesConfGenerator(object):
+class ModulesConfGenerator:
     def __init__(self, dependencies):
         config = dependencies['config']
 

@@ -13,11 +13,11 @@ class NoSuchHandler(Exception):
     pass
 
 
-class HandlerFactory(object):
+class HandlerFactory:
     pass
 
 
-class CachedHandlerFactoryDecorator(object):
+class CachedHandlerFactoryDecorator:
     def __init__(self, decorated_factory):
         self._factory = decorated_factory
         self._cache = {}
@@ -87,7 +87,7 @@ class FrontendHandlerFactory(HandlerFactory):
 
 
 class NullHandlerFactory(HandlerFactory):
-    class _NullHandler(object):
+    class _NullHandler:
         def __init__(self, resource, filename):
             self._error_msg = 'No handler found for {}/{}'.format(resource, filename)
 

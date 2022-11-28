@@ -8,7 +8,7 @@ from wazo_confgend.generators.util import AsteriskFileWriter
 logger = logging.getLogger(__name__)
 
 
-class AsteriskFileGenerator(object):
+class AsteriskFileGenerator:
     def __init__(self, dao):
         self.asterisk_file_dao = dao
 

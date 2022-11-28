@@ -10,7 +10,7 @@ from xivo_dao.resources.asterisk_file import dao as asterisk_file_dao
 from ..helpers.asterisk import AsteriskFileGenerator
 
 
-class ConfBridgeConfGenerator(object):
+class ConfBridgeConfGenerator:
     def __init__(self, dependencies):
         self.dependencies = dependencies
 
@@ -23,7 +23,7 @@ class ConfBridgeConfGenerator(object):
         return output.getvalue()
 
 
-class _ConfBridgeConf(object):
+class _ConfBridgeConf:
     def __init__(self, dao):
         self.conference_dao = dao
 

@@ -7,7 +7,7 @@ from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.parking_lot import dao as parking_lot_dao
 
 
-class ResParkingConf(object):
+class ResParkingConf:
     def __init__(self):
         self._settings = asterisk_conf_dao.find_parking_settings()
         self._parking_lots = parking_lot_dao.find_all_by()

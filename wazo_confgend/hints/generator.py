@@ -5,7 +5,7 @@ from wazo_confgend.hints import adaptor as hint_adaptor
 from xivo_dao.resources.func_key import hint_dao
 
 
-class HintGenerator(object):
+class HintGenerator:
 
     DIALPLAN = "exten = {extension},hint,{hint}"
 

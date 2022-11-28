@@ -7,7 +7,7 @@ from xivo_dao import asterisk_conf_dao
 from wazo_confgend.generators.util import AsteriskFileWriter
 
 
-class QueuesConf(object):
+class QueuesConf:
 
     _ignored_keys = [
         'name',

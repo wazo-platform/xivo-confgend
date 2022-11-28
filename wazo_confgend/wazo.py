@@ -7,7 +7,7 @@ import yaml
 from xivo_dao.resources.infos import dao as infos_dao
 
 
-class WazoFrontend(object):
+class WazoFrontend:
     def uuid_yml(self):
         content = {'uuid': infos_dao.get().uuid}
         return yaml.safe_dump(content)

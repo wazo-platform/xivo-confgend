@@ -9,7 +9,7 @@ from xivo_dao.resources.asterisk_file import dao as asterisk_file_dao
 from ..helpers.asterisk import AsteriskFileGenerator
 
 
-class HEPConfGenerator(object):
+class HEPConfGenerator:
     def __init__(self, dependencies):
         self.dependencies = dependencies
 

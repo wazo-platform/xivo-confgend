@@ -7,7 +7,7 @@ import yaml
 from xivo_dao import phone_access_dao
 
 
-class PhonedFrontend(object):
+class PhonedFrontend:
     def config_yml(self):
         authorized_subnets = phone_access_dao.get_authorized_subnets()
         generator = _ConfigGenerator(authorized_subnets)
@@ -15,7 +15,7 @@ class PhonedFrontend(object):
         return yaml.safe_dump(generator.generate())
 
 
-class _ConfigGenerator(object):
+class _ConfigGenerator:
     def __init__(self, authorized_subnets):
         self._authorized_subnets = authorized_subnets
 

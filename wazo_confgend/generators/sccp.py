@@ -11,7 +11,7 @@ _GUEST_DEVICE_NAME = 'guest'
 _GUEST_LINE_NAME = 'guestline'
 
 
-class SccpConf(object):
+class SccpConf:
     def __init__(self):
         self._sccpgeneralsettings = asterisk_conf_dao.find_sccp_general_settings()
         self._sccpline = asterisk_conf_dao.find_sccp_line_settings()
@@ -38,7 +38,7 @@ class SccpConf(object):
         sccp_speeddial_conf.generate(self._sccpspeeddial, output)
 
 
-class _SplittedGeneralSettings(object):
+class _SplittedGeneralSettings:
 
     _DEVICE_OPTIONS = ['dialtimeout', 'dateformat', 'vmexten', 'keepalive']
     _LINES_OPTIONS = [
@@ -73,7 +73,7 @@ class _SplittedGeneralSettings(object):
         return cls(general_items, device_items, line_items)
 
 
-class _SccpGeneralSettingsConf(object):
+class _SccpGeneralSettingsConf:
     def generate(self, general_items, output):
         ast_writer = AsteriskFileWriter(output)
         ast_writer.write_section('general')
@@ -82,7 +82,7 @@ class _SccpGeneralSettingsConf(object):
         ast_writer.write_newline()
 
 
-class _SccpDeviceConf(object):
+class _SccpDeviceConf:
 
     _TPL_NAME = 'xivo_device_tpl'
 
@@ -129,7 +129,7 @@ class _SccpDeviceConf(object):
                 )
 
 
-class _SccpLineConf(object):
+class _SccpLineConf:
 
     _TPL_NAME = 'xivo_line_tpl'
 
@@ -207,7 +207,7 @@ class _SccpLineConf(object):
             ast_writer.write_newline()
 
 
-class _SccpSpeedDialConf(object):
+class _SccpSpeedDialConf:
     def generate(self, sccpspeeddial, output):
         ast_writer = AsteriskFileWriter(output)
         for item in sccpspeeddial:

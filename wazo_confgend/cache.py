@@ -5,7 +5,7 @@
 import os.path
 
 
-class Cache(object):
+class Cache:
     def get(self, key):
         raise NotImplementedError()
 

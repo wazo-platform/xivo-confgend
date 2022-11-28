@@ -5,7 +5,7 @@
 from xivo_dao.resources.moh import dao as moh_dao
 
 
-class MOHConfGenerator(object):
+class MOHConfGenerator:
     def __init__(self, dependencies):
         self._tpl_helper = dependencies['tpl_helper']
 

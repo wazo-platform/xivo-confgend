@@ -15,7 +15,7 @@ from wazo_confgend.hints.generator import HintGenerator
 from xivo_dao import asterisk_conf_dao
 
 
-class AsteriskFrontend(object):
+class AsteriskFrontend:
     def __init__(self, config, tpl_helper):
         self.contextsconf = config['templates']['contextsconf']
         self._tpl_helper = tpl_helper

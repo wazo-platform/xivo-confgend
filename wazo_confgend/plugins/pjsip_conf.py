@@ -12,7 +12,7 @@ from ..helpers.asterisk import AsteriskFileGenerator
 from wazo_confgend.generators.util import AsteriskFileWriter
 
 
-class PJSIPConfGenerator(object):
+class PJSIPConfGenerator:
     def __init__(self, dependencies):
         pass
 

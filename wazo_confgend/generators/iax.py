@@ -13,7 +13,7 @@ def write_allow_rules(allowed, ast_writer):
         ast_writer.write_option('allow', value)
 
 
-class IaxConf(object):
+class IaxConf:
     def __init__(self):
         self._general_settings = asterisk_conf_dao.find_iax_general_settings()
         self._call_limit_settings = asterisk_conf_dao.find_iax_calllimits_settings()

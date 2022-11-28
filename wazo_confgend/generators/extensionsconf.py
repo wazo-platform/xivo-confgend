@@ -82,7 +82,7 @@ class CustomConfigParser(configparser.RawConfigParser):
         ]
 
 
-class ExtensionGenerator(object):
+class ExtensionGenerator:
     def __init__(self, exten_row):
         self._exten_row = exten_row
 
@@ -131,7 +131,7 @@ extension_generators = {
 }
 
 
-class ExtensionsConf(object):
+class ExtensionsConf:
     def __init__(self, contextsconf, hint_generator, tpl_helper):
         self.contextsconf = contextsconf
         self.hint_generator = hint_generator

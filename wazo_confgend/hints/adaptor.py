@@ -9,7 +9,7 @@ from xivo.xivo_helpers import fkey_extension
 logger = logging.getLogger(__name__)
 
 
-class HintAdaptor(object):
+class HintAdaptor:
     def __init__(self, dao):
         self.dao = dao
 

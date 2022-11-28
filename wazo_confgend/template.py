@@ -16,7 +16,7 @@ def new_template_helper():
     return TemplateHelper(loader)
 
 
-class TemplateHelper(object):
+class TemplateHelper:
     def __init__(self, loader):
         self._env = Environment(loader=loader)
 
@@ -34,7 +34,7 @@ class TemplateHelper(object):
         pass
 
 
-class _Template(object):
+class _Template:
     def __init__(self, jinja_template):
         self._jinja_template = jinja_template
 

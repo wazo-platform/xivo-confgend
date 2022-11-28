@@ -33,7 +33,7 @@ def format_none_as_empty(value):
         return value
 
 
-class AsteriskFileWriter(object):
+class AsteriskFileWriter:
     def __init__(self, fobj):
         self._fobj = fobj
         self._first_section = True

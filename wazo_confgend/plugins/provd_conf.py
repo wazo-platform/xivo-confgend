@@ -10,7 +10,7 @@ from xivo_dao.alchemy.provisioning import Provisioning
 from xivo_dao.alchemy.netiface import Netiface
 
 
-class ProvdNetworkConfGenerator(object):
+class ProvdNetworkConfGenerator:
     def __init__(self, dependencies):
         init_db_from_config(dependencies['config'])
 

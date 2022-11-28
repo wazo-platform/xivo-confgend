@@ -6,3 +6,5 @@ coverage.xml
 pycodestyle.txt
 pylint.txt
 unit-tests.xml
+# editor configurations
+.vscode

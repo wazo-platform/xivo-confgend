@@ -18,7 +18,7 @@ class Cache:
 
 class FileCache(Cache):
     def __init__(self, basedir):
-        super(FileCache, self).__init__()
+        super().__init__()
         self.basedir = basedir
 
     def get(self, key):

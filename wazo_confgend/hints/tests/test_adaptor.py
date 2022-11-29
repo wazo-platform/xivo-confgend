@@ -30,7 +30,7 @@ class TestAdaptor(unittest.TestCase):
 
 class TestUserAdaptor(TestAdaptor):
     def setUp(self):
-        super(TestUserAdaptor, self).setUp()
+        super().setUp()
         self.dao = Mock()
         self.dao.user_hints.return_value = [
             Hint(user_id=42, extension='1000', argument='SIP/abcdef')
@@ -45,7 +45,7 @@ class TestUserAdaptor(TestAdaptor):
 
 class TestUserSharedHintsAdaptor(TestAdaptor):
     def setUp(self):
-        super(TestUserSharedHintsAdaptor, self).setUp()
+        super().setUp()
         self.dao = Mock()
         hints = [
             Hint(
@@ -89,7 +89,7 @@ class TestConferenceAdaptor(TestAdaptor):
 
 class TestForwardAdaptor(TestAdaptor):
     def setUp(self):
-        super(TestForwardAdaptor, self).setUp()
+        super().setUp()
         self.dao = Mock()
         self.dao.progfunckey_extension.return_value = '*735'
 

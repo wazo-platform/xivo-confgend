@@ -5,16 +5,41 @@
 import unittest
 import tempfile
 
-from hamcrest import (
-    assert_that,
-    equal_to,
-)
+from hamcrest import assert_that, equal_to, raises, calling
 from mock import Mock
+import random
+
 
 from ..confgen import (
     Confgen,
     ConfgendFactory,
 )
+
+
+def sample_unicode_string(length):
+    # Update this to include code point ranges to be sampled
+    include_ranges = [
+        (0x0021, 0x0021),
+        (0x0023, 0x0026),
+        (0x0028, 0x007E),
+        (0x00A1, 0x00AC),
+        (0x00AE, 0x00FF),
+        (0x0100, 0x017F),
+        (0x0180, 0x024F),
+        (0x2C60, 0x2C7F),
+        (0x16A0, 0x16F0),
+        (0x0370, 0x0377),
+        (0x037A, 0x037E),
+        (0x0384, 0x038A),
+        (0x038C, 0x038C),
+        (0x0000, 0xFFFF),
+    ]
+
+    def select_range():
+        start, end = random.choice(include_ranges)
+        return range(start, end + 1)
+
+    return ''.join(chr(random.choice(select_range())) for i in range(length))
 
 
 class TestConfgen(unittest.TestCase):
@@ -54,6 +79,28 @@ class TestConfgen(unittest.TestCase):
         )
         self.transport.write.assert_called_once_with(
             self.factory.generate.return_value.encode("utf-8")
+        )
+
+    def test_receive_unicode(self):
+        # randomly generated unicode string using sample_unicode_string
+        filename = r'·ʹ©᛫¨Łã&ͻ!ͻͺ΄ÛͼⱧŎΌÁΌΌëŏᚵᛟⱦⱲ;×ᛘ&ǲ#ǒŽȸ¾ÝȗșΌýΌ#΄%ͽœͲgΌⱴͻÀOⱨΌ{ʹ±GǀᛊΌ!0͵ƕⱹͺⱤºⱪͷΌⱰᚩ#Ƶ#ÙᛊªÖʹ·ͼÑXƍ§Ɔ+ⱴ!§¤Vͷ£'
+        cmd = f"resource/{filename}.conf arg1 arg2\n"
+        self.protocol.dataReceived(cmd.encode("utf-8"))
+        print(self.factory.generate.mock_calls)
+        self.factory.generate.assert_called_with(
+            'resource', f"{filename}.conf", 'arg1', 'arg2'
+        )
+        self.transport.write.assert_called_with(
+            self.factory.generate.return_value.encode("utf-8")
+        )
+
+    def test_receive_bad_encoding(self):
+        # test behavior when receiving non-utf-8 garbage
+        # generated using os.urandom(20)
+        cmd = b'\xferD\x86jJ)\xbf?\xdc\xfe\xa3\xf6l\xbd\x8cs\x0b\xdb\xa4'
+        assert_that(
+            calling(self.protocol.dataReceived).with_args(cmd),
+            raises(UnicodeDecodeError),
         )
 
 

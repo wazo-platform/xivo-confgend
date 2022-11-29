@@ -101,7 +101,7 @@ class ConfgendFactory(ServerFactory):
             filename,
             args,
         )
-        cache_key = '{}/{}'.format(resource, filename)
+        cache_key = f'{resource}/{filename}'
         if 'invalidate' in args:
             self._cache.invalidate(cache_key)
         elif 'cached' in args:

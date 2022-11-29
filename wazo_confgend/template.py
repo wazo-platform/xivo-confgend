@@ -21,12 +21,12 @@ class TemplateHelper:
         self._env = Environment(loader=loader)
 
     def get_template(self, name):
-        filename = '{}.jinja'.format(name)
+        filename = f'{name}.jinja'
         return _Template(self._env.get_template(filename))
 
     def get_customizable_template(self, name, custom_part):
-        filename = '{}.jinja'.format(name)
-        filename_custom = '{}-{}.jinja'.format(name, custom_part)
+        filename = f'{name}.jinja'
+        filename_custom = f'{name}-{custom_part}.jinja'
         return _Template(self._env.select_template([filename_custom, filename]))
 
     def get_legacy_contexts_conf(self):

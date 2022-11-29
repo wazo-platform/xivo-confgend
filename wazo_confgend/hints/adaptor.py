@@ -25,7 +25,7 @@ class ProgfunckeyAdaptor(HintAdaptor):
         for hint in self.find_hints(context):
             arguments = self.progfunckey_arguments(hint)
             extension = fkey_extension(progfunckey, arguments)
-            yield (extension, 'Custom:{}'.format(extension))
+            yield (extension, f'Custom:{extension}')
 
 
 class UserAdaptor(HintAdaptor):
@@ -43,7 +43,7 @@ class UserSharedHintAdaptor(HintAdaptor):
 class ConferenceAdaptor(HintAdaptor):
     def generate(self, context):
         for hint in self.dao.conference_hints(context):
-            yield (hint.extension, 'confbridge:{}'.format(hint.conference_id))
+            yield (hint.extension, f'confbridge:{hint.conference_id}')
 
 
 class ForwardAdaptor(ProgfunckeyAdaptor):
@@ -82,7 +82,7 @@ class CustomAdaptor(HintAdaptor):
     def generate(self, context):
         for hint in self.dao.custom_hints(context):
             try:
-                yield (hint.extension, 'Custom:{}'.format(hint.extension))
+                yield (hint.extension, f'Custom:{hint.extension}')
             except UnicodeEncodeError:
                 logger.info('invalid custom function key "%s"', hint.extension)
                 continue
@@ -91,5 +91,5 @@ class CustomAdaptor(HintAdaptor):
 class BSFilterAdaptor(HintAdaptor):
     def generate(self, context):
         for hint in self.dao.bsfilter_hints(context):
-            extension = '{}{}'.format(hint.extension, hint.argument)
-            yield (extension, 'Custom:{}'.format(extension))
+            extension = f'{hint.extension}{hint.argument}'
+            yield (extension, f'Custom:{extension}')

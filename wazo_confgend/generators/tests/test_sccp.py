@@ -367,7 +367,7 @@ class TestSccpLineConf(unittest.TestCase):
 
         assert_config_equal(
             self._output.getvalue(),
-            '''
+            f'''
             [100](xivo_line_tpl)
             type = line
             cid_name = jimmy
@@ -383,9 +383,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = DYNAMIC_FEATURES=togglerecord
             language = fr_FR
             context = a_context
-        '''.format(
-                uuid=uuid
-            ),
+        ''',
         )
 
     def test_one_element_lines_section_no_language(self):
@@ -411,7 +409,7 @@ class TestSccpLineConf(unittest.TestCase):
 
         assert_config_equal(
             self._output.getvalue(),
-            '''
+            f'''
             [100](xivo_line_tpl)
             type = line
             cid_name = jimmy
@@ -425,9 +423,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             setvar = WAZO_LINE_ID=13423
             context = a_context
-        '''.format(
-                uuid=uuid
-            ),
+        ''',
         )
 
     def test_allow_no_disallow(self):
@@ -454,7 +450,7 @@ class TestSccpLineConf(unittest.TestCase):
 
         assert_config_equal(
             self._output.getvalue(),
-            '''
+            f'''
             [100](xivo_line_tpl)
             type = line
             cid_name = jimmy
@@ -469,9 +465,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = WAZO_LINE_ID=13423
             context = a_context
             allow = g729,ulaw
-        '''.format(
-                uuid=uuid
-            ),
+        ''',
         )
 
     def test_disallow_all_allow_order(self):
@@ -499,7 +493,7 @@ class TestSccpLineConf(unittest.TestCase):
 
         assert_config_equal(
             self._output.getvalue(),
-            '''
+            f'''
             [100](xivo_line_tpl)
             type = line
             cid_name = jimmy
@@ -515,9 +509,7 @@ class TestSccpLineConf(unittest.TestCase):
             context = a_context
             disallow = all
             allow = g729,ulaw
-        '''.format(
-                uuid=uuid
-            ),
+        ''',
         )
 
     def test_call_and_pickup_groups(self):
@@ -545,7 +537,7 @@ class TestSccpLineConf(unittest.TestCase):
 
         assert_config_equal(
             self._output.getvalue(),
-            '''
+            f'''
             [100](xivo_line_tpl)
             type = line
             cid_name = jimmy
@@ -561,7 +553,5 @@ class TestSccpLineConf(unittest.TestCase):
             context = a_context
             namedcallgroup = 1,2,3,4
             namedpickupgroup = 3,4
-        '''.format(
-                uuid=uuid
-            ),
+        ''',
         )

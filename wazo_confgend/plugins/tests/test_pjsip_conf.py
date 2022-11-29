@@ -257,7 +257,7 @@ class TestPJSIPConfGenerator(unittest.TestCase):
                         ['aors', name_1],
                         ['auth', name_1],
                         ['allow', '!all,ulaw'],
-                        ['outbound_auth', 'outbound_auth_{}'.format(name_1)],
+                        ['outbound_auth', f'outbound_auth_{name_1}'],
                     ],
                     'identify_section_options': [
                         ['type', 'identify'],

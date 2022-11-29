@@ -44,45 +44,39 @@ class _ConfBridgeConf:
     def _gen_bridge_profile(self, conferences, output):
         for row in conferences:
             for line in self._format_bridge_profile(row):
-                output.write('{}\n'.format(line))
+                output.write(f'{line}\n')
             output.write('\n')
 
     def _gen_user_profile(self, conferences, output):
         for row in conferences:
             for line in self._format_user_profile(row):
-                output.write('{}\n'.format(line))
+                output.write(f'{line}\n')
             output.write('\n')
 
             if row.admin_pin:
                 for line in self._format_admin_profile(row):
-                    output.write('{}\n'.format(line))
+                    output.write(f'{line}\n')
             output.write('\n')
 
     def _format_bridge_profile(self, row):
-        yield '[xivo-bridge-profile-{}](wazo_default_bridge)'.format(row.id)
+        yield f'[xivo-bridge-profile-{row.id}](wazo_default_bridge)'
         yield 'type = bridge'
-        yield 'max_members = {}'.format(row.max_users)
-        yield 'record_conference = {}'.format(self._convert_bool(row.record))
+        yield f'max_members = {row.max_users}'
+        yield f'record_conference = {self._convert_bool(row.record)}'
 
     def _format_user_profile(self, row):
-        yield '[xivo-user-profile-{}](wazo_default_user)'.format(row.id)
+        yield f'[xivo-user-profile-{row.id}](wazo_default_user)'
         yield 'type = user'
-        yield 'quiet = {}'.format(self._convert_bool(row.quiet_join_leave))
-        yield 'announce_join_leave = {}'.format(
-            self._convert_bool(row.announce_join_leave)
-        )
-        yield 'announce_user_count = {}'.format(
-            self._convert_bool(row.announce_user_count)
-        )
-        yield 'announce_only_user = {}'.format(
-            self._convert_bool(row.announce_only_user)
-        )
+        yield f'quiet = {self._convert_bool(row.quiet_join_leave)}'
+        yield f'announce_join_leave = {self._convert_bool(row.announce_join_leave)}'
+        yield f'announce_user_count = {self._convert_bool(row.announce_user_count)}'
+        yield f'announce_only_user = {self._convert_bool(row.announce_only_user)}'
         if row.music_on_hold:
             yield 'music_on_hold_when_empty = yes'
-            yield 'music_on_hold_class = {}'.format(row.music_on_hold)
+            yield f'music_on_hold_class = {row.music_on_hold}'
 
     def _format_admin_profile(self, row):
-        yield '[xivo-admin-profile-{}](xivo-user-profile-{})'.format(row.id, row.id)
+        yield f'[xivo-admin-profile-{row.id}](xivo-user-profile-{row.id})'
         yield 'admin = yes'
 
     def _convert_bool(self, option):
@@ -90,11 +84,11 @@ class _ConfBridgeConf:
 
     def _gen_default_menu(self, output):
         for line in self._gen_default_user_menu():
-            output.write('{}\n'.format(line))
+            output.write(f'{line}\n')
 
         output.write('\n')
         for line in self._gen_default_admin_menu():
-            output.write('{}\n'.format(line))
+            output.write(f'{line}\n')
 
     def _gen_default_user_menu(self):
         yield '[xivo-default-user-menu]'
@@ -145,7 +139,7 @@ class _ConfBridgeConf:
 
     def _gen_meeting_config(self, output):
         for line in self._gen_default_meeting_config():
-            output.write('{}\n'.format(line))
+            output.write(f'{line}\n')
 
     def _gen_default_meeting_config(self):
         yield '[wazo-meeting-bridge-profile]'

@@ -125,7 +125,7 @@ class _SccpDeviceConf:
         for item in self._sccpspeeddialdevices:
             if item['device'] == device:
                 ast_writer.write_option(
-                    'speeddial', '{:d}-{:d}'.format(item['user_id'], item['fknum'])
+                    'speeddial', f"{item['user_id']:d}-{item['fknum']:d}"
                 )
 
 
@@ -174,19 +174,15 @@ class _SccpLineConf:
                 'setvar',
                 'XIVO_ORIGINAL_CALLER_ID="{cid_name}" <{cid_num}>'.format(**item),
             )
-            ast_writer.write_option('setvar', 'XIVO_USERID={}'.format(item['user_id']))
-            ast_writer.write_option('setvar', 'XIVO_USERUUID={}'.format(item['uuid']))
-            ast_writer.write_option(
-                'setvar', 'WAZO_TENANT_UUID={}'.format(item['tenant_uuid'])
-            )
+            ast_writer.write_option('setvar', f"XIVO_USERID={item['user_id']}")
+            ast_writer.write_option('setvar', f"XIVO_USERUUID={item['uuid']}")
+            ast_writer.write_option('setvar', f"WAZO_TENANT_UUID={item['tenant_uuid']}")
             ast_writer.write_option(
                 'setvar', 'PICKUPMARK={number}%{context}'.format(**item)
             )
-            ast_writer.write_option(
-                'setvar', 'TRANSFER_CONTEXT={}'.format(item['context'])
-            )
+            ast_writer.write_option('setvar', f"TRANSFER_CONTEXT={item['context']}")
             ast_writer.write_option('setvar', 'WAZO_CHANNEL_DIRECTION=from-wazo')
-            ast_writer.write_option('setvar', 'WAZO_LINE_ID={}'.format(item['id']))
+            ast_writer.write_option('setvar', f"WAZO_LINE_ID={item['id']}")
             if item['enable_online_recording']:
                 ast_writer.write_option('setvar', 'DYNAMIC_FEATURES=togglerecord')
             if item['language']:
@@ -211,7 +207,7 @@ class _SccpSpeedDialConf:
     def generate(self, sccpspeeddial, output):
         ast_writer = AsteriskFileWriter(output)
         for item in sccpspeeddial:
-            ast_writer.write_section('{:d}-{:d}'.format(item['user_id'], item['fknum']))
+            ast_writer.write_section(f"{item['user_id']:d}-{item['fknum']:d}")
             ast_writer.write_option('type', 'speeddial')
             ast_writer.write_option('extension', item['exten'])
             if item['label']:

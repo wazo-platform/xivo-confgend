@@ -48,8 +48,8 @@ class PluginHandlerFactory(HandlerFactory):
         self._dependencies = dependencies
 
     def get(self, resource, filename):
-        suffix = '{}.{}'.format(resource, filename)
-        namespace = 'wazo_confgend.{}'.format(suffix)
+        suffix = f'{resource}.{filename}'
+        namespace = f'wazo_confgend.{suffix}'
         driver_name = self._config['plugins'].get(suffix)
         if not driver_name:
             raise NoSuchHandler()
@@ -89,7 +89,7 @@ class FrontendHandlerFactory(HandlerFactory):
 class NullHandlerFactory(HandlerFactory):
     class _NullHandler:
         def __init__(self, resource, filename):
-            self._error_msg = 'No handler found for {}/{}'.format(resource, filename)
+            self._error_msg = f'No handler found for {resource}/{filename}'
 
         def generate(self):
             logger.error(self._error_msg)

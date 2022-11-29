@@ -30,7 +30,7 @@ class VoicemailGenerator:
         return itertools.groupby(self._voicemails, lambda v: v.context)
 
     def format_context(self, context):
-        return '[{}]'.format(context)
+        return f'[{context}]'
 
     def format_voicemails(self, voicemails):
         return '\n'.join(self.format_voicemail(v) for v in voicemails)
@@ -46,7 +46,7 @@ class VoicemailGenerator:
 
         line = ','.join(parts)
 
-        return '{} => {}'.format(voicemail.number, line)
+        return f'{voicemail.number} => {line}'
 
     def format_options(self, voicemail):
         options = []
@@ -66,9 +66,7 @@ class VoicemailGenerator:
 
         options += voicemail.options
 
-        options = (
-            '{}={}'.format(key, self.escape_string(value)) for key, value in options
-        )
+        options = (f'{key}={self.escape_string(value)}' for key, value in options)
 
         return '|'.join(options)
 
@@ -96,7 +94,7 @@ class VoicemailConf:
         self._gen_general_section(ast_writer)
         ast_writer.write_newline()
         self._gen_zonemessages_section(ast_writer)
-        output.write('\n{}\n'.format(self.voicemail_generator.generate()))
+        output.write(f'\n{self.voicemail_generator.generate()}\n')
 
     def _gen_general_section(self, ast_writer):
         ast_writer.write_section('general')

@@ -32,14 +32,14 @@ class ResParkingConf:
             if not parking_lot.extensions:
                 continue
 
-            section = 'parkinglot-{}'.format(parking_lot.id)
+            section = f'parkinglot-{parking_lot.id}'
             options = [
                 ('parkext', parking_lot.extensions[0].exten),
                 ('context', parking_lot.extensions[0].context),
                 ('parkedmusicclass', parking_lot.music_on_hold or ''),
                 (
                     'parkpos',
-                    '{}-{}'.format(parking_lot.slots_start, parking_lot.slots_end),
+                    f'{parking_lot.slots_start}-{parking_lot.slots_end}',
                 ),
                 ('parkingtime', parking_lot.timeout or 0),
                 ('findslot', 'next'),

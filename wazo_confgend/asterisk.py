@@ -61,7 +61,7 @@ class AsteriskFrontend:
         agent_id = None
         for sk in asterisk_conf_dao.find_agent_queue_skills_settings():
             if agent_id != sk['id']:
-                ast_writer.write_section('agent-{:d}'.format(sk['id']))
+                ast_writer.write_section(f"agent-{sk['id']:d}")
                 agent_id = sk['id']
             ast_writer.write_option(sk['name'], sk['weight'])
 
@@ -73,7 +73,7 @@ class AsteriskFrontend:
         ast_writer = AsteriskFileWriter(output)
 
         for r in asterisk_conf_dao.find_queue_skillrule_settings():
-            ast_writer.write_section('skillrule-{}'.format(r['id']))
+            ast_writer.write_section(f"skillrule-{r['id']}")
             if 'rule' in r and r['rule'] is not None:
                 for rule in r['rule'].split(';'):
                     ast_writer.write_option('rule', rule)
@@ -91,19 +91,15 @@ class AsteriskFrontend:
                 ast_writer.write_newline()
                 ast_writer.write_section(rule)
 
-            penalty_change = '{:d}'.format(m['seconds'])
+            penalty_change = f"{m['seconds']:d}"
 
             if m['maxp_sign'] is not None and m['maxp_value'] is not None:
                 sign = '' if m['maxp_sign'] == '=' else m['maxp_sign']
-                penalty_change = '{}{}{:d}'.format(
-                    penalty_change, sign, m['maxp_value']
-                )
+                penalty_change = f"{penalty_change}{sign}{m['maxp_value']:d}"
 
             if m['minp_sign'] is not None and m['minp_value'] is not None:
                 sign = '' if m['minp_sign'] == '=' else m['minp_sign']
-                penalty_change = '{},{}{:d}'.format(
-                    penalty_change, sign, m['minp_value']
-                )
+                penalty_change = f"{penalty_change},{sign}{m['minp_value']:d}"
 
             ast_writer.write_object_option('penaltychange', penalty_change)
             ast_writer.write_newline()

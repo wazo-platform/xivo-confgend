@@ -107,7 +107,7 @@ class IncallExtensionGenerator(ExtensionGenerator):
             'context': self._exten_row['context'],
             'exten': self._exten_row['exten'],
             'priority': '1',
-            'action': 'GoSub(did,s,1({},))'.format(self._exten_row['typeval']),
+            'action': f"GoSub(did,s,1({self._exten_row['typeval']},))",
         }
 
 
@@ -153,11 +153,11 @@ class ExtensionsConf:
                 with open(self.contextsconf) as contextsconf_file:
                     conf.read_file(contextsconf_file)
             except configparser.DuplicateSectionError:
-                raise ValueError("%s has conflicting section names" % self.contextsconf)
+                raise ValueError(f"{self.contextsconf} has conflicting section names")
 
             if not conf.has_section('template'):
                 raise ValueError(
-                    "Template section doesn't exist in %s" % self.contextsconf
+                    f"Template section doesn't exist in {self.contextsconf}"
                 )
 
         # hints & features (init)
@@ -185,14 +185,14 @@ class ExtensionsConf:
         for ctx in asterisk_conf_dao.find_context_settings():
             # context name preceded with '!' is ignored
             context_name = ctx['name']
-            if conf and conf.has_section('!%s' % context_name):
+            if conf and conf.has_section(f'!{context_name}'):
                 continue
             ast_writer.write_newline()
             ast_writer.write_section(context_name)
             if conf.has_section(context_name):
                 section = context_name
-            elif conf.has_section('type:%s' % ctx['contexttype']):
-                section = 'type:%s' % ctx['contexttype']
+            elif conf.has_section(f"type:{ctx['contexttype']}"):
+                section = f"type:{ctx['contexttype']}"
             else:
                 section = 'template'
 
@@ -247,14 +247,14 @@ class ExtensionsConf:
                 self.gen_dialplan_from_template(tmpl, exten, ast_writer)
 
         for x in ('busy', 'rna', 'unc'):
-            fwdtype = "fwd%s" % x
+            fwdtype = f"fwd{x}"
             if not xfeatures[fwdtype].get('commented', 1):
                 exten = xivo_helpers.clean_extension(xfeatures[fwdtype]['exten'])
                 cfeatures.extend(
                     [
                         "%s,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})" % exten,
                         "%s,n,Set(__XIVO_BASE_EXTEN=${EXTEN})" % exten,
-                        "%s,n,Gosub(feature_forward,s,1(%s))\n" % (exten, x),
+                        f"{exten},n,Gosub(feature_forward,s,1({x}))\n",
                     ]
                 )
 
@@ -277,17 +277,17 @@ class ExtensionsConf:
             line = line.replace('%%ACTION%%', str(exten.get('action', '')))
             line = line.replace('%%TENANT_UUID%%', str(exten.get('tenant_uuid', '')))
 
-            ast_writer.write_option(prefix, '{}{}'.format(padding, line))
+            ast_writer.write_option(prefix, f'{padding}{line}')
         ast_writer.write_newline()
 
     def _generate_global_hints(self, output):
         output.write('[usersharedlines]\n')
         for line in self.hint_generator.generate_global_hints():
-            output.write('{}\n'.format(line))
+            output.write(f'{line}\n')
 
     def _generate_hints(self, context, output):
         for line in self.hint_generator.generate(context):
-            output.write('{}\n'.format(line))
+            output.write(f'{line}\n')
 
     def _generate_ivr(self, output):
         for ivr in ivr_dao.find_all_by():
@@ -295,4 +295,4 @@ class ExtensionsConf:
             template = self._tpl_helper.get_customizable_template(
                 'asterisk/extensions/ivr', ivr.id
             )
-            output.write('{}\n'.format(template.dump(template_context)))
+            output.write(f'{template.dump(template_context)}\n')

@@ -47,7 +47,7 @@ class IaxConf:
         if self._call_limit_settings:
             ast_writer.write_section('callnumberlimits')
             for auth in self._call_limit_settings:
-                name = '{}/{}'.format(auth['destination'], auth['netmask'])
+                name = f"{auth['destination']}/{auth['netmask']}"
                 ast_writer.write_option(name, auth['calllimits'])
 
     def _generate_trunk(self, trunk, ast_writer):

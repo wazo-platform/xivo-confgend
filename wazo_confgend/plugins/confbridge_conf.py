@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # Copyright 2016-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
-from StringIO import StringIO
+from io import StringIO
 
 from xivo_dao.resources.conference import dao as conference_dao
 from xivo_dao.resources.asterisk_file import dao as asterisk_file_dao
@@ -12,8 +10,7 @@ from xivo_dao.resources.asterisk_file import dao as asterisk_file_dao
 from ..helpers.asterisk import AsteriskFileGenerator
 
 
-class ConfBridgeConfGenerator(object):
-
+class ConfBridgeConfGenerator:
     def __init__(self, dependencies):
         self.dependencies = dependencies
 
@@ -26,8 +23,7 @@ class ConfBridgeConfGenerator(object):
         return output.getvalue()
 
 
-class _ConfBridgeConf(object):
-
+class _ConfBridgeConf:
     def __init__(self, dao):
         self.conference_dao = dao
 
@@ -48,39 +44,39 @@ class _ConfBridgeConf(object):
     def _gen_bridge_profile(self, conferences, output):
         for row in conferences:
             for line in self._format_bridge_profile(row):
-                output.write('{}\n'.format(line))
+                output.write(f'{line}\n')
             output.write('\n')
 
     def _gen_user_profile(self, conferences, output):
         for row in conferences:
             for line in self._format_user_profile(row):
-                output.write('{}\n'.format(line))
+                output.write(f'{line}\n')
             output.write('\n')
 
             if row.admin_pin:
                 for line in self._format_admin_profile(row):
-                    output.write('{}\n'.format(line))
+                    output.write(f'{line}\n')
             output.write('\n')
 
     def _format_bridge_profile(self, row):
-        yield '[xivo-bridge-profile-{}](wazo_default_bridge)'.format(row.id)
+        yield f'[xivo-bridge-profile-{row.id}](wazo_default_bridge)'
         yield 'type = bridge'
-        yield 'max_members = {}'.format(row.max_users)
-        yield 'record_conference = {}'.format(self._convert_bool(row.record))
+        yield f'max_members = {row.max_users}'
+        yield f'record_conference = {self._convert_bool(row.record)}'
 
     def _format_user_profile(self, row):
-        yield '[xivo-user-profile-{}](wazo_default_user)'.format(row.id)
+        yield f'[xivo-user-profile-{row.id}](wazo_default_user)'
         yield 'type = user'
-        yield 'quiet = {}'.format(self._convert_bool(row.quiet_join_leave))
-        yield 'announce_join_leave = {}'.format(self._convert_bool(row.announce_join_leave))
-        yield 'announce_user_count = {}'.format(self._convert_bool(row.announce_user_count))
-        yield 'announce_only_user = {}'.format(self._convert_bool(row.announce_only_user))
+        yield f'quiet = {self._convert_bool(row.quiet_join_leave)}'
+        yield f'announce_join_leave = {self._convert_bool(row.announce_join_leave)}'
+        yield f'announce_user_count = {self._convert_bool(row.announce_user_count)}'
+        yield f'announce_only_user = {self._convert_bool(row.announce_only_user)}'
         if row.music_on_hold:
             yield 'music_on_hold_when_empty = yes'
-            yield 'music_on_hold_class = {}'.format(row.music_on_hold)
+            yield f'music_on_hold_class = {row.music_on_hold}'
 
     def _format_admin_profile(self, row):
-        yield '[xivo-admin-profile-{}](xivo-user-profile-{})'.format(row.id, row.id)
+        yield f'[xivo-admin-profile-{row.id}](xivo-user-profile-{row.id})'
         yield 'admin = yes'
 
     def _convert_bool(self, option):
@@ -88,23 +84,29 @@ class _ConfBridgeConf(object):
 
     def _gen_default_menu(self, output):
         for line in self._gen_default_user_menu():
-            output.write('{}\n'.format(line))
+            output.write(f'{line}\n')
 
         output.write('\n')
         for line in self._gen_default_admin_menu():
-            output.write('{}\n'.format(line))
+            output.write(f'{line}\n')
 
     def _gen_default_user_menu(self):
         yield '[xivo-default-user-menu]'
         yield 'type = menu'
-        yield '* = playback_and_continue({})'.format('&'.join(['dir-multi1',
-                                                               'digits/1&confbridge-mute-out',
-                                                               'digits/4&confbridge-dec-list-vol-out',
-                                                               'digits/5&confbridge-rest-list-vol-out',
-                                                               'digits/6&confbridge-inc-list-vol-out',
-                                                               'digits/7&confbridge-dec-talk-vol-out',
-                                                               'digits/8&confbridge-rest-talk-vol-out',
-                                                               'digits/9&confbridge-inc-talk-vol-out']))
+        yield '* = playback_and_continue({})'.format(
+            '&'.join(
+                [
+                    'dir-multi1',
+                    'digits/1&confbridge-mute-out',
+                    'digits/4&confbridge-dec-list-vol-out',
+                    'digits/5&confbridge-rest-list-vol-out',
+                    'digits/6&confbridge-inc-list-vol-out',
+                    'digits/7&confbridge-dec-talk-vol-out',
+                    'digits/8&confbridge-rest-talk-vol-out',
+                    'digits/9&confbridge-inc-talk-vol-out',
+                ]
+            )
+        )
         yield '1 = toggle_mute'
         yield '4 = decrease_listening_volume'
         yield '5 = reset_listening_volume'
@@ -115,23 +117,29 @@ class _ConfBridgeConf(object):
 
     def _gen_default_admin_menu(self):
         yield '[xivo-default-admin-menu](xivo-default-user-menu)'
-        yield '* = playback_and_continue({})'.format('&'.join(['dir-multi1',
-                                                               'digits/1&confbridge-mute-out',
-                                                               'digits/2&confbridge-lock-out',
-                                                               'digits/3&confbridge-remove-last-out',
-                                                               'digits/4&confbridge-dec-list-vol-out',
-                                                               'digits/5&confbridge-rest-list-vol-out',
-                                                               'digits/6&confbridge-inc-list-vol-out',
-                                                               'digits/7&confbridge-dec-talk-vol-out',
-                                                               'digits/8&confbridge-rest-talk-vol-out',
-                                                               'digits/9&confbridge-inc-talk-vol-out']))
+        yield '* = playback_and_continue({})'.format(
+            '&'.join(
+                [
+                    'dir-multi1',
+                    'digits/1&confbridge-mute-out',
+                    'digits/2&confbridge-lock-out',
+                    'digits/3&confbridge-remove-last-out',
+                    'digits/4&confbridge-dec-list-vol-out',
+                    'digits/5&confbridge-rest-list-vol-out',
+                    'digits/6&confbridge-inc-list-vol-out',
+                    'digits/7&confbridge-dec-talk-vol-out',
+                    'digits/8&confbridge-rest-talk-vol-out',
+                    'digits/9&confbridge-inc-talk-vol-out',
+                ]
+            )
+        )
         yield '2 = admin_toggle_conference_lock'
         yield '3 = admin_kick_last'
         yield '0 = admin_toggle_mute_participants'
 
     def _gen_meeting_config(self, output):
         for line in self._gen_default_meeting_config():
-            output.write('{}\n'.format(line))
+            output.write(f'{line}\n')
 
     def _gen_default_meeting_config(self):
         yield '[wazo-meeting-bridge-profile]'

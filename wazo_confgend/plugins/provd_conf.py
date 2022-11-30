@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
 import yaml
 
@@ -12,8 +10,7 @@ from xivo_dao.alchemy.provisioning import Provisioning
 from xivo_dao.alchemy.netiface import Netiface
 
 
-class ProvdNetworkConfGenerator(object):
-
+class ProvdNetworkConfGenerator:
     def __init__(self, dependencies):
         init_db_from_config(dependencies['config'])
 
@@ -24,7 +21,11 @@ class ProvdNetworkConfGenerator(object):
         return result.net4_ip
 
     def get_netiface_net4_ip(self, session):
-        result = session.query(Netiface.address).filter(Netiface.networktype == 'voip').first()
+        result = (
+            session.query(Netiface.address)
+            .filter(Netiface.networktype == 'voip')
+            .first()
+        )
         if not result:
             return
         return result.address
@@ -38,7 +39,9 @@ class ProvdNetworkConfGenerator(object):
     def generate(self):
         with session_scope(read_only=True) as session:
             config = {}
-            external_ip = self.get_provd_net4_ip(session) or self.get_netiface_net4_ip(session)
+            external_ip = self.get_provd_net4_ip(session) or self.get_netiface_net4_ip(
+                session
+            )
             external_port = self.get_provd_http_port(session)
 
             sections = {
@@ -48,8 +51,8 @@ class ProvdNetworkConfGenerator(object):
                 }
             }
 
-            for section_name, section_value in sections.iteritems():
-                for option, value in section_value.iteritems():
+            for section_name, section_value in sections.items():
+                for option, value in section_value.items():
                     if value:
                         if section_name not in config:
                             config.update({section_name: {}})

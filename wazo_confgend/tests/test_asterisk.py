@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
 import unittest
-import sys
 
 from mock import patch, Mock
 
@@ -14,18 +11,12 @@ from wazo_confgend.generators.tests.util import assert_config_equal
 
 
 class Test(unittest.TestCase):
-
     def setUp(self):
         self._config = {
             'templates': {'contextsconf': None},
         }
         self.tpl_helper = Mock()
         self.asteriskFrontEnd = AsteriskFrontend(self._config, self.tpl_helper)
-
-    def test_encoding(self):
-        charset = ('ascii', 'US-ASCII',)
-        self.assertTrue(sys.getdefaultencoding() in charset,
-                        'Test should be run in ascii, in eclipse change run configuration common tab')
 
     @patch('xivo_dao.asterisk_conf_dao.find_agent_queue_skills_settings')
     def test_queueskills_conf(self, find_agent_queue_skills_settings):
@@ -37,7 +28,7 @@ class Test(unittest.TestCase):
             """
             [agent-1]
             test-skill = 10
-            """
+            """,
         )
         find_agent_queue_skills_settings.assert_called_once_with()
 
@@ -57,14 +48,21 @@ class Test(unittest.TestCase):
             [skillrule-2]
             rule = rule-3
             rule = rule-4
-            """
+            """,
         )
         find_queue_skillrule_settings.assert_called_once_with()
 
     @patch('xivo_dao.asterisk_conf_dao.find_queue_penalties_settings')
     def test_queuerules_conf(self, find_queue_penalties_settings):
         find_queue_penalties_settings.return_value = [
-            {'name': 'rule-1', 'seconds': 25, 'maxp_sign': '=', 'maxp_value': 2, 'minp_sign': '+', 'minp_value': 2},
+            {
+                'name': 'rule-1',
+                'seconds': 25,
+                'maxp_sign': '=',
+                'maxp_value': 2,
+                'minp_sign': '+',
+                'minp_value': 2,
+            },
             {'name': 'rule-2', 'seconds': 30, 'maxp_sign': None, 'minp_sign': None},
         ]
         assert_config_equal(
@@ -74,6 +72,6 @@ class Test(unittest.TestCase):
             penaltychange => 252,+2
             [rule-2]
             penaltychange => 30
-            """
+            """,
         )
         find_queue_penalties_settings.assert_called_once_with()

@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright 2016-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
-from __future__ import absolute_import
 
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
@@ -27,7 +24,9 @@ _DEFAULT_CONFIG = {
 
 def load():
     file_config = read_config_file_hierarchy(_DEFAULT_CONFIG)
-    reinterpreted_config = _get_reinterpreted_raw_values(ChainMap(file_config, _DEFAULT_CONFIG))
+    reinterpreted_config = _get_reinterpreted_raw_values(
+        ChainMap(file_config, _DEFAULT_CONFIG)
+    )
     config = ChainMap(reinterpreted_config, file_config, _DEFAULT_CONFIG)
     return config
 

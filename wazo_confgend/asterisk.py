@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
-from StringIO import StringIO
+from io import StringIO
 
 from wazo_confgend.generators.extensionsconf import ExtensionsConf
 from wazo_confgend.generators.iax import IaxConf
@@ -17,8 +15,7 @@ from wazo_confgend.hints.generator import HintGenerator
 from xivo_dao import asterisk_conf_dao
 
 
-class AsteriskFrontend(object):
-
+class AsteriskFrontend:
     def __init__(self, config, tpl_helper):
         self.contextsconf = config['templates']['contextsconf']
         self._tpl_helper = tpl_helper
@@ -38,7 +35,9 @@ class AsteriskFrontend(object):
 
     def extensions_conf(self):
         hint_generator = HintGenerator.build()
-        config_generator = ExtensionsConf(self.contextsconf, hint_generator, self._tpl_helper)
+        config_generator = ExtensionsConf(
+            self.contextsconf, hint_generator, self._tpl_helper
+        )
         return self._generate_conf_from_generator(config_generator)
 
     def queues_conf(self):
@@ -62,7 +61,7 @@ class AsteriskFrontend(object):
         agent_id = None
         for sk in asterisk_conf_dao.find_agent_queue_skills_settings():
             if agent_id != sk['id']:
-                ast_writer.write_section('agent-{:d}'.format(sk['id']))
+                ast_writer.write_section(f"agent-{sk['id']:d}")
                 agent_id = sk['id']
             ast_writer.write_option(sk['name'], sk['weight'])
 
@@ -74,7 +73,7 @@ class AsteriskFrontend(object):
         ast_writer = AsteriskFileWriter(output)
 
         for r in asterisk_conf_dao.find_queue_skillrule_settings():
-            ast_writer.write_section('skillrule-{}'.format(r['id']))
+            ast_writer.write_section(f"skillrule-{r['id']}")
             if 'rule' in r and r['rule'] is not None:
                 for rule in r['rule'].split(';'):
                     ast_writer.write_option('rule', rule)
@@ -92,15 +91,15 @@ class AsteriskFrontend(object):
                 ast_writer.write_newline()
                 ast_writer.write_section(rule)
 
-            penalty_change = '{:d}'.format(m['seconds'])
+            penalty_change = f"{m['seconds']:d}"
 
             if m['maxp_sign'] is not None and m['maxp_value'] is not None:
                 sign = '' if m['maxp_sign'] == '=' else m['maxp_sign']
-                penalty_change = '{}{}{:d}'.format(penalty_change, sign, m['maxp_value'])
+                penalty_change = f"{penalty_change}{sign}{m['maxp_value']:d}"
 
             if m['minp_sign'] is not None and m['minp_value'] is not None:
                 sign = '' if m['minp_sign'] == '=' else m['minp_sign']
-                penalty_change = '{},{}{:d}'.format(penalty_change, sign, m['minp_value'])
+                penalty_change = f"{penalty_change},{sign}{m['minp_value']:d}"
 
             ast_writer.write_object_option('penaltychange', penalty_change)
             ast_writer.write_newline()

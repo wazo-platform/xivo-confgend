@@ -1,25 +1,22 @@
-FROM python:2.7-slim-buster AS compile-image
+FROM python:3.7-slim-buster AS compile-image
 LABEL maintainer="Wazo Maintainers <dev@wazo.community>"
 
-RUN apt-get -qq update && apt-get -qq -y install python-virtualenv
-RUN virtualenv /opt/venv
+RUN apt-get -qq update && apt-get -qq -y install gcc
+RUN python3 -m venv /opt/venv
 # Activate virtual env
 ENV PATH="/opt/venv/bin:$PATH"
 
-RUN apt-get install -y gcc
-
 COPY requirements.txt /usr/local/src/wazo-confgend/requirements.txt
 WORKDIR /usr/local/src/wazo-confgend
-# incremental is needed by twisted setup
-RUN pip install incremental==16.10.1 && \
-    pip install -r requirements.txt
+
+RUN pip install -r requirements.txt
 
 COPY setup.py /usr/local/src/wazo-confgend/
 COPY bin /usr/local/src/wazo-confgend/bin
 COPY wazo_confgend /usr/local/src/wazo-confgend/wazo_confgend
 RUN python setup.py install
 
-FROM python:2.7-slim-buster AS build-image
+FROM python:3.7-slim-buster AS build-image
 COPY --from=compile-image /opt/venv /opt/venv
 
 COPY ./etc/wazo-confgend /etc/wazo-confgend

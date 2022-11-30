@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
 # Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
 import os.path
 
 
-class Cache(object):
-
+class Cache:
     def get(self, key):
         raise NotImplementedError()
 
@@ -20,9 +17,8 @@ class Cache(object):
 
 
 class FileCache(Cache):
-
     def __init__(self, basedir):
-        super(FileCache, self).__init__()
+        super().__init__()
         self.basedir = basedir
 
     def get(self, key):

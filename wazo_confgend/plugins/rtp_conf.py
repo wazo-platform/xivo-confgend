@@ -1,18 +1,15 @@
-# -*- coding: utf-8 -*-
-# Copyright 2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2018-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
-from StringIO import StringIO
+from io import StringIO
 
 from xivo_dao.resources.asterisk_file import dao as asterisk_file_dao
 
 from ..helpers.asterisk import AsteriskFileGenerator
 
 
-class RTPConfGenerator(object):
-
+class RTPConfGenerator:
     def __init__(self, dependencies):
         self.dependencies = dependencies
 

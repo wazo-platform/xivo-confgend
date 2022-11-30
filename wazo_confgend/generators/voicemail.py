@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
 import itertools
 
@@ -11,8 +9,7 @@ from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.voicemail import dao as voicemail_dao
 
 
-class VoicemailGenerator(object):
-
+class VoicemailGenerator:
     @classmethod
     def build(cls):
         return cls(voicemail_dao.find_all_by(enabled=True))
@@ -33,21 +30,23 @@ class VoicemailGenerator(object):
         return itertools.groupby(self._voicemails, lambda v: v.context)
 
     def format_context(self, context):
-        return '[{}]'.format(context)
+        return f'[{context}]'
 
     def format_voicemails(self, voicemails):
         return '\n'.join(self.format_voicemail(v) for v in voicemails)
 
     def format_voicemail(self, voicemail):
-        parts = (voicemail.password or '',
-                 voicemail.name or '',
-                 voicemail.email or '',
-                 voicemail.pager or '',
-                 self.format_options(voicemail))
+        parts = (
+            voicemail.password or '',
+            voicemail.name or '',
+            voicemail.email or '',
+            voicemail.pager or '',
+            self.format_options(voicemail),
+        )
 
         line = ','.join(parts)
 
-        return'{} => {}'.format(voicemail.number, line)
+        return f'{voicemail.number} => {line}'
 
     def format_options(self, voicemail):
         options = []
@@ -59,14 +58,15 @@ class VoicemailGenerator(object):
         if voicemail.attach_audio is not None:
             options.append(('attach', self.format_bool(voicemail.attach_audio)))
         if voicemail.delete_messages is not None:
-            options.append(('deletevoicemail', self.format_bool(voicemail.delete_messages)))
+            options.append(
+                ('deletevoicemail', self.format_bool(voicemail.delete_messages))
+            )
         if voicemail.max_messages is not None:
             options.append(('maxmsg', str(voicemail.max_messages))),
 
         options += voicemail.options
 
-        options = ('{}={}'.format(key, self.escape_string(value))
-                   for key, value in options)
+        options = (f'{key}={self.escape_string(value)}' for key, value in options)
 
         return '|'.join(options)
 
@@ -76,15 +76,15 @@ class VoicemailGenerator(object):
         return 'no'
 
     def escape_string(self, value):
-        return (value
-                .replace('\n', '\\n')
-                .replace('\r', '\\r')
-                .replace('\t', '\\t')
-                .replace('|', ''))
+        return (
+            value.replace('\n', '\\n')
+            .replace('\r', '\\r')
+            .replace('\t', '\\t')
+            .replace('|', '')
+        )
 
 
-class VoicemailConf(object):
-
+class VoicemailConf:
     def __init__(self, voicemail_generator):
         self.voicemail_generator = voicemail_generator
         self._voicemail_settings = asterisk_conf_dao.find_voicemail_general_settings()
@@ -94,7 +94,7 @@ class VoicemailConf(object):
         self._gen_general_section(ast_writer)
         ast_writer.write_newline()
         self._gen_zonemessages_section(ast_writer)
-        output.write('\n{}\n'.format(self.voicemail_generator.generate()))
+        output.write(f'\n{self.voicemail_generator.generate()}\n')
 
     def _gen_general_section(self, ast_writer):
         ast_writer.write_section('general')

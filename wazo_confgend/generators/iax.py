@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
 from xivo_dao import asterisk_conf_dao
 
@@ -15,7 +13,7 @@ def write_allow_rules(allowed, ast_writer):
         ast_writer.write_option('allow', value)
 
 
-class IaxConf(object):
+class IaxConf:
     def __init__(self):
         self._general_settings = asterisk_conf_dao.find_iax_general_settings()
         self._call_limit_settings = asterisk_conf_dao.find_iax_calllimits_settings()
@@ -49,19 +47,23 @@ class IaxConf(object):
         if self._call_limit_settings:
             ast_writer.write_section('callnumberlimits')
             for auth in self._call_limit_settings:
-                name = '{}/{}'.format(auth['destination'], auth['netmask'])
+                name = f"{auth['destination']}/{auth['netmask']}"
                 ast_writer.write_option(name, auth['calllimits'])
 
     def _generate_trunk(self, trunk, ast_writer):
         ast_writer.write_section(trunk.name)
 
-        exclude_options = ('id', 'name', 'protocol', 'category', 'commented', 'disallow')
+        exclude_options = (
+            'id',
+            'name',
+            'protocol',
+            'category',
+            'commented',
+            'disallow',
+        )
         for k, v in trunk.all_options(exclude=exclude_options):
             if v in (None, ''):
                 continue
-
-            if isinstance(v, unicode):
-                v = v.encode('utf8')
 
             if k == 'allow':
                 write_allow_rules(v, ast_writer)

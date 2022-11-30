@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2011-2016 Avencall
+# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import StringIO
+import io
 
 from hamcrest import all_of
 from hamcrest import assert_that
@@ -15,7 +14,7 @@ from hamcrest import starts_with
 
 
 def assert_generates_config(generator, expected):
-    output = StringIO.StringIO()
+    output = io.StringIO()
     generator.generate(output)
 
     assert_config_equal(output.getvalue(), expected)
@@ -45,9 +44,9 @@ def assert_lines_contain(config, expected):
 
 
 def _equal_to_section_name(expected):
-    return all_of(starts_with('['),
-                  ends_with(']'),
-                  equal_to_ignoring_whitespace(expected))
+    return all_of(
+        starts_with('['), ends_with(']'), equal_to_ignoring_whitespace(expected)
+    )
 
 
 def _section_body_matchers(expected):

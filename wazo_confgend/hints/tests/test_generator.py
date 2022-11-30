@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright 2014-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -7,7 +6,7 @@ import unittest
 from mock import Mock, patch
 from hamcrest import assert_that, contains_exactly
 
-from ..import adaptor
+from .. import adaptor
 from ..generator import HintGenerator
 from ..adaptor import HintAdaptor
 
@@ -15,8 +14,9 @@ CONTEXT = 'context'
 
 
 class TestGenerator(unittest.TestCase):
-
-    def test_given_an_adaptor_that_generates_nothing_then_generator_returns_an_empty_list(self):
+    def test_given_an_adaptor_that_generates_nothing_then_generator_returns_an_empty_list(
+        self,
+    ):
         adaptor = Mock(HintAdaptor)
         adaptor.generate.return_value = []
 
@@ -24,13 +24,18 @@ class TestGenerator(unittest.TestCase):
 
         assert_that(generator.generate(CONTEXT), contains_exactly())
 
-    def test_given_an_adaptor_generates_a_hint_then_generator_returns_formatted_hint(self):
+    def test_given_an_adaptor_generates_a_hint_then_generator_returns_formatted_hint(
+        self,
+    ):
         adaptor = Mock(HintAdaptor)
         adaptor.generate.return_value = [('4000', 'confbridge:1')]
 
         generator = HintGenerator([adaptor], [])
 
-        assert_that(generator.generate(CONTEXT), contains_exactly('exten = 4000,hint,confbridge:1'))
+        assert_that(
+            generator.generate(CONTEXT),
+            contains_exactly('exten = 4000,hint,confbridge:1'),
+        )
         adaptor.generate.assert_called_once_with(CONTEXT)
 
     def test_given_2_adaptors_then_generates_hint_for_all_adaptors(self):
@@ -42,13 +47,18 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([first_adaptor, second_adaptor], [])
 
-        assert_that(generator.generate(CONTEXT),
-                    contains_exactly('exten = 1000,hint,1000',
-                                     'exten = 4000,hint,confbridge:1'))
+        assert_that(
+            generator.generate(CONTEXT),
+            contains_exactly(
+                'exten = 1000,hint,1000', 'exten = 4000,hint,confbridge:1'
+            ),
+        )
         first_adaptor.generate.assert_called_once_with(CONTEXT)
         second_adaptor.generate.assert_called_once_with(CONTEXT)
 
-    def test_given_2_adaptors_generate_same_hint_then_generator_returns_hint_only_once(self):
+    def test_given_2_adaptors_generate_same_hint_then_generator_returns_hint_only_once(
+        self,
+    ):
         first_adaptor = Mock(HintAdaptor)
         first_adaptor.generate.return_value = [('1000', 'PJSIP/abcdef')]
 
@@ -57,7 +67,10 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([first_adaptor, second_adaptor], [])
 
-        assert_that(generator.generate(CONTEXT), contains_exactly('exten = 1000,hint,PJSIP/abcdef'))
+        assert_that(
+            generator.generate(CONTEXT),
+            contains_exactly('exten = 1000,hint,PJSIP/abcdef'),
+        )
         first_adaptor.generate.assert_called_once_with(CONTEXT)
         second_adaptor.generate.assert_called_once_with(CONTEXT)
 
@@ -67,9 +80,12 @@ class TestGenerator(unittest.TestCase):
 
         generator = HintGenerator([], [first_adaptor])
 
-        assert_that(generator.generate_global_hints(), contains_exactly(
-            'exten = 1001,hint,PJSIP/abc&SCCP/1042',
-        ))
+        assert_that(
+            generator.generate_global_hints(),
+            contains_exactly(
+                'exten = 1001,hint,PJSIP/abc&SCCP/1042',
+            ),
+        )
 
     def test_that_user_generated_hints_are_not_overridden(self):
         custom_adaptor = Mock(adaptor.CustomAdaptor)

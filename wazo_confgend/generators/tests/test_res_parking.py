@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
 import unittest
 
@@ -12,10 +10,10 @@ from wazo_confgend.generators.tests.util import assert_generates_config
 
 
 class TestResParkingConf(unittest.TestCase):
-
     def _new_conf(self, settings, parking_lots=None):
-        with patch('xivo_dao.asterisk_conf_dao.find_parking_settings'), \
-                patch('xivo_dao.resources.parking_lot.dao.find_all_by'):
+        with patch('xivo_dao.asterisk_conf_dao.find_parking_settings'), patch(
+            'xivo_dao.resources.parking_lot.dao.find_all_by'
+        ):
             conf = ResParkingConf()
             conf._settings = settings
             conf._parking_lots = parking_lots or []
@@ -29,44 +27,50 @@ class TestResParkingConf(unittest.TestCase):
 
         res_parking_conf = self._new_conf(settings)
 
-        assert_generates_config(res_parking_conf, '''
+        assert_generates_config(
+            res_parking_conf,
+            '''
             [general]
-        ''')
+        ''',
+        )
 
     def test_settings(self):
         settings = {
             'general_options': [('parkeddynamic', 'no')],
-            'parking_lots': [{
-                'name': 'default',
-                'options': [('parkext', '700')]
-            }],
+            'parking_lots': [{'name': 'default', 'options': [('parkext', '700')]}],
         }
 
         res_parking_conf = self._new_conf(settings)
 
-        assert_generates_config(res_parking_conf, '''
+        assert_generates_config(
+            res_parking_conf,
+            '''
             [general]
             parkeddynamic = no
 
             [default]
             parkext = 700
-        ''')
+        ''',
+        )
 
     def test_settings_with_parking_lots(self):
-        settings = {
-            'general_options': [],
-            'parking_lots': []
-        }
-        parking_lots = [Mock(id=1,
-                             slots_start='801',
-                             slots_end='850',
-                             extensions=[Mock(exten='800', context='default')],
-                             music_on_hold='music_class',
-                             timeout=60)]
+        settings = {'general_options': [], 'parking_lots': []}
+        parking_lots = [
+            Mock(
+                id=1,
+                slots_start='801',
+                slots_end='850',
+                extensions=[Mock(exten='800', context='default')],
+                music_on_hold='music_class',
+                timeout=60,
+            )
+        ]
 
         res_parking_conf = self._new_conf(settings, parking_lots)
 
-        assert_generates_config(res_parking_conf, '''
+        assert_generates_config(
+            res_parking_conf,
+            '''
             [general]
 
             [parkinglot-1]
@@ -84,23 +88,27 @@ class TestResParkingConf(unittest.TestCase):
             parkedcallreparking = no
             parkedcallhangup = no
             parkedcallrecording = no
-        ''')
+        ''',
+        )
 
     def test_parking_lots_with_none_values(self):
-        settings = {
-            'general_options': [],
-            'parking_lots': []
-        }
-        parking_lots = [Mock(id=1,
-                             slots_start='801',
-                             slots_end='850',
-                             extensions=[Mock(exten='800', context='default')],
-                             music_on_hold=None,
-                             timeout=None)]
+        settings = {'general_options': [], 'parking_lots': []}
+        parking_lots = [
+            Mock(
+                id=1,
+                slots_start='801',
+                slots_end='850',
+                extensions=[Mock(exten='800', context='default')],
+                music_on_hold=None,
+                timeout=None,
+            )
+        ]
 
         res_parking_conf = self._new_conf(settings, parking_lots)
 
-        assert_generates_config(res_parking_conf, '''
+        assert_generates_config(
+            res_parking_conf,
+            '''
             [general]
 
             [parkinglot-1]
@@ -118,4 +126,5 @@ class TestResParkingConf(unittest.TestCase):
             parkedcallreparking = no
             parkedcallhangup = no
             parkedcallrecording = no
-        ''')
+        ''',
+        )

@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
 from operator import itemgetter
 
@@ -13,8 +11,7 @@ _GUEST_DEVICE_NAME = 'guest'
 _GUEST_LINE_NAME = 'guestline'
 
 
-class SccpConf(object):
-
+class SccpConf:
     def __init__(self):
         self._sccpgeneralsettings = asterisk_conf_dao.find_sccp_general_settings()
         self._sccpline = asterisk_conf_dao.find_sccp_line_settings()
@@ -22,13 +19,17 @@ class SccpConf(object):
         self._sccpspeeddial = asterisk_conf_dao.find_sccp_speeddial_settings()
 
     def generate(self, output):
-        splitted_settings = _SplittedGeneralSettings.new_from_dao_general_settings(self._sccpgeneralsettings)
+        splitted_settings = _SplittedGeneralSettings.new_from_dao_general_settings(
+            self._sccpgeneralsettings
+        )
 
         sccp_general_conf = _SccpGeneralSettingsConf()
         sccp_general_conf.generate(splitted_settings.general_items, output)
 
         sccp_device_conf = _SccpDeviceConf(self._sccpspeeddial)
-        sccp_device_conf.generate(self._sccpdevice, splitted_settings.device_items, output)
+        sccp_device_conf.generate(
+            self._sccpdevice, splitted_settings.device_items, output
+        )
 
         sccp_line_conf = _SccpLineConf()
         sccp_line_conf.generate(self._sccpline, splitted_settings.line_items, output)
@@ -37,10 +38,17 @@ class SccpConf(object):
         sccp_speeddial_conf.generate(self._sccpspeeddial, output)
 
 
-class _SplittedGeneralSettings(object):
+class _SplittedGeneralSettings:
 
     _DEVICE_OPTIONS = ['dialtimeout', 'dateformat', 'vmexten', 'keepalive']
-    _LINES_OPTIONS = ['context', 'language', 'directmedia', 'tos_audio', 'disallow', 'allow']
+    _LINES_OPTIONS = [
+        'context',
+        'language',
+        'directmedia',
+        'tos_audio',
+        'disallow',
+        'allow',
+    ]
 
     def __init__(self, general_items, device_items, line_items):
         self.general_items = general_items
@@ -65,8 +73,7 @@ class _SplittedGeneralSettings(object):
         return cls(general_items, device_items, line_items)
 
 
-class _SccpGeneralSettingsConf(object):
-
+class _SccpGeneralSettingsConf:
     def generate(self, general_items, output):
         ast_writer = AsteriskFileWriter(output)
         ast_writer.write_section('general')
@@ -75,7 +82,7 @@ class _SccpGeneralSettingsConf(object):
         ast_writer.write_newline()
 
 
-class _SccpDeviceConf(object):
+class _SccpDeviceConf:
 
     _TPL_NAME = 'xivo_device_tpl'
 
@@ -117,10 +124,12 @@ class _SccpDeviceConf(object):
     def _generate_speeddials(self, device, ast_writer):
         for item in self._sccpspeeddialdevices:
             if item['device'] == device:
-                ast_writer.write_option('speeddial', '{:d}-{:d}'.format(item['user_id'], item['fknum']))
+                ast_writer.write_option(
+                    'speeddial', f"{item['user_id']:d}-{item['fknum']:d}"
+                )
 
 
-class _SccpLineConf(object):
+class _SccpLineConf:
 
     _TPL_NAME = 'xivo_line_tpl'
 
@@ -161,14 +170,19 @@ class _SccpLineConf(object):
             ast_writer.write_option('type', 'line')
             ast_writer.write_option('cid_name', item['cid_name'])
             ast_writer.write_option('cid_num', item['cid_num'])
-            ast_writer.write_option('setvar', 'XIVO_ORIGINAL_CALLER_ID="{cid_name}" <{cid_num}>'.format(**item))
-            ast_writer.write_option('setvar', 'XIVO_USERID={}'.format(item['user_id']))
-            ast_writer.write_option('setvar', 'XIVO_USERUUID={}'.format(item['uuid']))
-            ast_writer.write_option('setvar', 'WAZO_TENANT_UUID={}'.format(item['tenant_uuid']))
-            ast_writer.write_option('setvar', 'PICKUPMARK={number}%{context}'.format(**item))
-            ast_writer.write_option('setvar', 'TRANSFER_CONTEXT={}'.format(item['context']))
+            ast_writer.write_option(
+                'setvar',
+                'XIVO_ORIGINAL_CALLER_ID="{cid_name}" <{cid_num}>'.format(**item),
+            )
+            ast_writer.write_option('setvar', f"XIVO_USERID={item['user_id']}")
+            ast_writer.write_option('setvar', f"XIVO_USERUUID={item['uuid']}")
+            ast_writer.write_option('setvar', f"WAZO_TENANT_UUID={item['tenant_uuid']}")
+            ast_writer.write_option(
+                'setvar', 'PICKUPMARK={number}%{context}'.format(**item)
+            )
+            ast_writer.write_option('setvar', f"TRANSFER_CONTEXT={item['context']}")
             ast_writer.write_option('setvar', 'WAZO_CHANNEL_DIRECTION=from-wazo')
-            ast_writer.write_option('setvar', 'WAZO_LINE_ID={}'.format(item['id']))
+            ast_writer.write_option('setvar', f"WAZO_LINE_ID={item['id']}")
             if item['enable_online_recording']:
                 ast_writer.write_option('setvar', 'DYNAMIC_FEATURES=togglerecord')
             if item['language']:
@@ -179,17 +193,21 @@ class _SccpLineConf(object):
             if 'allow' in item:
                 ast_writer.write_option('allow', item['allow'])
             if 'callgroup' in item:
-                ast_writer.write_option('namedcallgroup', ','.join(map(str, item['callgroup'])))
+                ast_writer.write_option(
+                    'namedcallgroup', ','.join(map(str, item['callgroup']))
+                )
             if 'pickupgroup' in item:
-                ast_writer.write_option('namedpickupgroup', ','.join(map(str, item['pickupgroup'])))
+                ast_writer.write_option(
+                    'namedpickupgroup', ','.join(map(str, item['pickupgroup']))
+                )
             ast_writer.write_newline()
 
 
-class _SccpSpeedDialConf(object):
+class _SccpSpeedDialConf:
     def generate(self, sccpspeeddial, output):
         ast_writer = AsteriskFileWriter(output)
         for item in sccpspeeddial:
-            ast_writer.write_section('{:d}-{:d}'.format(item['user_id'], item['fknum']))
+            ast_writer.write_section(f"{item['user_id']:d}-{item['fknum']:d}")
             ast_writer.write_option('type', 'speeddial')
             ast_writer.write_option('extension', item['exten'])
             if item['label']:

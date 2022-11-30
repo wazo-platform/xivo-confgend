@@ -1,32 +1,29 @@
-# -*- coding: utf-8 -*-
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
-
 
 def format_ast_comment(comment):
-    return '; {}'.format(comment)
+    return f'; {comment}'
 
 
 def format_ast_section(name):
-    return '[{}]'.format(name)
+    return f'[{name}]'
 
 
 def format_ast_section_tpl(name):
-    return '[{}](!)'.format(name)
+    return f'[{name}](!)'
 
 
 def format_ast_section_using_tpl(name, tpl_name):
-    return '[{}]({})'.format(name, tpl_name)
+    return f'[{name}]({tpl_name})'
 
 
 def format_ast_option(name, value):
-    return '{} = {}'.format(name, value).strip()
+    return f'{name} = {value}'.strip()
 
 
 def format_ast_object_option(name, value):
-    return '{} => {}'.format(name, value).strip()
+    return f'{name} => {value}'.strip()
 
 
 def format_none_as_empty(value):
@@ -36,8 +33,7 @@ def format_none_as_empty(value):
         return value
 
 
-class AsteriskFileWriter(object):
-
+class AsteriskFileWriter:
     def __init__(self, fobj):
         self._fobj = fobj
         self._first_section = True
@@ -76,4 +72,4 @@ class AsteriskFileWriter(object):
         self._fobj.write('\n')
 
     def _write_line(self, line):
-        self._fobj.write('{}\n'.format(line))
+        self._fobj.write(f'{line}\n')

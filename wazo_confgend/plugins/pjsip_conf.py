@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-# Copyright 2018-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2018-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
-from __future__ import unicode_literals
 
-from StringIO import StringIO
+
+from io import StringIO
 
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.asterisk_file import dao as asterisk_file_dao
@@ -13,15 +12,16 @@ from ..helpers.asterisk import AsteriskFileGenerator
 from wazo_confgend.generators.util import AsteriskFileWriter
 
 
-class PJSIPConfGenerator(object):
-
+class PJSIPConfGenerator:
     def __init__(self, dependencies):
         pass
 
     def generate(self):
         asterisk_file_generator = AsteriskFileGenerator(asterisk_file_dao)
         output = StringIO()
-        asterisk_file_generator.generate('pjsip.conf', output, required_sections=['global', 'system'])
+        asterisk_file_generator.generate(
+            'pjsip.conf', output, required_sections=['global', 'system']
+        )
         self.generate_transports(output)
         output.write('\n')
         self.generate_lines(output)
@@ -75,7 +75,9 @@ class PJSIPConfGenerator(object):
             name = endpoint['name']
             label = endpoint.get('label')
             endpoint_section_options = endpoint.get('endpoint_section_options', [])
-            registration_section_options = endpoint.get('registration_section_options', [])
+            registration_section_options = endpoint.get(
+                'registration_section_options', []
+            )
             writer.write_section(name, comment=label)
             writer.write_options(endpoint_section_options)
             sections = {

@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright 2016-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import unicode_literals
 
 import os
 
@@ -16,7 +14,6 @@ from ..template import TemplateHelper
 
 
 class TestTemplateHelper(TestCase):
-
     def setUp(self):
         self.loader = PackageLoader('wazo_confgend', 'tests/templates')
         self.tpl_helper = TemplateHelper(self.loader)
@@ -29,7 +26,9 @@ class TestTemplateHelper(TestCase):
     def test_get_customizable_template(self):
         template = self.tpl_helper.get_customizable_template('foo', 'custom')
 
-        assert_that(basename(template._jinja_template.filename), equal_to('foo-custom.jinja'))
+        assert_that(
+            basename(template._jinja_template.filename), equal_to('foo-custom.jinja')
+        )
 
     def test_get_customizable_template_no_custom(self):
         template = self.tpl_helper.get_customizable_template('foo', 'mrgbl')
@@ -45,12 +44,16 @@ class TestTemplateHelper(TestCase):
 
 
 class TestIVRTemplate(TestCase):
-
     def setUp(self):
         cwd = os.path.dirname(os.path.abspath(__file__))
         self.template_path = os.path.abspath(
             os.path.join(
-                cwd, '..', 'templates', 'asterisk', 'extensions', 'ivr.jinja',
+                cwd,
+                '..',
+                'templates',
+                'asterisk',
+                'extensions',
+                'ivr.jinja',
             ),
         )
 

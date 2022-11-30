@@ -1,10 +1,7 @@
 # Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-
 import configparser
-import collections
-import itertools
 import logging
 
 from xivo import xivo_helpers
@@ -12,7 +9,7 @@ from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.ivr import dao as ivr_dao
 
 from wazo_confgend.generators.util import AsteriskFileWriter
-
+from wazo_confgend.helpers.asterisk import asterisk_parser
 
 logger = logging.getLogger(__name__)
 
@@ -52,34 +49,6 @@ DEFAULT_EXTENFEATURES = {
     'groupmemberjoin': 'GoSub(group-member-join,s,1(${EXTEN:3}))',
     'groupmemberleave': 'GoSub(group-member-leave,s,1(${EXTEN:3}))',
 }
-
-
-class CustomConfigParserStorage(collections.UserDict):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.data = collections.OrderedDict(self.data)
-        self.counter = itertools.count(start=1)
-
-    def __setitem__(self, k, v):
-        if isinstance(v, list):
-            # if list, we assume this is a new option declaration
-            # configparser creates option values as list to deal with multiline values
-            self.data[f"{next(self.counter)}:{k}"] = v
-        else:
-            # this is either a SectionProxy object,
-            # or an option value transformed from list form to string(so not a new option)
-            self.data[k] = v
-
-
-class CustomConfigParser(configparser.RawConfigParser):
-    def items(self, *args, **kwargs):
-        # Coupled with above CustomConfigParserStorage class as dict_type,
-        # we trick configparser into tracking each duplicate option declarations by storing them under different keys
-        # This reverts the trick in order to expose duplicate options under their real name
-        return [
-            (option.split(":", maxsplit=1)[-1], value)
-            for option, value in super().items(*args, **kwargs)
-        ]
 
 
 class ExtensionGenerator:
@@ -139,13 +108,7 @@ class ExtensionsConf:
 
     def generate(self, output):
         ast_writer = AsteriskFileWriter(output)
-        conf = CustomConfigParser(
-            dict_type=CustomConfigParserStorage,
-            strict=False,
-            interpolation=None,
-            empty_lines_in_values=False,
-            inline_comment_prefixes=[";"],
-        )
+        conf = asterisk_parser()
 
         if self.contextsconf is not None:
             # load and validate template conf

@@ -1,8 +1,7 @@
-FROM wazoplatform/wazo-confgend:local
+ARG BASE_TAG=local
+FROM wazoplatform/wazo-confgend:$BASE_TAG
 ARG WAZO_CONFGEND_CLIENT_REV=master
 
-# install useful utilities
-RUN apt-get -y update && apt-get install -y inetutils-ping
 # get wazo-confgen client binary from repo.
 ADD --chmod=700 https://raw.githubusercontent.com/wazo-platform/wazo-confgend-client/$WAZO_CONFGEND_CLIENT_REV/bin/wazo-confgen /usr/local/bin/wazo-confgen
 
@@ -10,9 +9,6 @@ ADD --chmod=700 https://raw.githubusercontent.com/wazo-platform/wazo-confgend-cl
 COPY . /usr/local/src/wazo-confgend
 WORKDIR /usr/local/src/wazo-confgend
 RUN python setup.py develop
-ENV PATH="/opt/venv/bin:$PATH"
-
-# volume for test data
-VOLUME /data
+ENV PYTHONDONTWRITEBYTECODE='true'
 
 CMD ["/opt/venv/bin/wazo-confgend"]

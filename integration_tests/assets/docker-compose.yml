@@ -3,7 +3,7 @@ services:
   sync:
     image: wazoplatform/wait
     environment:
-      TIMEOUT: "${INTEGRATION_TEST_TIMEOUT:-10}"
+      TIMEOUT: "${INTEGRATION_TEST_TIMEOUT}"
 
   confgend:
     image: wazoplatform/wazo-confgend-test:local
@@ -11,13 +11,12 @@ services:
     # ports:
     #   - "8669"
     environment:
-      - PYTHONUNBUFFERED=TRUE
+      - PYTHONUNBUFFERED: TRUE
     volumes:
       # for live code update
       - "${CONFGEND_SRC:-../../..}:/usr/local/src/wazo-confgend"
-      # for reference data
-      - "${DATA_DIR:-./data}:/data"
-      - "./etc/wazo-confgend/conf.d:/etc/wazo-confgend/conf.d"
+      - "./etc/wazo-confgend/conf.d/50-default.yml:/etc/wazo-confgend/conf.d/50-default.yml"
+      - "${CONFGEND_CLIENT_SRC}/bin/wazo-confgen:/usr/local/bin/wazo-confgen"
       # - "${LOCAL_GIT_REPOS}/xivo-dao/xivo_dao:/opt/venv/lib/python2.7/site-packages/xivo_dao"
       # - "${LOCAL_GIT_REPOS}/xivo-lib-python/xivo:/opt/venv/lib/python2.7/site-packages/xivo"
 

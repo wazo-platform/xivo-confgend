@@ -1,2 +1,2 @@
 pytest
-https://github.com/wazo-platform/wazo-test-helpers/archive/refs/heads/master.zip
+https://github.com/wazo-platform/wazo-test-helpers/archive/master.zip

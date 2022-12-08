@@ -7,11 +7,11 @@ services:
 
   confgend:
     image: wazoplatform/wazo-confgend-test:local
-    entrypoint: ["wazo-confgend"]
     volumes:
       # for live code update
       - "${CONFGEND_SRC:-../..}:/usr/local/src/wazo-confgend"
       - "./etc/wazo-confgend/conf.d/50-default.yml:/etc/wazo-confgend/conf.d/50-default.yml"
+      # for wazo-confgen client
       - "${CONFGEND_CLIENT_SRC}/bin/wazo-confgen:/usr/local/bin/wazo-confgen"
       # - "${LOCAL_GIT_REPOS}/xivo-dao/xivo_dao:/opt/venv/lib/python2.7/site-packages/xivo_dao"
       # - "${LOCAL_GIT_REPOS}/xivo-lib-python/xivo:/opt/venv/lib/python2.7/site-packages/xivo"

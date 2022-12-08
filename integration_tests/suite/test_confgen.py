@@ -3,7 +3,7 @@ import pytest
 from wazo_test_helpers import asset_launching_test_case
 import pathlib
 import sys
-import time
+from typing import List, Iterable
 
 
 @pytest.fixture(scope="class")
@@ -14,7 +14,7 @@ def pjsip_void_conf(request):
     request.cls.pjsip_void_conf = conf
 
 
-def normalize_lines(line_stream):
+def normalize_lines(line_stream: Iterable[str]):
     for line in line_stream:
         line = line.strip()
         if line:
@@ -25,20 +25,20 @@ def lines(text: str):
     return text.splitlines()
 
 
-def run(cmd: list[str], timeout=10) -> subprocess.CompletedProcess:
+def run(cmd: List[str], timeout: int = 10) -> subprocess.CompletedProcess:
     result = subprocess.run(
         cmd, capture_output=True, text=True, check=True, timeout=timeout
     )
     return result
 
 
-class TestCaseBase(asset_launching_test_case.AssetLaunchingTestCase):
+class BaseTestCase(asset_launching_test_case.AssetLaunchingTestCase):
     service = "confgend"
     assets_root = pathlib.Path(__file__).parent.parent / "assets"
     asset = "base"
 
     def docker_exec(
-        cls, cmd: list[str], service_name: str = None
+        cls, cmd: List[str], service_name: str = None
     ) -> subprocess.CompletedProcess:
         service_name = service_name or cls.service
         docker_command = [
@@ -54,9 +54,13 @@ class TestCaseBase(asset_launching_test_case.AssetLaunchingTestCase):
             raise
         return completed
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
 
 @pytest.mark.usefixtures("pjsip_void_conf")
-class TestConfgenDefaults(TestCaseBase):
+class TestConfgenDefaults(BaseTestCase):
     def test_uuid_yml(self):
         completed = self.docker_exec(["wazo-confgen", "wazo/uuid.yml"])
         assert completed.returncode == 0
@@ -130,31 +134,3 @@ class TestConfgenDefaults(TestCaseBase):
     def test_sccp_conf(self):
         completed = self.docker_exec(["wazo-confgen", "asterisk/sccp.conf"])
         assert completed.returncode == 0
-
-    def test_benchmark(self):
-        configs = [
-            "asterisk/sccp.conf",
-            "asterisk/voicemail.conf",
-            "asterisk/res_parking.conf",
-            "asterisk/features.conf",
-            "asterisk/extensions.conf",
-            "asterisk/queuerules.conf",
-            "asterisk/queueskills.conf",
-            "asterisk/queueskillrules.conf",
-            "asterisk/iax.conf",
-            "asterisk/queues.conf",
-            "asterisk/confbridge.conf",
-            "asterisk/modules.conf",
-            "asterisk/musiconhold.conf",
-            "asterisk/hep.conf",
-            "asterisk/rtp.conf",
-            "asterisk/voicemail.conf",
-        ]
-        for config in configs:
-            before = time.time()
-            _ = self.docker_exec(["wazo-confgen", config])
-            after = time.time()
-            delay = after - before
-            print(f"wazo-confgen {config} completed in {delay}s")
-            # expect less than 1 second
-            assert delay < 1

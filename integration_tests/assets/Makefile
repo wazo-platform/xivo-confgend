@@ -1,10 +1,10 @@
 .ONESHELL:
+
 INTEGRATION_TEST_TIMEOUT=30
-WAZO_ROOT=$HOME/wazo
+WAZO_ROOT=$(HOME)/wazo
 .env:
 	cat >$@ <<- EOF
-	CONFGEND_SRC=$$(realpath ../../..)
-	DATA_DIR=./data
+	CONFGEND_SRC=$$(realpath ../..)
 	INTEGRATION_TEST_TIMEOUT=$(INTEGRATION_TEST_TIMEOUT)
 	CONFGEND_CLIENT_SRC=$$(realpath $(WAZO_ROOT)/wazo-confgend-client)
 	EOF

@@ -16,23 +16,37 @@ image/confgend-test: IMAGE_NAME=wazoplatform/wazo-confgend-test
 image/confgend-test: $(DOCKERFILE) $(shell git ls-files) image/confgend-base
 	$(DOCKER) build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) ..
 
-DB_RECIPE=build
-DB_PULL_SRC=docker.io/wazoplatform/wazo-confd-db-test:latest
-image/db: DOCKERFILE=$(MANAGE_DB_DIR)/contribs/docker/wazo-confd-db-test/Dockerfile
-image/db: IMAGE_NAME=wazoplatform/wazo-confgend-db-test
-image/db: $(DOCKERFILE)
-ifeq ($(DB_RECIPE),build)
-	$(DOCKER) build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(MANAGE_DB_DIR)
-else ifeq ($(DB_RECIPE),pull)
-	$(DOCKER) pull $(DB_PULL_SRC)
-	$(DOCKER) tag $(DB_PULL_SRC) $(IMAGE_NAME):$(IMAGE_TAG)
+ifdef MANAGE_DB_DIR
+MANAGE_DB_TARGET=local
+else
+MANAGE_DB_TARGET=docker.io
 endif
+
+image/db/local: DOCKERFILE=$(MANAGE_DB_DIR)/contribs/docker/wazo-confd-db-test/Dockerfile
+image/db/local: IMAGE_NAME=wazoplatform/wazo-confgend-db-test
+image/db/local: $(DOCKERFILE)
+	$(DOCKER) build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(MANAGE_DB_DIR)
+
+image/db/docker.io: PULL_SRC=docker.io/wazoplatform/wazo-confd-db-test:latest
+image/db/docker.io:
+	$(DOCKER) pull $(PULL_SRC)
+	$(DOCKER) tag $(PULL_SRC) $(IMAGE_NAME):$(IMAGE_TAG)
+
+image/db: image/db/$(MANAGE_DB_TARGET)
 
 egg-info:
 	$(MAKE) -C .. egg-info
 
 
-test-setup: image/confgend-test image/db egg-info
+CONFGEND_CLIENT_SRC=$(WAZO_ROOT)/wazo-confgend-client
+
+$(CONFGEND_CLIENT_SRC): GIT_REV=5813b0949c40858b78226a193a971c09955b32f9
+$(CONFGEND_CLIENT_SRC):
+	git clone https://github.com/wazo-platform/wazo-confgend-client.git $(CONFGEND_CLIENT_SRC)
+	cd $(CONFGEND_CLIENT_SRC) && git checkout $(GIT_REV)
+
+
+test-setup: image/confgend-test image/db egg-info $(CONFGEND_CLIENT_SRC)
 	# generate default settings for compose stack
 	$(MAKE) -C assets .env
 	# check docker-compose
@@ -58,4 +72,4 @@ clean:
 	rm -rf $(VENV_DIR)
 
 
-.PHONY: test-setup test egg-info venv clean image/confgend-test image/confgend-base image/db
+.PHONY: test-setup test egg-info venv clean image/confgend-test image/confgend-base image/db image/db/local image/db/docker.io

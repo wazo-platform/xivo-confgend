@@ -41,6 +41,7 @@ image/db/local: $(DOCKERFILE)
 	$(DOCKER) build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(MANAGE_DB_DIR)
 
 image/db/docker.io: PULL_SRC=docker.io/wazoplatform/wazo-confd-db-test:latest
+image/db/docker.io: IMAGE_NAME=wazoplatform/wazo-confgend-db-test
 image/db/docker.io:
 	$(DOCKER) pull $(PULL_SRC)
 	$(DOCKER) tag $(PULL_SRC) $(IMAGE_NAME):$(IMAGE_TAG)

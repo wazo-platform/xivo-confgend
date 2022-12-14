@@ -1,5 +1,17 @@
 .ONESHELL:
 
+
+test-setup: image/confgend-test image/db egg-info
+	# generate default settings for compose stack
+	$(MAKE) -C assets .env
+	# check docker-compose
+	which docker-compose && docker-compose --version && echo "docker-compose available!"
+
+
+test: test-setup
+	pytest -v suite/
+
+
 WAZO_ROOT=$(HOME)/wazo
 DENV_PATH=$(WAZO_ROOT)/denv/denv
 MANAGE_DB_DIR=$(WAZO_ROOT)/xivo-manage-db
@@ -15,6 +27,7 @@ image/confgend-test: DOCKERFILE=./docker/Dockerfile-confgend
 image/confgend-test: IMAGE_NAME=wazoplatform/wazo-confgend-test
 image/confgend-test: $(DOCKERFILE) $(shell git ls-files) image/confgend-base
 	$(DOCKER) build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) ..
+
 
 ifdef MANAGE_DB_DIR
 MANAGE_DB_TARGET=local
@@ -36,25 +49,6 @@ image/db: image/db/$(MANAGE_DB_TARGET)
 
 egg-info:
 	$(MAKE) -C .. egg-info
-
-
-CONFGEND_CLIENT_SRC=$(WAZO_ROOT)/wazo-confgend-client
-
-$(CONFGEND_CLIENT_SRC): GIT_REV=5813b0949c40858b78226a193a971c09955b32f9
-$(CONFGEND_CLIENT_SRC):
-	git clone https://github.com/wazo-platform/wazo-confgend-client.git $(CONFGEND_CLIENT_SRC)
-	cd $(CONFGEND_CLIENT_SRC) && git checkout $(GIT_REV)
-
-
-test-setup: image/confgend-test image/db egg-info $(CONFGEND_CLIENT_SRC)
-	# generate default settings for compose stack
-	$(MAKE) -C assets .env
-	# check docker-compose
-	which docker-compose && docker-compose --version && echo "docker-compose available!"
-
-
-test: test-setup
-	pytest -v suite/
 
 
 VENV_DIR=.venv

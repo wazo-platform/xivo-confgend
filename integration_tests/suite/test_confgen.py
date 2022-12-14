@@ -6,6 +6,10 @@ import sys
 from typing import List, Iterable
 
 
+INTERNAL_CONFGEND_PORT = 8669
+DEFAULT_CONFGEND_CLIENT_TIMEOUT = 1
+
+
 @pytest.fixture(scope="class")
 def pjsip_void_conf(request):
     with open("suite/pjsip_void.conf") as file:
@@ -26,9 +30,13 @@ def lines(text: str):
 
 
 def run(cmd: List[str], timeout: int = 10) -> subprocess.CompletedProcess:
-    result = subprocess.run(
-        cmd, capture_output=True, text=True, check=True, timeout=timeout
-    )
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, check=True, timeout=timeout
+        )
+    except subprocess.CalledProcessError as ex:
+        print(ex.stderr)
+        raise
     return result
 
 
@@ -55,82 +63,97 @@ class BaseTestCase(asset_launching_test_case.AssetLaunchingTestCase):
         return completed
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def client(cls, args):
+        # going through host local port-map
+        host = "127.0.0.1"
+        timeout = DEFAULT_CONFGEND_CLIENT_TIMEOUT
+        return run(
+            [
+                "wazo-confgen",
+                "--port",
+                str(cls.service_port(INTERNAL_CONFGEND_PORT)),
+                "--host",
+                host,
+                "--timeout",
+                str(timeout),
+                *args,
+            ],
+            timeout,
+        )
 
 
 @pytest.mark.usefixtures("pjsip_void_conf")
 class TestConfgenDefaults(BaseTestCase):
     def test_uuid_yml(self):
-        completed = self.docker_exec(["wazo-confgen", "wazo/uuid.yml"])
+        completed = self.client(["wazo/uuid.yml"])
         assert completed.returncode == 0
 
     def test_provd_config_yml(self):
-        completed = self.docker_exec(["wazo-confgen", "provd/config.yml"])
+        completed = self.client(["provd/config.yml"])
         assert completed.returncode == 0
 
     def test_pjsip_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/pjsip.conf"])
+        completed = self.client(["asterisk/pjsip.conf"])
         expected_lines = list(normalize_lines(self.pjsip_void_conf))
         actual_lines = list(normalize_lines(lines(completed.stdout)))
         assert actual_lines == expected_lines
 
     def test_features_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/features.conf"])
+        completed = self.client(["asterisk/features.conf"])
         assert completed.returncode == 0
 
     def test_extensions_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/extensions.conf"])
+        completed = self.client(["asterisk/extensions.conf"])
         assert completed.returncode == 0
 
     def test_queuerules_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/queuerules.conf"])
+        completed = self.client(["asterisk/queuerules.conf"])
         assert completed.returncode == 0
 
     def test_queueskills_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/queueskills.conf"])
+        completed = self.client(["asterisk/queueskills.conf"])
         assert completed.returncode == 0
 
     def test_queueskillrules_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/queueskillrules.conf"])
+        completed = self.client(["asterisk/queueskillrules.conf"])
         assert completed.returncode == 0
 
     def test_iax_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/iax.conf"])
+        completed = self.client(["asterisk/iax.conf"])
         assert completed.returncode == 0
 
     def test_queues_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/queues.conf"])
+        completed = self.client(["asterisk/queues.conf"])
         assert completed.returncode == 0
 
     def test_confbridge_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/confbridge.conf"])
+        completed = self.client(["asterisk/confbridge.conf"])
         assert completed.returncode == 0
 
     def test_modules_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/modules.conf"])
+        completed = self.client(["asterisk/modules.conf"])
         assert completed.returncode == 0
 
     def test_musiconhold_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/musiconhold.conf"])
+        completed = self.client(["asterisk/musiconhold.conf"])
         assert completed.returncode == 0
 
     def test_hep_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/hep.conf"])
+        completed = self.client(["asterisk/hep.conf"])
         assert completed.returncode == 0
 
     def test_rtp_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/rtp.conf"])
+        completed = self.client(["asterisk/rtp.conf"])
         assert completed.returncode == 0
 
     def test_voicemail_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/voicemail.conf"])
+        completed = self.client(["asterisk/voicemail.conf"])
         assert completed.returncode == 0
 
     def test_res_parking_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/res_parking.conf"])
+        completed = self.client(["asterisk/res_parking.conf"])
         assert completed.returncode == 0
 
     def test_sccp_conf(self):
-        completed = self.docker_exec(["wazo-confgen", "asterisk/sccp.conf"])
+        completed = self.client(["asterisk/sccp.conf"])
         assert completed.returncode == 0

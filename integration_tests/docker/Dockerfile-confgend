@@ -1,6 +1,5 @@
 ARG BASE_TAG=local
 FROM wazoplatform/wazo-confgend:$BASE_TAG
-ARG WAZO_CONFGEND_CLIENT_REV=master
 
 # add back source code and install over version "compiled" in base image.
 COPY . /usr/local/src/wazo-confgend

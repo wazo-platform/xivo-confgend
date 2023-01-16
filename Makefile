@@ -72,7 +72,7 @@ IMAGE_NAME=wazoplatform/wazo-confgend
 IMAGE_TAG=local
 DOCKERFILE=./Dockerfile
 IMAGE_ID_FILE=./.images/default.iid
-.PHONY: docker/build
+.PHONY: build/docker
 build/docker: $(DOCKERFILE) $(shell git ls-files)
 	mkdir -p $$(dirname $(IMAGE_ID_FILE))
 	$(DOCKER) build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) --iidfile $(IMAGE_ID_FILE) .

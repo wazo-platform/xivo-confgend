@@ -8,7 +8,13 @@ test-setup: image/confgend-test image/db egg-info
 	which docker-compose && docker-compose --version && echo "docker-compose available!"
 
 
-test: test-setup
+define activate_venv =
+	. $(VENV_DIR)/bin/activate
+endef
+
+
+test: test-setup venv
+	$(activate_venv)
 	pytest -v suite/
 
 
@@ -58,9 +64,9 @@ PYTHON=$(shell which python3)
 $(VENV_DIR):
 	$(PYTHON) -m venv --clear $(VENV_DIR)
 
-venv: $(VENV_DIR)
+venv: $(VENV_DIR) test-requirements.txt
 	. $(VENV_DIR)/bin/activate
-	pip install -U -r test-requirements.txt
+	pip install -U --force-reinstall -r test-requirements.txt
 
 
 clean:

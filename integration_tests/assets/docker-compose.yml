@@ -6,7 +6,7 @@ services:
       TIMEOUT: "${INTEGRATION_TEST_TIMEOUT}"
 
   confgend:
-    image: wazoplatform/wazo-confgend-test:local
+    image: wazoplatform/wazo-confgend:local
     ports:
       - 8669
     volumes:

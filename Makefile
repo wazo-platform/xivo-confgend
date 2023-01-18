@@ -19,11 +19,12 @@ tests/bats:
 	bats tests
 
 
+wazo-confgend.egg-info:
+	python3 setup.py egg_info
+
 .PHONY: egg-info
 egg-info: wazo-confgend.egg-info
 
-wazo-confgend.egg-info:
-	python setup.py egg_info
 
 
 # creation of development virtual environment
@@ -38,30 +39,6 @@ $(VENV):
 devenv: $(VENV)
 
 
-## Generate installation files using setuptools
-PYTHON=/usr/bin/env python3
-INSTALL_PREFIX=/usr/local
-INSTALL_ROOT=/
-INSTALLOPTS+=-O
-
-INSTALL_RECORD=.install
-$(INSTALL_RECORD):
-	$(PYTHON) setup.py install --record $(INSTALL_RECORD) \
-	--prefix=$(INSTALL_PREFIX) --root=$(INSTALL_ROOT) \
-	$(INSTALLOPTS)
-
-.PHONY: install
-install: $(INSTALL_RECORD)
-
-.PHONY: uninstall
-uninstall:
-	cat $(INSTALL_RECORD) | xargs rm
-
-# assumes a debian build environment
-DEBIAN_BUILD_OUTPUT_DIR=.debian
-$(DEBIAN_BUILD_OUTPUT_DIR)/%.deb: $(shell git ls-files)
-	dpkg-buildpackage -us -uc
-	mv ../$** $(DEBIAN_BUILD_OUTPUT_DIR)
 
 build/debian:
 	dpkg-buildpackage -us -uc

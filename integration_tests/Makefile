@@ -20,7 +20,6 @@ test: test-setup venv
 
 WAZO_ROOT=$(HOME)/wazo
 DENV_PATH=$(WAZO_ROOT)/denv/denv
-MANAGE_DB_DIR=$(WAZO_ROOT)/xivo-manage-db
 DOCKER=$(shell which docker)
 
 IMAGE_TAG=local
@@ -31,7 +30,7 @@ image/confgend-base:
 
 image/confgend-test: DOCKERFILE=./docker/Dockerfile-confgend
 image/confgend-test: IMAGE_NAME=wazoplatform/wazo-confgend-test
-image/confgend-test: $(DOCKERFILE) $(shell git ls-files) image/confgend-base
+image/confgend-test: $(DOCKERFILE) $(shell git ls-files) image/confgend-base	
 	$(DOCKER) build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) ..
 
 

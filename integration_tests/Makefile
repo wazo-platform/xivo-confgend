@@ -20,12 +20,15 @@ test: test-setup venv
 
 WAZO_ROOT=$(HOME)/wazo
 DENV_PATH=$(WAZO_ROOT)/denv/denv
+
 DOCKER=$(shell which docker)
 
 IMAGE_TAG=local
 
-image/confgend-base:
-	$(MAKE) -C .. build/docker
+image/confgend-base: IMAGE_NAME=wazoplatform/wazo-confgend
+image/confgend-base: DOCKERFILE=../Dockerfile
+image/confgend-base: $(DOCKERFILE) $(shell git ls-files)
+	$(DOCKER) build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) ..
 
 
 image/confgend-test: DOCKERFILE=./docker/Dockerfile-confgend
@@ -40,10 +43,12 @@ else
 MANAGE_DB_TARGET=docker.io
 endif
 
+
 image/db/local: DOCKERFILE=$(MANAGE_DB_DIR)/contribs/docker/wazo-confd-db-test/Dockerfile
 image/db/local: IMAGE_NAME=wazoplatform/wazo-confgend-db-test
 image/db/local: $(DOCKERFILE)
 	$(DOCKER) build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(MANAGE_DB_DIR)
+
 
 image/db/docker.io: PULL_SRC=docker.io/wazoplatform/wazo-confd-db-test:latest
 image/db/docker.io: IMAGE_NAME=wazoplatform/wazo-confgend-db-test
@@ -54,7 +59,7 @@ image/db/docker.io:
 image/db: image/db/$(MANAGE_DB_TARGET)
 
 egg-info:
-	$(MAKE) -C .. egg-info
+	cd .. && python3 setup.py egg_info
 
 
 VENV_DIR=.venv

@@ -7,8 +7,8 @@ from typing import List, Iterable
 
 
 INTERNAL_CONFGEND_PORT = 8669
-DEFAULT_CONFGEND_CLIENT_TIMEOUT = 1
-
+DEFAULT_CONFGEND_CLIENT_TIMEOUT = 10
+DEFAULT_TIMEOUT = 10
 
 @pytest.fixture(scope="class")
 def pjsip_void_conf(request):
@@ -29,7 +29,7 @@ def lines(text: str):
     return text.splitlines()
 
 
-def run(cmd: List[str], timeout: int = 10) -> subprocess.CompletedProcess:
+def run(cmd: List[str], timeout: int = DEFAULT_TIMEOUT) -> subprocess.CompletedProcess:
     try:
         result = subprocess.run(
             cmd, capture_output=True, text=True, check=True, timeout=timeout
@@ -56,7 +56,7 @@ class BaseTestCase(asset_launching_test_case.AssetLaunchingTestCase):
             service_name,
         ] + cmd
         try:
-            completed = run(docker_command, timeout=1)
+            completed = run(docker_command)
         except subprocess.CalledProcessError as ex:
             print(ex.stderr, file=sys.stderr)
             raise

@@ -1,11 +1,8 @@
-ARG BASE_TAG=local
-FROM wazoplatform/wazo-confgend:$BASE_TAG
+FROM wazoplatform/wazo-confgend
 
-# add back source code and install over version "compiled" in base image.
-COPY . /usr/local/src/wazo-confgend
-WORKDIR /usr/local/src/wazo-confgend
 ENV PYTHONDONTWRITEBYTECODE='true'
 
-RUN python setup.py develop
+COPY . /usr/local/src/wazo-confgend
 
-CMD ["/opt/venv/bin/wazo-confgend"]
+WORKDIR /usr/local/src/wazo-confgend
+RUN python setup.py develop

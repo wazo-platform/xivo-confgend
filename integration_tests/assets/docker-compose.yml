@@ -6,17 +6,16 @@ services:
       TIMEOUT: "${INTEGRATION_TEST_TIMEOUT}"
 
   confgend:
-    image: wazoplatform/wazo-confgend:local
+    image: wazoplatform/wazo-confgend-tests
     ports:
       - 8669
     volumes:
-      # for live code update
-      - "${CONFGEND_SRC:-../..}:/usr/local/src/wazo-confgend"
+      - "../..:/usr/local/src/wazo-confgend"
       - "./etc/wazo-confgend/conf.d/50-default.yml:/etc/wazo-confgend/conf.d/50-default.yml"
-      # - "${LOCAL_GIT_REPOS}/xivo-dao/xivo_dao:/opt/venv/lib/python2.7/site-packages/xivo_dao"
-      # - "${LOCAL_GIT_REPOS}/xivo-lib-python/xivo:/opt/venv/lib/python2.7/site-packages/xivo"
+      # - "${LOCAL_GIT_REPOS}/xivo-dao/xivo_dao:/opt/venv/lib/python3.7/site-packages/xivo_dao"
+      # - "${LOCAL_GIT_REPOS}/xivo-lib-python/xivo:/opt/venv/lib/python3.7/site-packages/xivo"
 
   postgres:
-    image: wazoplatform/wazo-confgend-db-test:local
+    image: wazoplatform/wazo-confd-db-test:local
     ports:
       - "5432"

@@ -1,4 +1,4 @@
-# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -39,7 +39,6 @@ class SccpConf:
 
 
 class _SplittedGeneralSettings:
-
     _DEVICE_OPTIONS = ['dialtimeout', 'dateformat', 'vmexten', 'keepalive']
     _LINES_OPTIONS = [
         'context',
@@ -83,7 +82,6 @@ class _SccpGeneralSettingsConf:
 
 
 class _SccpDeviceConf:
-
     _TPL_NAME = 'xivo_device_tpl'
 
     def __init__(self, sccpspeeddialdevices):
@@ -130,7 +128,6 @@ class _SccpDeviceConf:
 
 
 class _SccpLineConf:
-
     _TPL_NAME = 'xivo_line_tpl'
 
     def generate(self, sccplines, general_line_items, output):

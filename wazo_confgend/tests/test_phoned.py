@@ -1,4 +1,4 @@
-# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -6,7 +6,7 @@ import unittest
 import yaml
 
 from hamcrest import assert_that, equal_to
-from mock import patch
+from unittest.mock import patch
 
 from ..phoned import PhonedFrontend
 

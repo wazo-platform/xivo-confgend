@@ -1,10 +1,10 @@
-# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
 import unittest
 
-from mock import patch, Mock
+from unittest.mock import patch, Mock
 
 from wazo_confgend.asterisk import AsteriskFrontend
 from wazo_confgend.generators.tests.util import assert_config_equal

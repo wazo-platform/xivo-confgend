@@ -1,4 +1,4 @@
-# Copyright 2016-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2023 The Wazo Authors  (see the AUTHORS file)
 # Copyright (C) 2016 Proformatique Inc.
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -8,9 +8,8 @@ from hamcrest import equal_to
 from hamcrest import calling
 from hamcrest import none
 from hamcrest import raises
-from mock import Mock
-from mock import patch
-from mock import sentinel as s
+from unittest.mock import Mock, patch
+from unittest.mock import sentinel as s
 from unittest import TestCase
 
 from ..handler import CachedHandlerFactoryDecorator

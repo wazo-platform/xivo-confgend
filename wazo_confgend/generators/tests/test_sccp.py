@@ -1,4 +1,4 @@
-# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -6,7 +6,7 @@ import itertools
 import io
 import unittest
 
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from uuid import uuid4
 
 from wazo_confgend.generators.tests.util import (

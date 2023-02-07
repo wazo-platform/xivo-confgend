@@ -1,4 +1,4 @@
-# Copyright 2012-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
 # Copyright (C) 2016 Proformatique Inc.
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -8,7 +8,7 @@ import textwrap
 
 from hamcrest import assert_that, equal_to
 
-from mock import patch, Mock
+from unittest.mock import patch, Mock
 from wazo_confgend.generators.tests.util import assert_generates_config
 from wazo_confgend.generators.voicemail import VoicemailConf, VoicemailGenerator
 

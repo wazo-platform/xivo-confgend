@@ -16,30 +16,6 @@ case "$1" in
       adduser --quiet --system --group --no-create-home --home "${HOME}" "${USER}"
     fi
 
-    # fix directories cache owner 20.12
-    chown --recursive wazo-confgend:wazo-confgend "${CACHE}"
-
-    # move files from xivo-confgend 19.14
-    if [ -f /var/log/xivo-confgend.log ] ; then
-        rename 's/xivo-confgend/wazo-confgend/g' /var/log/xivo-confgend.log*
-    fi
-
-    rm -rf /run/xivo-confgend
-
-    if [ -d /etc/xivo-confgend/conf.d ] ; then
-        find /etc/xivo-confgend/conf.d/ -mindepth 1 -exec mv {} /etc/wazo-confgend/conf.d/ \;
-        rmdir --ignore-fail-on-non-empty -p /etc/xivo-confgend/conf.d
-    fi
-
-    if [ -d /var/lib/xivo-confgend ] ; then
-       mv -Tf /var/lib/xivo-confgend "${CACHE}"
-    fi
-
-    if getent passwd xivo-confgend > /dev/null ; then
-        deluser --quiet --system --remove-home xivo-confgend
-    fi
-    # End of move files from xivo-confgend
-
     if [ ! -e "${LOG_FILENAME}" ] ; then
         touch "${LOG_FILENAME}"
     fi

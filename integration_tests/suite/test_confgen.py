@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from __future__ import annotations
 
-import subprocess
-import pytest
-from wazo_test_helpers import asset_launching_test_case
 import pathlib
-import sys
+import subprocess
 from typing import List, Iterable
+
+from wazo_test_helpers import asset_launching_test_case
 
 
 INTERNAL_CONFGEND_PORT = 8669

@@ -1,8 +1,9 @@
 # Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
+from __future__ import annotations
+
 import logging
 import time
-from typing import List
 
 from wazo_confgend import cache
 from wazo_confgend.asterisk import AsteriskFrontend
@@ -31,7 +32,7 @@ class Confgen(Protocol):
         logger.info("connection lost: %s", reason.getErrorMessage())
         super().connectionLost(reason=reason)
 
-    def commandReceived(self, cmd: str, args: List[str]):
+    def commandReceived(self, cmd: str, args: list[str]):
         logger.debug(
             "command received cmd_length=%d, args_count=%d", len(cmd), len(args)
         )

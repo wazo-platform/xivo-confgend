@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pathlib
 import subprocess
-from typing import List, Iterable
+from collections.abc import Iterable
 
 from wazo_test_helpers import asset_launching_test_case
 
@@ -21,7 +21,7 @@ def normalize_lines(line_stream: Iterable[str]):
             yield line
 
 
-def run(cmd: List[str], timeout: int = DEFAULT_TIMEOUT) -> subprocess.CompletedProcess:
+def run(cmd: list[str], timeout: int = DEFAULT_TIMEOUT) -> subprocess.CompletedProcess:
     result = subprocess.run(
         cmd, capture_output=True, text=True, check=True, timeout=timeout
     )

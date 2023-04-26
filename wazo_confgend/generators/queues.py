@@ -1,7 +1,6 @@
 # Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-
 from xivo_dao import asterisk_conf_dao
 
 from wazo_confgend.generators.util import AsteriskFileWriter
@@ -17,7 +16,7 @@ class QueuesConf:
 
     def generate(self, output):
         queue_penalty_settings = asterisk_conf_dao.find_queue_penalty_settings()
-        penalties = dict((itm['id'], itm['name']) for itm in queue_penalty_settings)
+        penalties = {itm['id']: itm['name'] for itm in queue_penalty_settings}
 
         writer = AsteriskFileWriter(output)
 

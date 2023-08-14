@@ -1,4 +1,4 @@
-# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import configparser
@@ -139,7 +139,7 @@ class ExtensionsConf:
         xfeatures = {
             extenfeature.typeval: {
                 'exten': extenfeature.exten,
-                'commented': extenfeature.commented,
+                'enabled': extenfeature.enabled,
             }
             for extenfeature in extenfeatures
         }
@@ -204,14 +204,15 @@ class ExtensionsConf:
             ast_writer.write_newline()
 
         for exten in asterisk_conf_dao.find_exten_xivofeatures_setting():
-            name = exten['typeval']
-            if name in DEFAULT_EXTENFEATURES:
-                exten['action'] = DEFAULT_EXTENFEATURES[name]
+            feature = exten['feature']
+            if feature in DEFAULT_EXTENFEATURES:
+                exten['action'] = DEFAULT_EXTENFEATURES[feature]
+                exten['context'] = context
                 self.gen_dialplan_from_template(tmpl, exten, ast_writer)
 
         for x in ('busy', 'rna', 'unc'):
             fwdtype = f"fwd{x}"
-            if not xfeatures[fwdtype].get('commented', 1):
+            if xfeatures[fwdtype].get('enabled', False):
                 exten = xivo_helpers.clean_extension(xfeatures[fwdtype]['exten'])
                 cfeatures.extend(
                     [

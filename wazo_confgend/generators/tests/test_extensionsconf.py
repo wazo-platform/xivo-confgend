@@ -42,37 +42,31 @@ class TestExtensionsConf(unittest.TestCase):
             ('objtpl', 'n,%%ACTION%%'),
         ]
         xfeatures = {
-            'fwdrna': {'exten': '_*22.', 'commented': 0},
-            'fwdbusy': {'exten': '_*23.', 'commented': 0},
-            'bsfilter': {'exten': '_*37.', 'commented': 0},
-            'fwdunc': {'exten': '_*21.', 'commented': 0},
-            'vmusermsg': {'exten': '*98', 'commented': 0},
-            'phoneprogfunckey': {'exten': '_*735.', 'commented': 0},
+            'fwdrna': {'exten': '_*22.', 'enabled': True},
+            'fwdbusy': {'exten': '_*23.', 'enabled': True},
+            'bsfilter': {'exten': '_*37.', 'enabled': True},
+            'fwdunc': {'exten': '_*21.', 'enabled': True},
+            'vmusermsg': {'exten': '*98', 'enabled': True},
+            'phoneprogfunckey': {'exten': '_*735.', 'enabled': True},
         }
         mock_find_exten_xivofeatures_setting.return_value = [
             {
                 'exten': '*10',
-                'commented': 0,
-                'context': 'xivo-features',
-                'typeval': 'phonestatus',
-                'type': 'extenfeatures',
-                'id': 17,
+                'enabled': True,
+                'feature': 'phonestatus',
+                'uuid': '7a51dda0-34e9-482e-b3c1-301f615d99cf',
             },
             {
                 'exten': '_*11.',
-                'commented': 0,
-                'context': 'xivo-features',
-                'typeval': 'paging',
-                'type': 'extenfeatures',
-                'id': 28,
+                'enabled': True,
+                'feature': 'paging',
+                'uuid': '1775aa6e-c9fb-4cbf-88bd-5c266834df79',
             },
             {
                 'exten': '*20',
-                'commented': 0,
-                'context': 'xivo-features',
-                'typeval': 'fwdundoall',
-                'type': 'extenfeatures',
-                'id': 14,
+                'enabled': True,
+                'feature': 'fwdundoall',
+                'uuid': '9a742f20-d5ce-440e-a08c-840fa3f1e22d',
             },
         ]
 
@@ -173,9 +167,9 @@ class TestExtensionsConf(unittest.TestCase):
         self.hint_generator.generate.return_value = hints
 
         mock_asterisk_conf_dao.find_extenfeatures_settings.return_value = [
-            Mock(typeval="fwdbusy", exten="foo", commented=0),
-            Mock(typeval="fwdrna", exten="bar", commented=1),
-            Mock(typeval="fwdunc", exten="bar", commented=1),
+            Mock(typeval="fwdbusy", exten="foo", enabled=True),
+            Mock(typeval="fwdrna", exten="bar", enabled=False),
+            Mock(typeval="fwdunc", exten="bar", enabled=False),
         ]
         self.tpl_mapping['asterisk/extensions/ivr.jinja'] = "[xivo-ivr-{{ ivr.id }}]"
 

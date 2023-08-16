@@ -167,9 +167,9 @@ class TestExtensionsConf(unittest.TestCase):
         self.hint_generator.generate.return_value = hints
 
         mock_asterisk_conf_dao.find_extenfeatures_settings.return_value = [
-            Mock(typeval="fwdbusy", exten="foo", enabled=True),
-            Mock(typeval="fwdrna", exten="bar", enabled=False),
-            Mock(typeval="fwdunc", exten="bar", enabled=False),
+            Mock(feature="fwdbusy", exten="foo", enabled=True),
+            Mock(feature="fwdrna", exten="bar", enabled=False),
+            Mock(feature="fwdunc", exten="bar", enabled=False),
         ]
         self.tpl_mapping['asterisk/extensions/ivr.jinja'] = "[xivo-ivr-{{ ivr.id }}]"
 

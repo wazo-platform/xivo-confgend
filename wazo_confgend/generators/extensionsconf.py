@@ -137,7 +137,7 @@ class ExtensionsConf:
             features=extenfeature_names
         )
         xfeatures = {
-            extenfeature.typeval: {
+            extenfeature.feature: {
                 'exten': extenfeature.exten,
                 'enabled': extenfeature.enabled,
             }

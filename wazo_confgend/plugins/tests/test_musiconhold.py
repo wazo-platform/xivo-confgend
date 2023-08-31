@@ -32,6 +32,10 @@ class TestConfBridgeConf(unittest.TestCase):
         assert_config_equal(
             value,
             '''
+            [default]
+            mode = files
+            directory = /var/lib/asterisk/moh/default
+
             [foo]
             mode = files
             directory = /var/lib/asterisk/moh/foo
@@ -51,6 +55,10 @@ class TestConfBridgeConf(unittest.TestCase):
         assert_config_equal(
             value,
             '''
+            [default]
+            mode = files
+            directory = /var/lib/asterisk/moh/default
+
             [bar]
             mode = custom
             application = /bin/false rrr
@@ -69,6 +77,10 @@ class TestConfBridgeConf(unittest.TestCase):
         assert_config_equal(
             value,
             '''
+            [default]
+            mode = files
+            directory = /var/lib/asterisk/moh/default
+
             [foo]
             mode = files
             directory = /var/lib/asterisk/moh/foo

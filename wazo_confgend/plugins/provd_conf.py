@@ -1,4 +1,4 @@
-# Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -36,6 +36,12 @@ class ProvdNetworkConfGenerator:
             return
         return result.http_port
 
+    def get_provd_http_base_url(self, session):
+        result = session.query(Provisioning.http_base_url).first()
+        if not result:
+            return
+        return result.http_base_url
+
     def generate(self):
         with session_scope(read_only=True) as session:
             config = {}
@@ -43,11 +49,13 @@ class ProvdNetworkConfGenerator:
                 session
             )
             external_port = self.get_provd_http_port(session)
+            http_base_url = self.get_provd_http_base_url(session)
 
             sections = {
                 'general': {
                     'external_ip': external_ip,
                     'http_port': external_port,
+                    'base_external_url': http_base_url,
                 }
             }
 

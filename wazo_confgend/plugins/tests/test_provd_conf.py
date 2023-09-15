@@ -26,8 +26,11 @@ class TestProvdNetworkConf(unittest.TestCase):
             self.generator, 'get_provd_http_port'
         ) as provd_http_port, patch.object(
             self.generator, 'get_netiface_net4_ip'
-        ) as netiface_net4_ip:
+        ) as netiface_net4_ip, patch.object(
+            self.generator, 'get_provd_http_base_url'
+        ) as provd_http_base_url:
             provd_net4_ip.return_value = '10.0.0.254'
+            provd_http_base_url.return_value = None
             provd_http_port.return_value = None
             netiface_net4_ip.return_value = None
 
@@ -54,8 +57,11 @@ class TestProvdNetworkConf(unittest.TestCase):
             self.generator, 'get_netiface_net4_ip'
         ) as netiface_net4_ip, patch.object(
             self.generator, 'get_provd_http_port'
-        ) as provd_http_port:
+        ) as provd_http_port, patch.object(
+            self.generator, 'get_provd_http_base_url'
+        ) as provd_http_base_url:
             provd_net4_ip.return_value = None
+            provd_http_base_url.return_value = None
             provd_http_port.return_value = None
             netiface_net4_ip.return_value = '10.0.0.250'
 
@@ -82,8 +88,11 @@ class TestProvdNetworkConf(unittest.TestCase):
             self.generator, 'get_netiface_net4_ip'
         ) as netiface_net4_ip, patch.object(
             self.generator, 'get_provd_http_port'
-        ) as provd_http_port:
+        ) as provd_http_port, patch.object(
+            self.generator, 'get_provd_http_base_url'
+        ) as provd_http_base_url:
             provd_net4_ip.return_value = '10.0.0.254'
+            provd_http_base_url.return_value = 'http://localhost:8667'
             provd_http_port.return_value = 8666
             netiface_net4_ip.return_value = '10.0.0.222'
 
@@ -94,6 +103,7 @@ class TestProvdNetworkConf(unittest.TestCase):
             textwrap.dedent(
                 '''\
             general:
+                base_external_url: http://localhost:8667
                 external_ip: 10.0.0.254
                 http_port: 8666
         '''
@@ -111,8 +121,11 @@ class TestProvdNetworkConf(unittest.TestCase):
             self.generator, 'get_provd_http_port'
         ) as provd_http_port, patch.object(
             self.generator, 'get_netiface_net4_ip'
-        ) as netiface_net4_ip:
+        ) as netiface_net4_ip, patch.object(
+            self.generator, 'get_provd_http_base_url'
+        ) as provd_http_base_url:
             provd_net4_ip.return_value = None
+            provd_http_base_url.return_value = None
             provd_http_port.return_value = None
             netiface_net4_ip.return_value = None
 

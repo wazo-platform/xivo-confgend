@@ -20,7 +20,7 @@ DEFAULT_EXTENFEATURES = {
     'incallfilter': 'GoSub(incallfilter,s,1())',
     'phoneprogfunckey': 'GoSub(phoneprogfunckey,s,1(${EXTEN:0:4},${EXTEN:4}))',
     'phonestatus': 'GoSub(phonestatus,s,1())',
-    'pickup': 'Pickup(${EXTEN:2}%${CONTEXT}@PICKUPMARK)',
+    'pickup': 'GoSub(wazo-pickup,s,1(${EXTEN:2},${CONTEXT}))',
     'recsnd': 'GoSub(recsnd,s,1(wav))',
     'vmboxmsgslt': 'GoSub(vmboxmsg,s,1(${EXTEN:3}))',
     'vmboxpurgeslt': 'GoSub(vmboxpurge,s,1(${EXTEN:3}))',

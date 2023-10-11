@@ -5,4 +5,4 @@ ENV PYTHONDONTWRITEBYTECODE='true'
 COPY . /usr/local/src/wazo-confgend
 
 WORKDIR /usr/local/src/wazo-confgend
-RUN python setup.py develop
+RUN pip install -e .

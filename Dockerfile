@@ -17,7 +17,7 @@ RUN pip install -r requirements.txt
 COPY setup.py /usr/local/src/wazo-confgend/
 COPY bin /usr/local/src/wazo-confgend/bin
 COPY wazo_confgend /usr/local/src/wazo-confgend/wazo_confgend
-RUN python setup.py install
+RUN python3 -m pip install .
 
 FROM python:3.9-slim-bullseye AS build-image
 COPY --from=compile-image /opt/venv /opt/venv

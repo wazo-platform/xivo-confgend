@@ -53,9 +53,9 @@ class ProvdNetworkConfGenerator:
 
             sections = {
                 'general': {
-                    'external_ip': external_ip,
-                    'http_port': external_port,
-                    'base_external_url': http_base_url,
+                    'advertised_host': external_ip,
+                    'advertised_http_port': external_port,
+                    'advertised_http_url': http_base_url,
                 }
             }
 

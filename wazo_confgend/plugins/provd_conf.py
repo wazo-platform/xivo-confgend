@@ -45,16 +45,16 @@ class ProvdNetworkConfGenerator:
     def generate(self):
         with session_scope(read_only=True) as session:
             config = {}
-            external_ip = self.get_provd_net4_ip(session) or self.get_netiface_net4_ip(
+            http_ip = self.get_provd_net4_ip(session) or self.get_netiface_net4_ip(
                 session
             )
-            external_port = self.get_provd_http_port(session)
+            http_port = self.get_provd_http_port(session)
             http_base_url = self.get_provd_http_base_url(session)
 
             sections = {
                 'general': {
-                    'advertised_host': external_ip,
-                    'advertised_http_port': external_port,
+                    'advertised_host': http_ip,
+                    'advertised_http_port': http_port,
                     'advertised_http_url': http_base_url,
                 }
             }

@@ -41,7 +41,7 @@ class TestProvdNetworkConf(unittest.TestCase):
             textwrap.dedent(
                 '''\
             general:
-                external_ip: 10.0.0.254
+                advertised_host: 10.0.0.254
         '''
             ),
         )
@@ -72,7 +72,7 @@ class TestProvdNetworkConf(unittest.TestCase):
             textwrap.dedent(
                 '''\
             general:
-                external_ip: 10.0.0.250
+                advertised_host: 10.0.0.250
         '''
             ),
         )
@@ -103,15 +103,15 @@ class TestProvdNetworkConf(unittest.TestCase):
             textwrap.dedent(
                 '''\
             general:
-                base_external_url: http://localhost:8667
-                external_ip: 10.0.0.254
-                http_port: 8666
+                advertised_host: 10.0.0.254
+                advertised_http_port: 8666
+                advertised_http_url: http://localhost:8667
         '''
             ),
         )
 
     @patch('wazo_confgend.plugins.provd_conf.session_scope')
-    def test_no_external_ip(self, session_scope):
+    def test_no_advertised_host(self, session_scope):
         session_scope.__enter__ = Mock(return_value=Mock())
         session_scope.__exit__ = Mock(return_value=None)
 

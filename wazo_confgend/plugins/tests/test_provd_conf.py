@@ -41,7 +41,7 @@ class TestProvdNetworkConf(unittest.TestCase):
             textwrap.dedent(
                 '''\
             general:
-                advertised_host: 10.0.0.254
+                advertised_http_url: http://10.0.0.254
         '''
             ),
         )
@@ -72,13 +72,44 @@ class TestProvdNetworkConf(unittest.TestCase):
             textwrap.dedent(
                 '''\
             general:
-                advertised_host: 10.0.0.250
+                advertised_http_url: http://10.0.0.250
         '''
             ),
         )
 
     @patch('wazo_confgend.plugins.provd_conf.session_scope')
-    def test_complete_configuration(self, session_scope):
+    def test_get_provd_http_base_url(self, session_scope):
+        session_scope.__enter__ = Mock(return_value=Mock())
+        session_scope.__exit__ = Mock(return_value=None)
+
+        with patch.object(
+            self.generator, 'get_provd_net4_ip'
+        ) as provd_net4_ip, patch.object(
+            self.generator, 'get_netiface_net4_ip'
+        ) as netiface_net4_ip, patch.object(
+            self.generator, 'get_provd_http_port'
+        ) as provd_http_port, patch.object(
+            self.generator, 'get_provd_http_base_url'
+        ) as provd_http_base_url:
+            provd_net4_ip.return_value = None
+            provd_http_base_url.return_value = 'https://10.0.0.242/custom'
+            provd_http_port.return_value = None
+            netiface_net4_ip.return_value = None
+
+            value = self.generator.generate()
+
+        assert_config_equal(
+            value,
+            textwrap.dedent(
+                '''\
+            general:
+                advertised_http_url: https://10.0.0.242/custom
+        '''
+            ),
+        )
+
+    @patch('wazo_confgend.plugins.provd_conf.session_scope')
+    def test_no_http_base_url(self, session_scope):
         session_scope.__enter__ = Mock(return_value=Mock())
         session_scope.__exit__ = Mock(return_value=None)
 
@@ -92,7 +123,7 @@ class TestProvdNetworkConf(unittest.TestCase):
             self.generator, 'get_provd_http_base_url'
         ) as provd_http_base_url:
             provd_net4_ip.return_value = '10.0.0.254'
-            provd_http_base_url.return_value = 'http://localhost:8667'
+            provd_http_base_url.return_value = None
             provd_http_port.return_value = 8666
             netiface_net4_ip.return_value = '10.0.0.222'
 
@@ -103,9 +134,7 @@ class TestProvdNetworkConf(unittest.TestCase):
             textwrap.dedent(
                 '''\
             general:
-                advertised_host: 10.0.0.254
-                advertised_http_port: 8666
-                advertised_http_url: http://localhost:8667
+                advertised_http_url: http://10.0.0.254:8666
         '''
             ),
         )

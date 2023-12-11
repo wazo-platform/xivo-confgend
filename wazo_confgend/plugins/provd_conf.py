@@ -42,28 +42,27 @@ class ProvdNetworkConfGenerator:
             return
         return result.http_base_url
 
+    def generate_http_base_url(self, session):
+        http_ip = self.get_provd_net4_ip(session)
+        if not http_ip:
+            http_ip = self.get_netiface_net4_ip(session)
+        if not http_ip:
+            return
+
+        http_port = self.get_provd_http_port(session)
+        if not http_port:
+            return f'http://{http_ip}'
+
+        return f'http://{http_ip}:{http_port}'
+
     def generate(self):
+        config = {}
         with session_scope(read_only=True) as session:
-            config = {}
-            http_ip = self.get_provd_net4_ip(session) or self.get_netiface_net4_ip(
-                session
-            )
-            http_port = self.get_provd_http_port(session)
             http_base_url = self.get_provd_http_base_url(session)
+            if not http_base_url:
+                http_base_url = self.generate_http_base_url(session)
 
-            sections = {
-                'general': {
-                    'advertised_host': http_ip,
-                    'advertised_http_port': http_port,
-                    'advertised_http_url': http_base_url,
-                }
-            }
-
-            for section_name, section_value in sections.items():
-                for option, value in section_value.items():
-                    if value:
-                        if section_name not in config:
-                            config.update({section_name: {}})
-                        config[section_name][option] = value
+            if http_base_url:
+                config['general'] = {'advertised_http_url': http_base_url}
 
         return yaml.safe_dump(config, default_flow_style=False)

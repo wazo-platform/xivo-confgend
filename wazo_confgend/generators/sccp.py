@@ -4,8 +4,9 @@
 
 from operator import itemgetter
 
-from wazo_confgend.generators.util import AsteriskFileWriter
 from xivo_dao import asterisk_conf_dao
+
+from wazo_confgend.generators.util import AsteriskFileWriter
 
 _GUEST_DEVICE_NAME = 'guest'
 _GUEST_LINE_NAME = 'guestline'

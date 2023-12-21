@@ -1,8 +1,10 @@
-# Copyright 2010-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
 from io import StringIO
+
+from xivo_dao import asterisk_conf_dao
 
 from wazo_confgend.generators.extensionsconf import ExtensionsConf
 from wazo_confgend.generators.iax import IaxConf
@@ -12,7 +14,6 @@ from wazo_confgend.generators.sccp import SccpConf
 from wazo_confgend.generators.util import AsteriskFileWriter
 from wazo_confgend.generators.voicemail import VoicemailConf, VoicemailGenerator
 from wazo_confgend.hints.generator import HintGenerator
-from xivo_dao import asterisk_conf_dao
 
 
 class AsteriskFrontend:

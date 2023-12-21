@@ -3,10 +3,10 @@
 
 
 import unittest
-
 from unittest.mock import patch
-from wazo_confgend.plugins.features_conf import FeaturesConfGenerator
+
 from wazo_confgend.generators.tests.util import assert_config_equal
+from wazo_confgend.plugins.features_conf import FeaturesConfGenerator
 
 
 class TestFeaturesConf(unittest.TestCase):

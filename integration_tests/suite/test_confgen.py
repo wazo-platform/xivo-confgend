@@ -8,7 +8,6 @@ from collections.abc import Iterable
 
 from wazo_test_helpers import asset_launching_test_case
 
-
 INTERNAL_CONFGEND_PORT = 8669
 DEFAULT_CONFGEND_CLIENT_TIMEOUT = 10
 DEFAULT_TIMEOUT = 10

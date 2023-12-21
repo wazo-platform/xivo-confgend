@@ -5,9 +5,9 @@ Dockerfile for wazo-confgend
 To install docker on Linux :
 
     curl -sL https://get.docker.io/ | sh
- 
+
  or
- 
+
      wget -qO- https://get.docker.io/ | sh
 
 ## Build
@@ -19,7 +19,7 @@ To build the image, simply invoke
 Or directly in the sources in contribs/docker
 
     docker build -t wazo-confgend .
-  
+
 ## Usage
 
 To run the container, do the following:

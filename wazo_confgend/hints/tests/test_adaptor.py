@@ -3,9 +3,10 @@
 
 
 import unittest
-
 from unittest.mock import Mock
+
 from hamcrest import assert_that, contains_exactly, contains_inanyorder, has_item
+from xivo_dao.resources.func_key.model import Hint
 
 from wazo_confgend.hints.adaptor import (
     AgentAdaptor,
@@ -18,8 +19,6 @@ from wazo_confgend.hints.adaptor import (
     UserAdaptor,
     UserSharedHintAdaptor,
 )
-
-from xivo_dao.resources.func_key.model import Hint
 
 CONTEXT = 'context'
 

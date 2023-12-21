@@ -1,12 +1,13 @@
-# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
 import itertools
 
-from wazo_confgend.generators.util import AsteriskFileWriter
 from xivo_dao import asterisk_conf_dao
 from xivo_dao.resources.voicemail import dao as voicemail_dao
+
+from wazo_confgend.generators.util import AsteriskFileWriter
 
 
 class VoicemailGenerator:

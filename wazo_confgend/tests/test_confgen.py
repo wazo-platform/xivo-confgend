@@ -2,18 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-import unittest
+import random
 import tempfile
+import unittest
 from unittest.mock import Mock
 
-from hamcrest import assert_that, equal_to, raises, calling
-import random
+from hamcrest import assert_that, calling, equal_to, raises
 
-
-from ..confgen import (
-    Confgen,
-    ConfgendFactory,
-)
+from ..confgen import Confgen, ConfgendFactory
 
 
 def sample_unicode_string(length):

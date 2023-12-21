@@ -5,21 +5,22 @@ from __future__ import annotations
 import logging
 import time
 
+import twisted.python.failure
+from twisted.internet.protocol import Protocol, ServerFactory
+from xivo_dao.helpers.db_utils import session_scope
+
 from wazo_confgend import cache
 from wazo_confgend.asterisk import AsteriskFrontend
-from wazo_confgend.wazo import WazoFrontend
-from wazo_confgend.phoned import PhonedFrontend
 from wazo_confgend.handler import (
     CachedHandlerFactoryDecorator,
-    MultiHandlerFactory,
-    PluginHandlerFactory,
     FrontendHandlerFactory,
+    MultiHandlerFactory,
     NullHandlerFactory,
+    PluginHandlerFactory,
 )
+from wazo_confgend.phoned import PhonedFrontend
 from wazo_confgend.template import new_template_helper
-from xivo_dao.helpers.db_utils import session_scope
-from twisted.internet.protocol import Protocol, ServerFactory
-import twisted.python.failure
+from wazo_confgend.wazo import WazoFrontend
 
 logger = logging.getLogger(__name__)
 

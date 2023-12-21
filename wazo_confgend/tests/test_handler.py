@@ -3,21 +3,20 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-from hamcrest import assert_that
-from hamcrest import equal_to
-from hamcrest import calling
-from hamcrest import none
-from hamcrest import raises
+from unittest import TestCase
 from unittest.mock import Mock, patch
 from unittest.mock import sentinel as s
-from unittest import TestCase
 
-from ..handler import CachedHandlerFactoryDecorator
-from ..handler import FrontendHandlerFactory
-from ..handler import MultiHandlerFactory
-from ..handler import NoSuchHandler
-from ..handler import NullHandlerFactory
-from ..handler import PluginHandlerFactory
+from hamcrest import assert_that, calling, equal_to, none, raises
+
+from ..handler import (
+    CachedHandlerFactoryDecorator,
+    FrontendHandlerFactory,
+    MultiHandlerFactory,
+    NoSuchHandler,
+    NullHandlerFactory,
+    PluginHandlerFactory,
+)
 
 
 class TestCachedHandlerFactoryDecorator(TestCase):

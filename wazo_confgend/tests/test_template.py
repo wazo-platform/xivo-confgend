@@ -1,14 +1,13 @@
-# Copyright 2016-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
 import os
-
 from os.path import basename
 from unittest import TestCase
 
-from jinja2 import PackageLoader, Template
 from hamcrest import assert_that, contains_string, equal_to
+from jinja2 import PackageLoader, Template
 
 from ..template import TemplateHelper
 

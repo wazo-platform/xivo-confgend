@@ -3,11 +3,11 @@
 
 import unittest
 from collections import namedtuple
-
+from io import StringIO
 from unittest.mock import patch
 
-from io import StringIO
 from xivo_dao.alchemy.pjsip_transport import PJSIPTransport
+
 from wazo_confgend.generators.tests.util import assert_config_equal
 
 from ..pjsip_conf import PJSIPConfGenerator

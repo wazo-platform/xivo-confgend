@@ -1,16 +1,18 @@
-# Copyright 2011-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import io
 
-from hamcrest import all_of
-from hamcrest import assert_that
-from hamcrest import contains_inanyorder
-from hamcrest import ends_with
-from hamcrest import equal_to
-from hamcrest import equal_to_ignoring_whitespace
-from hamcrest import has_items
-from hamcrest import starts_with
+from hamcrest import (
+    all_of,
+    assert_that,
+    contains_inanyorder,
+    ends_with,
+    equal_to,
+    equal_to_ignoring_whitespace,
+    has_items,
+    starts_with,
+)
 
 
 def assert_generates_config(generator, expected):

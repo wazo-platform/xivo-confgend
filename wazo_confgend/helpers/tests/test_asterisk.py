@@ -3,9 +3,8 @@
 
 
 import unittest
-
-from unittest.mock import Mock
 from io import StringIO
+from unittest.mock import Mock
 
 from wazo_confgend.generators.tests.util import assert_config_equal
 

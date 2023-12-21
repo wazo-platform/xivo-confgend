@@ -2,25 +2,23 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-import itertools
 import io
+import itertools
 import unittest
-
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
-from wazo_confgend.generators.tests.util import (
-    assert_generates_config,
-    assert_config_equal,
-)
-
 from wazo_confgend.generators.sccp import (
     SccpConf,
+    _SccpDeviceConf,
     _SccpGeneralSettingsConf,
     _SccpLineConf,
-    _SccpDeviceConf,
     _SccpSpeedDialConf,
     _SplittedGeneralSettings,
+)
+from wazo_confgend.generators.tests.util import (
+    assert_config_equal,
+    assert_generates_config,
 )
 from wazo_confgend.generators.util import AsteriskFileWriter
 

@@ -3,8 +3,7 @@
 
 
 import unittest
-
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 from wazo_confgend.asterisk import AsteriskFrontend
 from wazo_confgend.generators.tests.util import assert_config_equal

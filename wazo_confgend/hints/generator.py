@@ -1,8 +1,9 @@
 # Copyright 2014-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from wazo_confgend.hints import adaptor as hint_adaptor
 from xivo_dao.resources.func_key import hint_dao
+
+from wazo_confgend.hints import adaptor as hint_adaptor
 
 
 class HintGenerator:

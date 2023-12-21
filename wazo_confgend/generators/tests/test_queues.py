@@ -3,8 +3,8 @@
 
 
 import unittest
+from unittest.mock import Mock, patch
 
-from unittest.mock import patch, Mock
 from wazo_confgend.generators.queues import QueuesConf
 from wazo_confgend.generators.tests.util import assert_generates_config
 

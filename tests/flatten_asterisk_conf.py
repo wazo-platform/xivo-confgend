@@ -4,9 +4,10 @@
 # into a linear stream of namespaced option definitions, i.e. {section}.{option}={value}
 # while conserving the original ordering of sections and options, allowing for easier semantic comparison
 
-from typing import TextIO
-from wazo_confgend.helpers.asterisk import asterisk_parser
 import sys
+from typing import TextIO
+
+from wazo_confgend.helpers.asterisk import asterisk_parser
 
 
 def simplify_config_stream(file: TextIO):

@@ -3,19 +3,19 @@
 
 
 import os
-import unittest
 import textwrap
+import unittest
 from io import StringIO
+from unittest.mock import Mock, patch
 
 from hamcrest import assert_that, contains_string
-from unittest.mock import Mock, patch
+from jinja2.loaders import DictLoader
 from xivo_dao.alchemy.ivr import IVR
 
 from wazo_confgend.generators.extensionsconf import ExtensionsConf
 from wazo_confgend.generators.util import AsteriskFileWriter
 from wazo_confgend.hints.generator import HintGenerator
 from wazo_confgend.template import TemplateHelper
-from jinja2.loaders import DictLoader
 
 
 class TestExtensionsConf(unittest.TestCase):

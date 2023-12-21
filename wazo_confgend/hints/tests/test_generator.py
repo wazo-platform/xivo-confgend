@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
-
 from unittest.mock import Mock, patch
+
 from hamcrest import assert_that, contains_exactly
 
 from .. import adaptor
-from ..generator import HintGenerator
 from ..adaptor import HintAdaptor
+from ..generator import HintGenerator
 
 CONTEXT = 'context'
 

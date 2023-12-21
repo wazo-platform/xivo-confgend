@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
-
 from unittest.mock import Mock, patch
+
 from jinja2.loaders import PackageLoader
 from xivo_dao.alchemy.moh import MOH
 
 from wazo_confgend.generators.tests.util import assert_config_equal
 from wazo_confgend.template import TemplateHelper
+
 from ..musiconhold_conf import MOHConfGenerator
 
 

@@ -3,16 +3,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-import unittest
 import textwrap
+import unittest
+from unittest.mock import Mock, patch
 
 from hamcrest import assert_that, equal_to
+from xivo_dao.alchemy.voicemail import Voicemail
 
-from unittest.mock import patch, Mock
 from wazo_confgend.generators.tests.util import assert_generates_config
 from wazo_confgend.generators.voicemail import VoicemailConf, VoicemailGenerator
-
-from xivo_dao.alchemy.voicemail import Voicemail
 
 
 class TestVoicemailGenerator(unittest.TestCase):

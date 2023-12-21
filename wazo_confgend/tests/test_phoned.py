@@ -3,10 +3,10 @@
 
 
 import unittest
-import yaml
-
-from hamcrest import assert_that, equal_to
 from unittest.mock import patch
+
+import yaml
+from hamcrest import assert_that, equal_to
 
 from ..phoned import PhonedFrontend
 

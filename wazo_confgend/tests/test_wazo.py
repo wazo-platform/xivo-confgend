@@ -2,13 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-import yaml
 import unittest
-
 from collections import namedtuple
-from hamcrest import assert_that
-from hamcrest import equal_to
 from unittest.mock import Mock, patch
+
+import yaml
+from hamcrest import assert_that, equal_to
 
 from ..wazo import WazoFrontend
 

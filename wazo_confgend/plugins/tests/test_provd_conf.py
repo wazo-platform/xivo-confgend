@@ -1,10 +1,10 @@
 # Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import unittest
 import textwrap
-
+import unittest
 from unittest.mock import Mock, patch
+
 from wazo_confgend.generators.tests.util import assert_config_equal
 
 from ..provd_conf import ProvdNetworkConfGenerator

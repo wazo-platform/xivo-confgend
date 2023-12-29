@@ -176,7 +176,10 @@ class _SccpLineConf:
                 'setvar', f"XIVO_USERID={item['user_id']}"
             )  # Deprecated in 24.01
             ast_writer.write_option('setvar', f"WAZO_USERID={item['user_id']}")
-            ast_writer.write_option('setvar', f"XIVO_USERUUID={item['uuid']}")
+            ast_writer.write_option(
+                'setvar', f"XIVO_USERUUID={item['uuid']}"
+            )  # Deprecated in 24.01
+            ast_writer.write_option('setvar', f"WAZO_USERUUID={item['uuid']}")
             ast_writer.write_option('setvar', f"WAZO_TENANT_UUID={item['tenant_uuid']}")
             ast_writer.write_option(
                 'setvar', 'PICKUPMARK={number}%{context}'.format(**item)

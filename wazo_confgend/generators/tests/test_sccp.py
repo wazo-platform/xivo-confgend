@@ -374,6 +374,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERID=1
             setvar = WAZO_USERID=1
             setvar = XIVO_USERUUID={uuid}
+            setvar = WAZO_USERUUID={uuid}
             setvar = WAZO_TENANT_UUID=tenant-uuid
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
@@ -417,6 +418,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERID=1
             setvar = WAZO_USERID=1
             setvar = XIVO_USERUUID={uuid}
+            setvar = WAZO_USERUUID={uuid}
             setvar = WAZO_TENANT_UUID=tenant-uuid
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
@@ -459,6 +461,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERID=1
             setvar = WAZO_USERID=1
             setvar = XIVO_USERUUID={uuid}
+            setvar = WAZO_USERUUID={uuid}
             setvar = WAZO_TENANT_UUID=tenant-uuid
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
@@ -503,6 +506,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERID=1
             setvar = WAZO_USERID=1
             setvar = XIVO_USERUUID={uuid}
+            setvar = WAZO_USERUUID={uuid}
             setvar = WAZO_TENANT_UUID=tenant-uuid
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context
@@ -548,6 +552,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = XIVO_USERID=1
             setvar = WAZO_USERID=1
             setvar = XIVO_USERUUID={uuid}
+            setvar = WAZO_USERUUID={uuid}
             setvar = WAZO_TENANT_UUID=tenant-uuid
             setvar = PICKUPMARK=100%a_context
             setvar = TRANSFER_CONTEXT=a_context

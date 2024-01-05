@@ -215,7 +215,7 @@ class ExtensionsConf:
                 exten = xivo_helpers.clean_extension(xfeatures[fwdtype]['exten'])
                 cfeatures.extend(
                     [
-                        "%s,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})" % exten,
+                        "%s,1,Set(__WAZO_BASE_CONTEXT=${CONTEXT})" % exten,
                         "%s,n,Set(__XIVO_BASE_EXTEN=${EXTEN})" % exten,
                         f"{exten},n,Gosub(feature_forward,s,1({x}))\n",
                     ]

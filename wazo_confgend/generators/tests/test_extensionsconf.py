@@ -1,4 +1,4 @@
-# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -36,7 +36,7 @@ class TestExtensionsConf(unittest.TestCase):
     def test_extensions_features(self, mock_find_exten_xivofeatures_setting):
         mock_conf = Mock()
         mock_conf.items.return_value = [
-            ('objtpl', '%%EXTEN%%,%%PRIORITY%%,Set(__XIVO_BASE_CONTEXT=${CONTEXT})'),
+            ('objtpl', '%%EXTEN%%,%%PRIORITY%%,Set(__WAZO_BASE_CONTEXT=${CONTEXT})'),
             ('objtpl', 'n,Set(__XIVO_BASE_EXTEN=${EXTEN})'),
             ('objtpl', 'n,GoSub(contextlib,entry-exten-context,1)'),
             ('objtpl', 'n,%%ACTION%%'),
@@ -81,28 +81,28 @@ class TestExtensionsConf(unittest.TestCase):
             textwrap.dedent(
                 """\
             [xivo-features]
-            exten = *10,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            exten = *10,1,Set(__WAZO_BASE_CONTEXT=${CONTEXT})
             same  =     n,Set(__XIVO_BASE_EXTEN=${EXTEN})
             same  =     n,GoSub(contextlib,entry-exten-context,1)
             same  =     n,GoSub(phonestatus,s,1())
 
-            exten = _*11.,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            exten = _*11.,1,Set(__WAZO_BASE_CONTEXT=${CONTEXT})
             same  =     n,Set(__XIVO_BASE_EXTEN=${EXTEN})
             same  =     n,GoSub(contextlib,entry-exten-context,1)
             same  =     n,GoSub(paging,s,1(${EXTEN:3}))
 
-            exten = *20,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            exten = *20,1,Set(__WAZO_BASE_CONTEXT=${CONTEXT})
             same  =     n,Set(__XIVO_BASE_EXTEN=${EXTEN})
             same  =     n,GoSub(contextlib,entry-exten-context,1)
             same  =     n,GoSub(fwdundoall,s,1())
 
-            exten = *23,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            exten = *23,1,Set(__WAZO_BASE_CONTEXT=${CONTEXT})
             exten = *23,n,Set(__XIVO_BASE_EXTEN=${EXTEN})
             exten = *23,n,Gosub(feature_forward,s,1(busy))
-            exten = *22,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            exten = *22,1,Set(__WAZO_BASE_CONTEXT=${CONTEXT})
             exten = *22,n,Set(__XIVO_BASE_EXTEN=${EXTEN})
             exten = *22,n,Gosub(feature_forward,s,1(rna))
-            exten = *21,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})
+            exten = *21,1,Set(__WAZO_BASE_CONTEXT=${CONTEXT})
             exten = *21,n,Set(__XIVO_BASE_EXTEN=${EXTEN})
             exten = *21,n,Gosub(feature_forward,s,1(unc))
         """
@@ -110,7 +110,7 @@ class TestExtensionsConf(unittest.TestCase):
         )
 
     def test_generate_dialplan_from_template(self):
-        template = ["%%EXTEN%%,%%PRIORITY%%,Set('__XIVO_BASE_CONTEXT': ${CONTEXT})"]
+        template = ["%%EXTEN%%,%%PRIORITY%%,Set('__WAZO_BASE_CONTEXT': ${CONTEXT})"]
         exten = {'exten': '*98', 'priority': 1}
 
         ast_writer = AsteriskFileWriter(self.output)
@@ -118,7 +118,7 @@ class TestExtensionsConf(unittest.TestCase):
 
         self.assertEqual(
             self.output.getvalue(),
-            "exten = *98,1,Set('__XIVO_BASE_CONTEXT': ${CONTEXT})\n\n",
+            "exten = *98,1,Set('__WAZO_BASE_CONTEXT': ${CONTEXT})\n\n",
         )
 
     def test_generate_hints(self):

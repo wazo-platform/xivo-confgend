@@ -1,4 +1,4 @@
-# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import configparser
@@ -33,7 +33,6 @@ DEFAULT_EXTENFEATURES = {
     'agentstaticlogoff': 'GoSub(agentstaticlogoff,s,1(${EXTEN:3}))',
     'agentstaticlogtoggle': 'GoSub(agentstaticlogtoggle,s,1(${EXTEN:3}))',
     'bsfilter': 'GoSub(bsfilter,s,1(${EXTEN:3}))',
-    'cctoggle': 'GoSub(cctoggle,s,1())',
     'meetingjoin': 'GoSub(meetingjoin,s,1(${EXTEN:3}))',
     'calllistening': 'GoSub(calllistening,s,1())',
     'callrecord': 'GoSub(callrecord,s,1() )',
@@ -216,7 +215,7 @@ class ExtensionsConf:
                 exten = xivo_helpers.clean_extension(xfeatures[fwdtype]['exten'])
                 cfeatures.extend(
                     [
-                        "%s,1,Set(__XIVO_BASE_CONTEXT=${CONTEXT})" % exten,
+                        "%s,1,Set(__WAZO_BASE_CONTEXT=${CONTEXT})" % exten,
                         "%s,n,Set(__XIVO_BASE_EXTEN=${EXTEN})" % exten,
                         f"{exten},n,Gosub(feature_forward,s,1({x}))\n",
                     ]

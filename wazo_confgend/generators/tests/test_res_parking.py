@@ -1,4 +1,4 @@
-# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -10,51 +10,21 @@ from wazo_confgend.generators.tests.util import assert_generates_config
 
 
 class TestResParkingConf(unittest.TestCase):
-    def _new_conf(self, settings, parking_lots=None):
-        with patch('xivo_dao.asterisk_conf_dao.find_parking_settings'), patch(
-            'xivo_dao.resources.parking_lot.dao.find_all_by'
-        ):
+    def _new_conf(self, parking_lots=None):
+        with patch('xivo_dao.resources.parking_lot.dao.find_all_by'):
             conf = ResParkingConf()
-            conf._settings = settings
             conf._parking_lots = parking_lots or []
             return conf
 
-    def test_minimal_settings(self):
-        settings = {
-            'general_options': [],
-            'parking_lots': [],
-        }
-
-        res_parking_conf = self._new_conf(settings)
+    def test_no_settings(self):
+        res_parking_conf = self._new_conf()
 
         assert_generates_config(
             res_parking_conf,
-            '''
-            [general]
-        ''',
+            '',
         )
 
-    def test_settings(self):
-        settings = {
-            'general_options': [('parkeddynamic', 'no')],
-            'parking_lots': [{'name': 'default', 'options': [('parkext', '700')]}],
-        }
-
-        res_parking_conf = self._new_conf(settings)
-
-        assert_generates_config(
-            res_parking_conf,
-            '''
-            [general]
-            parkeddynamic = no
-
-            [default]
-            parkext = 700
-        ''',
-        )
-
-    def test_settings_with_parking_lots(self):
-        settings = {'general_options': [], 'parking_lots': []}
+    def test_parking_lots(self):
         parking_lots = [
             Mock(
                 id=1,
@@ -66,13 +36,11 @@ class TestResParkingConf(unittest.TestCase):
             )
         ]
 
-        res_parking_conf = self._new_conf(settings, parking_lots)
+        res_parking_conf = self._new_conf(parking_lots)
 
         assert_generates_config(
             res_parking_conf,
             '''
-            [general]
-
             [parkinglot-1]
             parkext = 800
             context = default
@@ -92,7 +60,6 @@ class TestResParkingConf(unittest.TestCase):
         )
 
     def test_parking_lots_with_none_values(self):
-        settings = {'general_options': [], 'parking_lots': []}
         parking_lots = [
             Mock(
                 id=1,
@@ -104,13 +71,11 @@ class TestResParkingConf(unittest.TestCase):
             )
         ]
 
-        res_parking_conf = self._new_conf(settings, parking_lots)
+        res_parking_conf = self._new_conf(parking_lots)
 
         assert_generates_config(
             res_parking_conf,
             '''
-            [general]
-
             [parkinglot-1]
             parkext = 800
             context = default

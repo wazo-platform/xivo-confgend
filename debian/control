@@ -16,12 +16,8 @@ Depends:
   python3-stevedore,
   python3-twisted,
   python3-yaml,
-  rename,
   xivo-lib-python-python3,
   xivo-libdao-python3
-Provides: xivo-confgend, xivo-libconfgend
-Replaces: xivo-confgend, xivo-libconfgend
-Conflicts: xivo-confgend, xivo-libconfgend
 Suggests: wazo-confgen
 Description: Wazo telephony systems configurations generator
  Wazo is a system based on a powerful IPBX, aiming to provide an

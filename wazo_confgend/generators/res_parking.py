@@ -1,7 +1,6 @@
 # Copyright 2015-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-
 from xivo_dao.resources.parking_lot import dao as parking_lot_dao
 
 from wazo_confgend.generators.util import AsteriskFileWriter

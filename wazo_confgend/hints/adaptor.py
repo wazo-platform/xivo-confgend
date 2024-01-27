@@ -1,4 +1,4 @@
-# Copyright 2014-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -28,8 +28,13 @@ class ProgfunckeyAdaptor(HintAdaptor):
 
 
 class UserAdaptor(HintAdaptor):
+    def __init__(self, dao):
+        super().__init__(dao)
+        self._hints = self.dao.user_hints()
+
     def generate(self, context):
-        for hint in self.dao.user_hints(context):
+        hints = self._hints.get(context) or []
+        for hint in hints:
             yield (hint.extension, hint.argument)
 
 
@@ -40,46 +45,72 @@ class UserSharedHintAdaptor(HintAdaptor):
 
 
 class ConferenceAdaptor(HintAdaptor):
+    def __init__(self, dao):
+        super().__init__(dao)
+        self._hints = self.dao.conference_hints()
+
     def generate(self, context):
-        for hint in self.dao.conference_hints(context):
+        hints = self._hints.get(context) or []
+        for hint in hints:
             yield (hint.extension, f'confbridge:{hint.conference_id}')
 
 
 class ForwardAdaptor(ProgfunckeyAdaptor):
+    def __init__(self, dao):
+        super().__init__(dao)
+        self._hints = self.dao.forward_hints()
+
     def find_hints(self, context):
-        return self.dao.forward_hints(context)
+        return self._hints.get(context) or []
 
     def progfunckey_arguments(self, hint):
         return [hint.user_id, hint.extension, hint.argument]
 
 
 class GroupMemberAdaptor(ProgfunckeyAdaptor):
+    def __init__(self, dao):
+        super().__init__(dao)
+        self._hints = self.dao.groupmember_hints()
+
     def find_hints(self, context):
-        return self.dao.groupmember_hints(context)
+        return self._hints.get(context) or []
 
     def progfunckey_arguments(self, hint):
         return [hint.user_id, hint.extension, hint.argument]
 
 
 class ServiceAdaptor(ProgfunckeyAdaptor):
+    def __init__(self, dao):
+        super().__init__(dao)
+        self._hints = self.dao.service_hints()
+
     def find_hints(self, context):
-        return self.dao.service_hints(context)
+        return self._hints.get(context) or []
 
     def progfunckey_arguments(self, hint):
         return [hint.user_id, hint.extension, hint.argument]
 
 
 class AgentAdaptor(ProgfunckeyAdaptor):
+    def __init__(self, dao):
+        super().__init__(dao)
+        self._hints = self.dao.agent_hints()
+
     def find_hints(self, context):
-        return self.dao.agent_hints(context)
+        return self._hints.get(context) or []
 
     def progfunckey_arguments(self, hint):
         return [hint.user_id, hint.extension, '*' + hint.argument]
 
 
 class CustomAdaptor(HintAdaptor):
+    def __init__(self, dao):
+        super().__init__(dao)
+        self._hints = self.dao.custom_hints()
+
     def generate(self, context):
-        for hint in self.dao.custom_hints(context):
+        hints = self._hints.get(context) or []
+        for hint in hints:
             try:
                 yield (hint.extension, f'Custom:{hint.extension}')
             except UnicodeEncodeError:
@@ -88,7 +119,12 @@ class CustomAdaptor(HintAdaptor):
 
 
 class BSFilterAdaptor(HintAdaptor):
+    def __init__(self, dao):
+        super().__init__(dao)
+        self._hints = self.dao.bsfilter_hints()
+
     def generate(self, context):
-        for hint in self.dao.bsfilter_hints(context):
+        hints = self._hints.get(context) or []
+        for hint in hints:
             extension = f'{hint.extension}{hint.argument}'
             yield (extension, f'Custom:{extension}')

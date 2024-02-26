@@ -1,4 +1,4 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo_dao import asterisk_conf_dao
@@ -15,9 +15,6 @@ class QueuesConf:
     ]
 
     def generate(self, output):
-        queue_penalty_settings = asterisk_conf_dao.find_queue_penalty_settings()
-        penalties = {itm['id']: itm['name'] for itm in queue_penalty_settings}
-
         writer = AsteriskFileWriter(output)
 
         writer.write_section('general')
@@ -32,11 +29,6 @@ class QueuesConf:
                     continue
                 if v is None or (isinstance(v, str) and not v):
                     continue
-
-                if k == 'defaultrule':
-                    if int(v) not in penalties:
-                        continue
-                    v = penalties[int(v)]
 
                 writer.write_option(k, v)
 

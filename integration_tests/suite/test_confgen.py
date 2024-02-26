@@ -1,4 +1,4 @@
-# Copyright 2016-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 from __future__ import annotations
 
@@ -79,10 +79,6 @@ class TestConfgenDefaults(BaseTestCase):
 
     def test_extensions_conf(self):
         completed = self.confgen(["asterisk/extensions.conf"])
-        assert completed.returncode == 0
-
-    def test_queuerules_conf(self):
-        completed = self.confgen(["asterisk/queuerules.conf"])
         assert completed.returncode == 0
 
     def test_queueskills_conf(self):

@@ -1,4 +1,4 @@
-# Copyright 2010-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2010-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -79,29 +79,4 @@ class AsteriskFrontend:
                 for rule in r['rule'].split(';'):
                     ast_writer.write_option('rule', rule)
 
-        return output.getvalue()
-
-    def queuerules_conf(self):
-        output = StringIO()
-        ast_writer = AsteriskFileWriter(output)
-
-        rule = None
-        for m in asterisk_conf_dao.find_queue_penalties_settings():
-            if m['name'] != rule:
-                rule = m['name']
-                ast_writer.write_newline()
-                ast_writer.write_section(rule)
-
-            penalty_change = f"{m['seconds']:d}"
-
-            if m['maxp_sign'] is not None and m['maxp_value'] is not None:
-                sign = '' if m['maxp_sign'] == '=' else m['maxp_sign']
-                penalty_change = f"{penalty_change}{sign}{m['maxp_value']:d}"
-
-            if m['minp_sign'] is not None and m['minp_value'] is not None:
-                sign = '' if m['minp_sign'] == '=' else m['minp_sign']
-                penalty_change = f"{penalty_change},{sign}{m['minp_value']:d}"
-
-            ast_writer.write_object_option('penaltychange', penalty_change)
-            ast_writer.write_newline()
         return output.getvalue()

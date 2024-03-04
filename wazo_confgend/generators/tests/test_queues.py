@@ -1,4 +1,4 @@
-# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -13,9 +13,6 @@ class TestQueuesConf(unittest.TestCase):
     def setUp(self):
         self.queues_conf = QueuesConf()
 
-    @patch(
-        'xivo_dao.asterisk_conf_dao.find_queue_penalty_settings', Mock(return_value=[])
-    )
     @patch('xivo_dao.asterisk_conf_dao.find_queue_settings', Mock(return_value=[]))
     @patch(
         'xivo_dao.asterisk_conf_dao.find_queue_general_settings', Mock(return_value=[])
@@ -34,9 +31,6 @@ class TestQueuesConf(unittest.TestCase):
     @patch(
         'xivo_dao.asterisk_conf_dao.find_queue_members_settings', Mock(return_value=[])
     )
-    @patch(
-        'xivo_dao.asterisk_conf_dao.find_queue_penalty_settings', Mock(return_value=[])
-    )
     @patch('xivo_dao.asterisk_conf_dao.find_queue_settings', Mock(return_value=[]))
     @patch('xivo_dao.asterisk_conf_dao.find_queue_general_settings')
     def test_general_section(self, find_queue_general_settings):
@@ -53,9 +47,6 @@ class TestQueuesConf(unittest.TestCase):
         )
         find_queue_general_settings.assert_called_once_with()
 
-    @patch(
-        'xivo_dao.asterisk_conf_dao.find_queue_penalty_settings', Mock(return_value=[])
-    )
     @patch(
         'xivo_dao.asterisk_conf_dao.find_queue_general_settings', Mock(return_value=[])
     )

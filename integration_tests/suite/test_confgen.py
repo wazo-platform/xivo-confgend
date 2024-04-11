@@ -2,60 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from __future__ import annotations
 
-import pathlib
-import subprocess
-from collections.abc import Iterable
-
-from wazo_test_helpers import asset_launching_test_case
-
-INTERNAL_CONFGEND_PORT = 8669
-DEFAULT_CONFGEND_CLIENT_TIMEOUT = 10
-DEFAULT_TIMEOUT = 10
-
-
-def normalize_lines(line_stream: Iterable[str]):
-    for line in line_stream:
-        line = line.strip()
-        if line:
-            yield line
-
-
-def run(cmd: list[str], timeout: int = DEFAULT_TIMEOUT) -> subprocess.CompletedProcess:
-    result = subprocess.run(
-        cmd, capture_output=True, text=True, check=True, timeout=timeout
-    )
-    return result
-
-
-def read_conf_file(path):
-    with open(path) as file:
-        conf = file.readlines()
-        return list(normalize_lines(conf))
-
-
-class BaseTestCase(asset_launching_test_case.AssetLaunchingTestCase):
-    service = "confgend"
-    assets_root = pathlib.Path(__file__).parent.parent / "assets"
-    asset = "base"
-
-    @classmethod
-    def confgen(cls, args):
-        host = "127.0.0.1"
-        port = cls.service_port(INTERNAL_CONFGEND_PORT, 'confgend')
-        timeout = DEFAULT_CONFGEND_CLIENT_TIMEOUT
-        return run(
-            [
-                "wazo-confgen",
-                "--port",
-                str(port),
-                "--host",
-                host,
-                "--timeout",
-                str(timeout),
-                *args,
-            ],
-            timeout,
-        )
+from .helpers.base import BaseTestCase
+from .helpers.utils import normalize_lines, read_conf_file
 
 
 class TestConfgenDefaults(BaseTestCase):

@@ -23,7 +23,8 @@ update-db-build:
 egg-info:
 	cd .. && python3 setup.py egg_info
 
+ARGS=
 test:
-	pytest
+	pytest $(ARGS) suite/
 
 .PHONY: test-setup test test-image egg-info update-db update-db-pull update-db-build

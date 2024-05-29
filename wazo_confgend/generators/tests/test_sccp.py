@@ -1,4 +1,4 @@
-# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 from uuid import uuid4
 
 from wazo_confgend.generators.sccp import (
+    ABSOLUTE_CHANNEL_TIMEOUT,
     SccpConf,
     _SccpDeviceConf,
     _SccpGeneralSettingsConf,
@@ -41,7 +42,7 @@ class TestSccpConf(unittest.TestCase):
     def test_generate(self):
         assert_generates_config(
             self._conf,
-            '''
+            f'''
             [general]
 
             [xivo_device_tpl](!)
@@ -51,6 +52,7 @@ class TestSccpConf(unittest.TestCase):
             line = guestline
 
             [xivo_line_tpl](!)
+            setvar = TIMEOUT(absolute)={ABSOLUTE_CHANNEL_TIMEOUT}
 
             [guestline](xivo_line_tpl)
             type = line
@@ -292,9 +294,10 @@ class TestSccpLineConf(unittest.TestCase):
 
         assert_config_equal(
             self._output.getvalue(),
-            '''
+            f'''
             [xivo_line_tpl](!)
             directmedia = 0
+            setvar = TIMEOUT(absolute)={ABSOLUTE_CHANNEL_TIMEOUT}
         ''',
         )
 
@@ -307,10 +310,12 @@ class TestSccpLineConf(unittest.TestCase):
 
         assert_config_equal(
             self._output.getvalue(),
-            '''
+            f'''
             [xivo_line_tpl](!)
             disallow = all
             allow = ulaw
+            setvar = TIMEOUT(absolute)={ABSOLUTE_CHANNEL_TIMEOUT}
+
         ''',
         )
 
@@ -323,8 +328,9 @@ class TestSccpLineConf(unittest.TestCase):
 
         assert_config_equal(
             self._output.getvalue(),
-            '''
+            f'''
             [xivo_line_tpl](!)
+            setvar = TIMEOUT(absolute)={ABSOLUTE_CHANNEL_TIMEOUT}
         ''',
         )
 
@@ -337,8 +343,9 @@ class TestSccpLineConf(unittest.TestCase):
 
         assert_config_equal(
             self._output.getvalue(),
-            '''
+            f'''
             [xivo_line_tpl](!)
+            setvar = TIMEOUT(absolute)={ABSOLUTE_CHANNEL_TIMEOUT}
         ''',
         )
 

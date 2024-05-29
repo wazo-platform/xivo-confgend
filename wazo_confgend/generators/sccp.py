@@ -1,4 +1,4 @@
-# Copyright 2011-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2011-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -10,6 +10,8 @@ from wazo_confgend.generators.util import AsteriskFileWriter
 
 _GUEST_DEVICE_NAME = 'guest'
 _GUEST_LINE_NAME = 'guestline'
+# absolute timeout in seconds, limiting max call duration
+ABSOLUTE_CHANNEL_TIMEOUT = '36000'
 
 
 class SccpConf:
@@ -152,6 +154,9 @@ class _SccpLineConf:
             elif option_name == 'directmedia':
                 option_value = '0' if option_value == 'no' else '1'
             ast_writer.write_option(option_name, option_value)
+        ast_writer.write_option(
+            'setvar', f'TIMEOUT(absolute)={ABSOLUTE_CHANNEL_TIMEOUT}'
+        )
         ast_writer.write_newline()
 
     def _generate_guest_line(self, ast_writer):

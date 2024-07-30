@@ -9,6 +9,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt /usr/local/src/wazo-confgend/requirements.txt
 WORKDIR /usr/local/src/wazo-confgend
 
+# incremental==24.7.0+ is downloaded automatically by twisted install
+# but this version is incompatible with setuptools 58.1 from python:3.9-slim-bullseye
+RUN pip install incremental==17.5.0
 RUN pip install -r requirements.txt
 
 COPY setup.py /usr/local/src/wazo-confgend/

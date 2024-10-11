@@ -12,7 +12,17 @@ class ResParkingConf:
 
     def generate(self, output):
         ast_file = AsteriskFileWriter(output)
+        self._generate_default_parking_lot(ast_file)
         self._generate_parking_lots(ast_file)
+
+    def _generate_default_parking_lot(self, ast_file):
+        section = 'default'
+        options = [
+            ('context', 'wazo-disabled'),
+        ]
+
+        ast_file.write_section(section)
+        ast_file.write_options(options)
 
     def _generate_parking_lots(self, ast_file):
         for parking_lot in self._parking_lots:

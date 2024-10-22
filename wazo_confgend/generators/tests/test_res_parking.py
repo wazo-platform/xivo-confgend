@@ -21,7 +21,10 @@ class TestResParkingConf(unittest.TestCase):
 
         assert_generates_config(
             res_parking_conf,
-            '',
+            '''
+            [default]
+            context = wazo-disabled
+            ''',
         )
 
     def test_parking_lots(self):
@@ -41,6 +44,9 @@ class TestResParkingConf(unittest.TestCase):
         assert_generates_config(
             res_parking_conf,
             '''
+            [default]
+            context = wazo-disabled
+
             [parkinglot-1]
             parkext = 800
             context = default
@@ -76,6 +82,9 @@ class TestResParkingConf(unittest.TestCase):
         assert_generates_config(
             res_parking_conf,
             '''
+            [default]
+            context = wazo-disabled
+
             [parkinglot-1]
             parkext = 800
             context = default

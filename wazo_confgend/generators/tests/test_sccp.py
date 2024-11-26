@@ -365,6 +365,7 @@ class TestSccpLineConf(unittest.TestCase):
                 'context': 'a_context',
                 'tenant_uuid': 'tenant-uuid',
                 'enable_online_recording': 1,
+                'simultcalls': 5,
             }
         ]
 
@@ -387,6 +388,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             setvar = WAZO_LINE_ID=13423
+            setvar = WAZO_CALLER_SIMULTCALLS=5
             setvar = DYNAMIC_FEATURES=togglerecord
             language = fr_FR
             context = a_context
@@ -409,6 +411,7 @@ class TestSccpLineConf(unittest.TestCase):
                 'context': 'a_context',
                 'tenant_uuid': 'tenant-uuid',
                 'enable_online_recording': 0,
+                'simultcalls': 5,
             }
         ]
 
@@ -431,6 +434,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             setvar = WAZO_LINE_ID=13423
+            setvar = WAZO_CALLER_SIMULTCALLS=5
             context = a_context
         ''',
         )
@@ -452,6 +456,7 @@ class TestSccpLineConf(unittest.TestCase):
                 'uuid': uuid,
                 'tenant_uuid': 'tenant-uuid',
                 'enable_online_recording': 0,
+                'simultcalls': 5,
             }
         ]
 
@@ -474,6 +479,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             setvar = WAZO_LINE_ID=13423
+            setvar = WAZO_CALLER_SIMULTCALLS=5
             context = a_context
             allow = g729,ulaw
         ''',
@@ -497,6 +503,7 @@ class TestSccpLineConf(unittest.TestCase):
                 'disallow': 'all',
                 'tenant_uuid': 'tenant-uuid',
                 'enable_online_recording': 0,
+                'simultcalls': 5,
             }
         ]
 
@@ -519,6 +526,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             setvar = WAZO_LINE_ID=13423
+            setvar = WAZO_CALLER_SIMULTCALLS=5
             context = a_context
             disallow = all
             allow = g729,ulaw
@@ -543,6 +551,7 @@ class TestSccpLineConf(unittest.TestCase):
                 'pickupgroup': [3, 4],
                 'tenant_uuid': 'tenant-uuid',
                 'enable_online_recording': 0,
+                'simultcalls': 5,
             }
         ]
 
@@ -565,6 +574,7 @@ class TestSccpLineConf(unittest.TestCase):
             setvar = TRANSFER_CONTEXT=a_context
             setvar = WAZO_CHANNEL_DIRECTION=from-wazo
             setvar = WAZO_LINE_ID=13423
+            setvar = WAZO_CALLER_SIMULTCALLS=5
             context = a_context
             namedcallgroup = 1,2,3,4
             namedpickupgroup = 3,4

@@ -192,6 +192,10 @@ class _SccpLineConf:
             ast_writer.write_option('setvar', f"TRANSFER_CONTEXT={item['context']}")
             ast_writer.write_option('setvar', 'WAZO_CHANNEL_DIRECTION=from-wazo')
             ast_writer.write_option('setvar', f"WAZO_LINE_ID={item['id']}")
+            ast_writer.write_option(
+                'setvar', f"WAZO_CALLER_SIMULTCALLS={item['simultcalls']}"
+            )
+
             if item['enable_online_recording']:
                 ast_writer.write_option('setvar', 'DYNAMIC_FEATURES=togglerecord')
             if item['language']:

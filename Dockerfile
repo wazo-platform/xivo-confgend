@@ -14,6 +14,7 @@ WORKDIR /usr/local/src/wazo-confgend
 RUN pip install incremental==17.5.0
 RUN pip install -r requirements.txt
 
+COPY MANIFEST.in /usr/local/src/wazo-confgend/
 COPY setup.py /usr/local/src/wazo-confgend/
 COPY bin /usr/local/src/wazo-confgend/bin
 COPY wazo_confgend /usr/local/src/wazo-confgend/wazo_confgend
